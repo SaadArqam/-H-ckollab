@@ -72,7 +72,7 @@ Central space for updates, tasks, and filesr Team Collaboration (Planned)
 
 ```bash
 git clone https://github.com/nst-sdc/-H-ckollab.git
-cd hackollab
+cd  -H-ckollab 
 ```
 2. Install Frontend Dependencies
 
