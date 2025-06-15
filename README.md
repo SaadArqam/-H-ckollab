@@ -85,6 +85,16 @@ npm install
 cd ../backend
 npm install
 ```
+4. Configure Environment Variables
+Each contributor must create their own .env file inside the backend/ directory (do not commit this file).
+```bash
+```bash
+DATABASE_URL="postgresql://<username>:<password>@localhost:5432/hackollab"
+PORT=4000
+```
+Replace <username> and <password> with your local PostgreSQL credentials.
+```
+➤ Create .env:
 🏃‍♂️ Running the Application
 Frontend
 ```bash
