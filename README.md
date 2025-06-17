@@ -51,7 +51,7 @@ Invite users to collaborate directly from profiles
 Connect with teammates after joining a project
 
 🧭 Project Dashboard (Planned)
-Central space for updates, tasks, and filesr Team Collaboration (Planned)
+Central space for updates, tasks, and files
 
 ---
 
@@ -62,71 +62,121 @@ Central space for updates, tasks, and filesr Team Collaboration (Planned)
 - Node.js (v16 or higher)
 - npm or yarn
 - PostgreSQL database (local or hosted)
-- Clerk project API keys (for authentication)
+- Clerk account and API keys
+- Git
 
----
+### 🔄 Installation
 
-## 🔄 Installation
-
-### 1. Clone the repository
-
+1. **Clone the repository**
 ```bash
 git clone https://github.com/nst-sdc/-H-ckollab.git
-cd  -H-ckollab 
+cd -H-ckollab
 ```
-2. Install Frontend Dependencies
 
+2. **Set up the Backend**
 ```bash
-cd frontend
+cd backend
 npm install
 ```
-3. Install Backend Dependencies
-```bash
-cd ../backend
-npm install
-```
-4. Configure Environment Variables
-Each contributor must create their own .env file inside the backend/ directory (do not commit this file).
-```bash
-```bash
-DATABASE_URL="postgresql://<username>:<password>@localhost:5432/hackollab"
+
+Create a `.env` file in the backend directory with the following variables:
+```env
+# Server Configuration
 PORT=4000
+NODE_ENV=development
+
+# Database Configuration
+DATABASE_URL="postgresql://username:password@localhost:5432/hackollab"
+
+# Clerk Authentication
+CLERK_SECRET_KEY=your_clerk_secret_key
+CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+
+# CORS Configuration
+FRONTEND_URL=http://localhost:3000
 ```
-Replace <username> and <password> with your local PostgreSQL credentials.
+
+3. **Set up the Frontend**
+```bash
+cd ../frontend
+npm install
 ```
-➤ Create .env:
-🏃‍♂️ Running the Application
-Frontend
+
+Create a `.env` file in the frontend directory with the following variables:
+```env
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
+
+4. **Database Setup**
+- Create a PostgreSQL database named `hackollab`
+- Update the `DATABASE_URL` in your backend `.env` file with your database credentials
+- Run Prisma migrations:
+```bash
+cd backend
+npx prisma migrate dev
+```
+
+5. **Running the Application**
+
+Start the backend server:
+```bash
+cd backend
+npm run dev
+```
+
+In a new terminal, start the frontend:
 ```bash
 cd frontend
 npm run start
 ```
-Backend
+
+The application should now be running at:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4000
+
+### 🔑 Getting Clerk API Keys
+
+1. Sign up for a Clerk account at https://clerk.dev
+2. Create a new application
+3. Go to API Keys in your Clerk dashboard
+4. Copy the `Publishable Key` and `Secret Key`
+5. Add these keys to your respective `.env` files
+
+### 🗄️ Database Setup
+
+1. Install PostgreSQL locally or use a cloud service like Neon
+2. Create a new database named `hackollab`
+3. Update the `DATABASE_URL` in your backend `.env` file
+4. Run Prisma migrations to set up the database schema
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch:
 ```bash
-cd backend
-# For development with auto-restart:
-npm run dev
-
-# For production:
-npm start
-
+git checkout -b feature/amazing-feature
 ```
-
-🤝 Contributing
-Fork the repo
-
-Create your feature branch
-```bash
-git checkout -b  yourbranchname
-```
-Commit your changes
+3. Commit your changes:
 ```bash
 git commit -m 'Add some amazing feature'
 ```
-Push to the branch
+4. Push to the branch:
 ```bash
-git push origin yourbranchname
+git push origin feature/amazing-feature
 ```
-Open a Pull Request
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 
