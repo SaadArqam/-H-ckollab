@@ -7,9 +7,11 @@ const clerkFrontendApi = "your-clerk-frontend-api"; // Replace with your actual 
 function App() {
   return (
     <ClerkProvider frontendApi={clerkFrontendApi}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <UserProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </UserProvider>
     </ClerkProvider>
   );
 }
