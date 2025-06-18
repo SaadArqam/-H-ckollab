@@ -1,3 +1,376 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  * {
+    border-color: theme('colors.secondary.200');
+  }
+  
+  :root {
+    --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Glass morphism effects */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Modern card styles */
+  .card-modern {
+    @apply bg-white rounded-2xl shadow-soft border border-secondary-100 hover:shadow-medium transition-all duration-300;
+  }
+  
+  .card-interactive {
+    @apply card-modern hover:scale-[1.02] hover:-translate-y-1 cursor-pointer;
+  }
+  
+  .card-glow {
+    @apply card-modern hover:shadow-glow border-primary-200;
+  }
+
+  .card-premium {
+    @apply bg-gradient-to-br from-white via-primary-50/50 to-accent-50/50 rounded-3xl shadow-ultra border border-white/60 hover:shadow-glow-lg backdrop-blur-sm;
+  }
+
+  .card-neumorphism {
+    @apply bg-secondary-50 rounded-2xl shadow-neumorphism border-0;
+  }
+
+  .card-floating {
+    @apply card-modern hover:shadow-ultra hover:scale-[1.03] transform-gpu;
+  }
+  
+  /* Button styles */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 transform hover:scale-105 transition-all duration-200 shadow-soft hover:shadow-medium;
+  }
+
+  .btn-premium {
+    @apply bg-gradient-to-r from-primary-600 via-accent-500 to-primary-600 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white px-8 py-4 rounded-2xl font-bold transform hover:scale-105 transition-all duration-300 shadow-glow hover:shadow-glow-lg;
+  }
+
+  .btn-cosmic {
+    @apply bg-aurora bg-size-300 bg-pos-0 hover:bg-pos-100 text-white px-6 py-3 rounded-xl font-semibold transform hover:scale-105 transition-all duration-500 shadow-medium hover:shadow-ultra;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-primary-700 border-2 border-primary-200 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 hover:border-primary-300 transform hover:scale-105 transition-all duration-200 shadow-soft;
+  }
+  
+  .btn-ghost {
+    @apply text-primary-700 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 transform hover:scale-105 transition-all duration-200;
+  }
+
+  .btn-ghost-accent {
+    @apply text-accent-700 px-6 py-3 rounded-xl font-semibold hover:bg-accent-50 transform hover:scale-105 transition-all duration-200;
+  }
+  
+  .btn-icon {
+    @apply p-3 rounded-xl hover:bg-secondary-50 transition-all duration-200 hover:scale-110;
+  }
+
+  .btn-floating {
+    @apply fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-primary-500 to-accent-500 text-white rounded-full shadow-ultra hover:shadow-glow-lg transform hover:scale-110 transition-all duration-300 z-50;
+  }
+  
+  /* Input styles */
+  .input-modern {
+    @apply w-full px-4 py-3 rounded-xl border border-secondary-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white placeholder-secondary-400 transition-all duration-200;
+  }
+  
+  .input-search {
+    @apply input-modern pl-12 bg-secondary-50 border-secondary-200 focus:bg-white;
+  }
+
+  .input-premium {
+    @apply w-full px-6 py-4 rounded-2xl border-0 bg-white shadow-soft focus:shadow-medium focus:ring-2 focus:ring-primary-400 placeholder-secondary-400 transition-all duration-300;
+  }
+
+  .input-glass {
+    @apply w-full px-4 py-3 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 focus:bg-white/30 focus:border-white/50 placeholder-white/70 text-white transition-all duration-200;
+  }
+  
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .badge-primary {
+    @apply badge bg-primary-100 text-primary-800;
+  }
+  
+  .badge-secondary {
+    @apply badge bg-secondary-100 text-secondary-800;
+  }
+  
+  .badge-success {
+    @apply badge bg-success-100 text-success-800;
+  }
+
+  .badge-gradient {
+    @apply badge bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-soft;
+  }
+
+  .badge-glow {
+    @apply badge bg-primary-500 text-white shadow-glow;
+  }
+
+  .badge-animated {
+    @apply badge bg-gradient-to-r from-primary-400 to-accent-400 text-white animate-glow-pulse;
+  }
+
+  .badge-premium {
+    @apply badge bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 text-white font-bold shadow-medium;
+  }
+  
+  .badge-warning {
+    @apply badge bg-warning-100 text-warning-800;
+  }
+  
+  .badge-error {
+    @apply badge bg-error-100 text-error-800;
+  }
+  
+  .badge-accent {
+    @apply badge bg-accent-100 text-accent-800;
+  }
+
+  /* Navigation styles */
+  .nav-modern {
+    @apply bg-white/80 backdrop-blur-lg border-b border-secondary-200/50 sticky top-0 z-50;
+  }
+
+  .nav-glass {
+    @apply bg-white/10 backdrop-blur-2xl border-b border-white/20 sticky top-0 z-50;
+  }
+
+  /* Layout utilities */
+  .container-modern {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-wide {
+    @apply max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  /* Text utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-cosmic {
+    @apply bg-aurora bg-clip-text text-transparent;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  }
+
+  /* Animation utilities */
+  .animate-stagger {
+    animation-delay: var(--stagger-delay, 0s);
+  }
+
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease-out;
+  }
+
+  .animate-on-scroll.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Loading states */
+  .skeleton {
+    @apply bg-gradient-to-r from-secondary-200 via-secondary-100 to-secondary-200 bg-size-200 animate-shimmer rounded;
+  }
+
+  .skeleton-text {
+    @apply skeleton h-4 mb-2;
+  }
+
+  .skeleton-circle {
+    @apply skeleton w-12 h-12 rounded-full;
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    @apply transform transition-all duration-300 hover:-translate-y-2 hover:shadow-medium;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-glow;
+  }
+
+  .hover-scale {
+    @apply transform transition-transform duration-200 hover:scale-105;
+  }
+
+  /* Status indicators */
+  .status-online {
+    @apply relative;
+  }
+
+  .status-online::after {
+    content: '';
+    @apply absolute -top-1 -right-1 w-4 h-4 bg-success-500 border-2 border-white rounded-full;
+  }
+
+  .status-busy {
+    @apply relative;
+  }
+
+  .status-busy::after {
+    content: '';
+    @apply absolute -top-1 -right-1 w-4 h-4 bg-error-500 border-2 border-white rounded-full;
+  }
+
+  .status-away {
+    @apply relative;
+  }
+
+  .status-away::after {
+    content: '';
+    @apply absolute -top-1 -right-1 w-4 h-4 bg-warning-500 border-2 border-white rounded-full;
+  }
+
+  /* Progress indicators */
+  .progress-bar {
+    @apply w-full h-2 bg-secondary-200 rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-primary-500 to-accent-500 transition-all duration-500;
+  }
+
+  /* Custom scrollbar */
+  .scrollbar-modern {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.secondary.300') theme('colors.secondary.100');
+  }
+
+  .scrollbar-modern::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-track {
+    background: theme('colors.secondary.100');
+    border-radius: 3px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-thumb {
+    background: theme('colors.secondary.300');
+    border-radius: 3px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.secondary.400');
+  }
+
+  /* Backdrop effects */
+  .backdrop-premium {
+    @apply backdrop-blur-2xl backdrop-brightness-110 backdrop-saturate-150;
+  }
+
+  .backdrop-strong {
+    @apply backdrop-blur-3xl backdrop-brightness-75;
+  }
+}
+
+/* Utility layer enhancements */
+@layer utilities {
+  .bg-size-200 {
+    background-size: 200% 200%;
+  }
+
+  .bg-size-300 {
+    background-size: 300% 300%;
+  }
+
+  .bg-pos-0 {
+    background-position: 0% 0%;
+  }
+
+  .bg-pos-100 {
+    background-position: 100% 100%;
+  }
+
+  .transform-gpu {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .rotate-y-12 {
+    transform: rotateY(12deg);
+  }
+
+  .rotate-y-minus-12 {
+    transform: rotateY(-12deg);
+  }
+
+  /* Animation delays for staggered animations */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-600 { animation-delay: 600ms; }
+  .delay-700 { animation-delay: 700ms; }
+  .delay-800 { animation-delay: 800ms; }
+}
