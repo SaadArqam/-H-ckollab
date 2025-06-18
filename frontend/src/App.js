@@ -12,7 +12,6 @@ if (!clerkPublishableKey) {
 
 function App() {
   return (
-<<<<<<< HEAD
     <ClerkProvider publishableKey={clerkPublishableKey}>
       <AppProvider>
         <BrowserRouter>
@@ -21,14 +20,6 @@ function App() {
           </Layout>
         </BrowserRouter>
       </AppProvider>
-=======
-    <ClerkProvider frontendApi={clerkFrontendApi}>
-      <UserProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </UserProvider>
->>>>>>> b0109896b291d68809db79810d08b7f1fcc49757
     </ClerkProvider>
   );
 }
