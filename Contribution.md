@@ -70,14 +70,5 @@ You can upload these to GitHub directly or use tools like [Loom](https://www.loo
 
 ---
 
-### 🧑‍💻 Maintainer Contact
-
-If you have any questions or need guidance, feel free to reach out:
-
-* **GitHub**: [CodeMaverick-143](https://github.com/CodeMaverick-143)
-* **Discord**: `codemaverick_143`
-
----
-
 **Let’s build something awesome together! 🚀**
 
