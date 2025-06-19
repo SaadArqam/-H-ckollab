@@ -1,25 +1,17 @@
 import { ClerkProvider } from "@clerk/clerk-react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./AppRoutes";
-import Layout from "./components/Layout";
-import { AppProvider } from "./contexts/AppContext";
 
-const clerkPublishableKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-
-if (!clerkPublishableKey) {
-  throw new Error("Missing Clerk Publishable Key. Please add REACT_APP_CLERK_PUBLISHABLE_KEY to your .env.local file");
-}
+const clerkFrontendApi = "your-clerk-frontend-api"; // Replace with your actual Clerk frontend API
 
 function App() {
   return (
-    <ClerkProvider publishableKey={clerkPublishableKey}>
-      <AppProvider>
+    <ClerkProvider frontendApi={clerkFrontendApi}>
+      <UserProvider>
         <BrowserRouter>
-          <Layout>
-            <AppRoutes />
-          </Layout>
+          <AppRoutes />
         </BrowserRouter>
-      </AppProvider>
+      </UserProvider>
     </ClerkProvider>
   );
 }

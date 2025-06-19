@@ -1,180 +1,53 @@
-# H@ckollab Frontend
+# Getting Started with Create React App
 
-A modern React-based frontend for the H@ckollab developer collaboration platform.
-
-## Features
-
-- **Developer Discovery**: Browse and filter developers by skills, experience, and availability
-- **Project Management**: Create, view, and manage collaborative projects
-- **User Profiles**: Detailed developer profiles with skills, portfolio links, and project history
-- **Authentication**: Secure authentication powered by Clerk
-- **Responsive Design**: Beautiful, mobile-first design with Tailwind CSS
-- **Real-time Features**: Ready for real-time updates and notifications
-
-## Tech Stack
-
-- **React 19** - Modern React with hooks and context
-- **React Router** - Client-side routing
-- **Clerk** - Authentication and user management
-- **Tailwind CSS** - Utility-first CSS framework
-- **Context API** - Global state management
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 16.x or higher
-- npm or yarn
-
-### Installation
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Set up environment variables:
-Create a `.env.local` file in the frontend directory:
-```env
-REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
-REACT_APP_API_URL=http://localhost:3001/api
-REACT_APP_USE_MOCK_DATA=true
-```
-
-3. Start the development server:
-```bash
-npm start
-```
-
-The application will open at [http://localhost:3000](http://localhost:3000).
-
-## Environment Variables
-
-- `REACT_APP_CLERK_PUBLISHABLE_KEY` - Your Clerk publishable key for authentication
-- `REACT_APP_API_URL` - Backend API URL (default: http://localhost:3001/api)
-- `REACT_APP_USE_MOCK_DATA` - Use mock data for development (default: true)
-
-## Project Structure
-
-```
-src/
-├── components/          # Reusable UI components
-│   ├── Header.js       # Navigation header
-│   ├── Footer.js       # Site footer
-│   ├── Layout.js       # Page layout wrapper
-│   ├── ProjectCard.js  # Project preview card
-│   ├── DeveloperCard.js # Developer preview card
-│   ├── SearchFilters.js # Filter component for search
-│   ├── SkillList.js    # Reusable skill display
-│   └── ...
-├── pages/              # Page components
-│   ├── HomePage.js     # Landing/home page
-│   ├── ExplorePage.js  # Developer discovery
-│   ├── ProfilePage.js  # User profile view
-│   ├── ProjectDetailsPage.js # Project details
-│   ├── CreateProjectPage.js  # Project creation
-│   └── ...
-├── contexts/           # React contexts
-│   └── AppContext.jsx  # Global app state
-├── data/              # Sample/mock data
-│   └── sampleData.js  # Development data
-├── App.js             # Main app component
-├── AppRoutes.jsx      # Route definitions
-└── index.js           # Entry point
-```
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
 
+In the project directory, you can run:
+
 ### `npm start`
-Runs the app in development mode at [http://localhost:3000](http://localhost:3000).
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
 ### `npm test`
-Launches the test runner in interactive watch mode.
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 ### `npm run build`
-Builds the app for production to the `build` folder.
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 ### `npm run eject`
+
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-## Key Components
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-### AppContext
-Global state management for:
-- User authentication status
-- Projects and developers data
-- API call helpers
-- Loading and error states
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-### Page Components
-- **HomePage**: Landing page with featured projects and call-to-action
-- **ExplorePage**: Developer discovery with advanced filtering
-- **ProfilePage**: Detailed user profiles with projects and skills
-- **ProjectDetailsPage**: Full project information with team details
-- **CreateProjectPage**: Project creation form with validation
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-### Reusable Components
-- **ProjectCard**: Displays project summary in grid layouts
-- **DeveloperCard**: Shows developer information in search results
-- **SearchFilters**: Advanced filtering for developer search
-- **SkillList**: Consistent skill/technology display
-- **ProtectedRoute**: Authentication-required route wrapper
+## Learn More
 
-## Development Mode
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-When `REACT_APP_USE_MOCK_DATA=true`, the app uses sample data for development:
-- 5 sample developers with various skills and experience levels
-- 6 sample projects in different stages
-- Mock API functions with simulated network delays
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-## Authentication
+### Code Splitting
 
-Authentication is handled by Clerk with:
-- Sign up/Sign in pages
-- Protected routes
-- User profile management
-- Session persistence
-
-## Styling
-
-The project uses Tailwind CSS for styling with:
-- Responsive design patterns
-- Custom color scheme (primary: blue-600)
-- Consistent spacing and typography
-- Custom utilities for line clamping
-
-## API Integration
-
-The frontend is designed to work with a REST API. Key endpoints expected:
-
-- `GET /api/users` - Fetch developers with optional filters
-- `GET /api/users/:id` - Fetch specific developer
-- `GET /api/projects` - Fetch projects with optional filters
-- `GET /api/projects/:id` - Fetch specific project
-- `POST /api/projects` - Create new project
-- `POST /api/invitations` - Send project invitation
-
-## Deployment
-
-1. Build the project:
-```bash
-npm run build
-```
-
-2. Deploy the `build` folder to your hosting platform
-
-3. Update environment variables for production:
-- Set your production Clerk publishable key
-- Set your production API URL
-- Set `REACT_APP_USE_MOCK_DATA=false`
-
-## Contributing
-
-1. Follow the existing code structure and naming conventions
-2. Use functional components with hooks
-3. Implement responsive design for all new components
-4. Add proper error handling and loading states
-5. Write descriptive commit messages
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
 ### Analyzing the Bundle Size
 
