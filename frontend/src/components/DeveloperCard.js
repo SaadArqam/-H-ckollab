@@ -7,7 +7,6 @@ const DeveloperCard = ({ developer }) => {
     id,
     firstName,
     lastName,
-    email,
     imageUrl,
     bio,
     skills = [],
