@@ -1,6 +1,6 @@
 # H@ckollab
 
-A modern, professional full-stack collaboration platform that empowers developers to effortlessly find and team up with ideal collaborators for hackathons and project-based learning. Built with React for the frontend and Node.js/Express with Prisma and SQLite for the backend.
+A full-stack collaboration platform that empowers students to effortlessly find and team up with ideal collaborators for hackathons and project-based learning. Built with React for the frontend and Node.js/Express with PostgreSQL for the backend.
 
 ---
 
@@ -17,7 +17,7 @@ A modern, professional full-stack collaboration platform that empowers developer
 - Node.js
 - Express.js
 - Prisma ORM
-- SQLite (Development) / PostgreSQL (Production)
+- PostgreSQL
 - Dotenv (Environment management)
 - CORS & JSON Middleware
 
@@ -25,111 +25,8 @@ A modern, professional full-stack collaboration platform that empowers developer
 - Git + GitHub (Version Control)
 - Vercel (Frontend Hosting)
 - Render / Railway (Backend Hosting)
+- PostgreSQL via Neon or Local DB
 - Prisma Studio (DB Viewer)
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-- Git
-
-### 1. Clone and Install
-
-```bash
-git clone https://github.com/your-username/h-ckollab.git
-cd h-ckollab
-
-# Install backend dependencies
-cd backend
-npm install
-
-# Install frontend dependencies
-cd ../frontend
-npm install
-```
-
-### 2. Environment Setup
-
-#### Backend Environment
-```bash
-cd backend
-cp .env.example .env
-```
-
-Edit `backend/.env` with your values:
-```env
-# Database
-DATABASE_URL="file:./dev.db"
-
-# Server
-PORT=4000
-
-# Clerk Authentication (Get from https://dashboard.clerk.com/)
-CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key_here"
-CLERK_SECRET_KEY="your_clerk_secret_key_here"
-
-# JWT Secret (generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
-JWT_SECRET="your_secure_jwt_secret_here"
-
-# Node Environment
-NODE_ENV="development"
-```
-
-#### Frontend Environment
-```bash
-cd frontend
-cp .env.example .env.local
-```
-
-Edit `frontend/.env.local` with your values:
-```env
-# Clerk Authentication (Get from https://dashboard.clerk.com/)
-REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
-
-# API Configuration
-REACT_APP_API_URL=http://localhost:4000/api
-
-# Development Settings
-REACT_APP_USE_MOCK_DATA=false
-REACT_APP_USE_DEV_AUTH=true
-```
-
-### 3. Database Setup
-
-```bash
-cd backend
-
-# Generate Prisma client
-npx prisma generate
-
-# Run database migrations
-npx prisma migrate dev --name init
-
-# Seed the database with sample data
-npm run seed
-```
-
-### 4. Start Development Servers
-
-#### Terminal 1 - Backend
-```bash
-cd backend
-npm start
-```
-
-#### Terminal 2 - Frontend
-```bash
-cd frontend
-npm start
-```
-
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:4000/api
-- Backend Health: http://localhost:4000/health
 
 ---
 
