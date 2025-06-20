@@ -1,14 +1,23 @@
-import { Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import SignInPage from "./pages/SignInPage";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-function AppRoutes() {
+// Import pages
+import Landing from "./pages/Landing";
+import Explore from "./pages/Explore";
+import PostProject from "./pages/PostProject";
+import Messages from "./pages/Messages";
+import Profile from "./pages/Profile";
+
+export default function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/sign-in" element={<SignInPage />} />
-    </Routes>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/post-project" element={<PostProject />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </Router>
   );
 }
 
-export default AppRoutes;
