@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@clerk/clerk-react": "^5.32.0",
     "react-spinners": "^0.17.0"
   }
 }

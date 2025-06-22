@@ -2,16 +2,16 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./AppRoutes";
 
-const clerkFrontendApi = "your-clerk-frontend-api"; // Replace with your actual Clerk frontend API
+const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+if (!PUBLISHABLE_KEY) throw new Error ("clerk key required ")
+console.log("Publishable Key:", PUBLISHABLE_KEY);
 
 function App() {
   return (
-    <ClerkProvider frontendApi={clerkFrontendApi}>
-      <UserProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </UserProvider>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </ClerkProvider>
   );
 }

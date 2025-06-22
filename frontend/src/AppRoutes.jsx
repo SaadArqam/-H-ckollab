@@ -1,28 +1,7 @@
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 
-// // Import pages
-// import Landing from "./pages/Landing";
-// import Explore from "./pages/Explore";
-// import PostProject from "./pages/PostProject";
-// import Messages from "./pages/Messages";
-// import Profile from "./pages/Profile";
-// import Layout from "./layout/Layout";
-
-// export default function AppRoutes() {
-//   return (
-//     <Router>
-//       <Routes>
-//         <Route path="/" element={<Landing />} />
-//         <Route path="/explore" element={<Explore />} />
-//         <Route path="/post-project" element={<PostProject />} />
-//         <Route path="/messages" element={<Messages />} />
-//         <Route path="/profile" element={<Profile />} />
-//       </Routes>
-//     </Router>
-//   );
-// }
-
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// Layout
 import Layout from "./layout/Layout";
 
 // Pages
@@ -32,51 +11,23 @@ import PostProject from "./pages/PostProject";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 
+// Auth Pages
+import SignInPage from "./components/SignIn";
+import SignUpPage from "./components/SignUp";
+
 export default function AppRoutes() {
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <Landing />
-            </Layout>
-          }
-        />
-        <Route
-          path="/explore"
-          element={
-            <Layout>
-              <Explore />
-            </Layout>
-          }
-        />
-        <Route
-          path="/post-project"
-          element={
-            <Layout>
-              <PostProject />
-            </Layout>
-          }
-        />
-        <Route
-          path="/messages"
-          element={
-            <Layout>
-              <Messages />
-            </Layout>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <Layout>
-              <Profile />
-            </Layout>
-          }
-        />
-      </Routes>
-    </Router>
+    <Routes>
+      {/* Auth Routes (outside layout) */}
+      <Route path="/sign-in" element={<SignInPage />} />
+      <Route path="/sign-up" element={<SignUpPage />} />
+
+      {/* App Routes (wrapped with Layout) */}
+      <Route path="/" element={<Layout><Landing /></Layout>} />
+      <Route path="/explore" element={<Layout><Explore /></Layout>} />
+      <Route path="/post-project" element={<Layout><PostProject /></Layout>} />
+      <Route path="/messages" element={<Layout><Messages /></Layout>} />
+      <Route path="/profile" element={<Layout><Profile /></Layout>} />
+    </Routes>
   );
 }
