@@ -10,6 +10,7 @@ import Explore from "./pages/Explore";
 import PostProject from "./pages/PostProject";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
+import CreateProfile from "./pages/CreateProfile";
 
 // Auth Pages
 import SignInPage from "./components/SignIn";
@@ -28,6 +29,7 @@ export default function AppRoutes() {
       <Route path="/post-project" element={<Layout><PostProject /></Layout>} />
       <Route path="/messages" element={<Layout><Messages /></Layout>} />
       <Route path="/profile" element={<Layout><Profile /></Layout>} />
+      <Route path="/create-profile" element={<Layout><CreateProfile /></Layout>} />
     </Routes>
   );
 }
