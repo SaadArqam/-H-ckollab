@@ -7,10 +7,11 @@ import Layout from "./layout/Layout";
 // Pages
 import Landing from "./pages/Landing";
 import Explore from "./pages/Explore";
-import PostProject from "./pages/PostProject";
+// import PostProject from "./pages/PostProject";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import CreateProfile from "./pages/CreateProfile";
+import PostProjectPage from "./pages/PostProjectPage";
 
 // Auth Pages
 import SignInPage from "./components/SignIn";
@@ -26,10 +27,11 @@ export default function AppRoutes() {
       {/* App Routes (wrapped with Layout) */}
       <Route path="/" element={<Layout><Landing /></Layout>} />
       <Route path="/explore" element={<Layout><Explore /></Layout>} />
-      <Route path="/post-project" element={<Layout><PostProject /></Layout>} />
+      {/* <Route path="/post-project" element={<Layout><PostProject /></Layout>} /> */}
       <Route path="/messages" element={<Layout><Messages /></Layout>} />
       <Route path="/profile" element={<Layout><Profile /></Layout>} />
       <Route path="/create-profile" element={<Layout><CreateProfile /></Layout>} />
+      <Route path="/post-project" element={<PostProjectPage />} />
     </Routes>
   );
 }
