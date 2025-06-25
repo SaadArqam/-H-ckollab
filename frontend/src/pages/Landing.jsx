@@ -5,8 +5,11 @@
 
 import React from 'react';
 import { ArrowRight, Users, Target, FolderOpen, MessageSquare, Github, Star } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Beta Badge */}
@@ -149,7 +152,11 @@ export default function Landing() {
           Join thousands of developers already collaborating on H@ckollab.
         </p>
         
-        <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-6 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center gap-3 mx-auto text-xl">
+        {/* Redirect button updated here */}
+        <button
+          onClick={() => navigate("/create-profile")}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-6 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center gap-3 mx-auto text-xl"
+        >
           Create Your Profile <ArrowRight size={24} />
         </button>
       </div>
