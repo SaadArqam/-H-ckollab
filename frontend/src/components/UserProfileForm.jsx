@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
 const UserProfileForm = () => {
+  const navigate = useNavigate();
+  const { saveProfile, loading, profileData } = useAppContext();
+
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
@@ -16,6 +21,19 @@ const UserProfileForm = () => {
     otherLinks: "",
     projects: [{ title: "", tech: "", link: "" }],
   });
+
+  // Pre-populate form with existing data if available
+  useEffect(() => {
+    if (profileData) {
+      setFormData({
+        ...profileData,
+        projects:
+          profileData.projects && profileData.projects.length > 0
+            ? profileData.projects
+            : [{ title: "", tech: "", link: "" }],
+      });
+    }
+  }, [profileData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,8 +55,26 @@ const UserProfileForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted:", formData);
-    // Add API integration here
+
+    // Filter out empty projects
+    const filteredProjects = formData.projects.filter(
+      (project) =>
+        project.title.trim() !== "" ||
+        project.tech.trim() !== "" ||
+        project.link.trim() !== ""
+    );
+
+    const profileData = {
+      ...formData,
+      projects: filteredProjects,
+    };
+
+    saveProfile(profileData);
+
+    // Redirect to profile page after saving
+    setTimeout(() => {
+      navigate("/profile");
+    }, 1000);
   };
 
   const inputClass =
@@ -284,9 +320,21 @@ const UserProfileForm = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg hover:opacity-90"
+            disabled={loading}
+            className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg transition-all duration-200 ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+            }`}
           >
-            Create Profile
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                {profileData ? "Updating Profile..." : "Creating Profile..."}
+              </div>
+            ) : profileData ? (
+              "Update Profile"
+            ) : (
+              "Create Profile"
+            )}
           </button>
         </form>
       </div>

@@ -7,6 +7,7 @@ A full-stack collaboration platform that empowers students to effortlessly find 
 ## 🔧 Tech Stack
 
 **Frontend**
+
 - React.js
 - React Router DOM
 - Tailwind CSS
@@ -14,6 +15,7 @@ A full-stack collaboration platform that empowers students to effortlessly find 
 - React Context (Global State)
 
 **Backend**
+
 - Node.js
 - Express.js
 - Prisma ORM
@@ -22,6 +24,7 @@ A full-stack collaboration platform that empowers students to effortlessly find 
 - CORS & JSON Middleware
 
 **Tools**
+
 - Git + GitHub (Version Control)
 - Vercel (Frontend Hosting)
 - Render / Railway (Backend Hosting)
@@ -53,6 +56,33 @@ Connect with teammates after joining a project
 🧭 Project Dashboard (Planned)
 Central space for updates, tasks, and files
 
+## Features
+
+### Profile Management
+
+- **Create Profile**: Users can create detailed profiles with personal information, skills, and projects
+- **Edit Profile**: Existing profiles can be updated with new information
+- **Profile Display**: Clean, responsive profile page showing all user information
+- **Local Storage**: Profile data is stored locally using localStorage for persistence
+
+#### Profile Features Include:
+
+- **Basic Information**: Name, bio, availability status
+- **Academic Info**: Year, branch/stream
+- **Technical Skills**: Frontend, backend, database, and custom skills displayed as tags
+- **Concepts & Interests**: Areas of interest and expertise
+- **Social Links**: GitHub, portfolio, LinkedIn links
+- **Featured Projects**: Project showcase with tech stack and links
+
+#### User Flow:
+
+1. Navigate to `/create-profile` to create a new profile
+2. Fill out the comprehensive form with your information
+3. Submit to save and automatically redirect to `/profile`
+4. View your profile with a clean, organized layout
+5. Click "Edit Profile" to update information
+6. If no profile exists, visiting `/profile` redirects to `/create-profile`
+
 ---
 
 ## 🚀 Getting Started
@@ -68,18 +98,21 @@ Central space for updates, tasks, and files
 ### 🔄 Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/nst-sdc/-H-ckollab.git
 cd -H-ckollab
 ```
 
 2. **Set up the Backend**
+
 ```bash
 cd backend
 npm install
 ```
 
 Create a `.env` file in the backend directory with the following variables:
+
 ```env
 # Server Configuration
 PORT=4000
@@ -97,12 +130,14 @@ FRONTEND_URL=http://localhost:3000
 ```
 
 3. **Set up the Frontend**
+
 ```bash
 cd ../frontend
 npm install
 ```
 
 Create a `.env` file in the frontend directory with the following variables:
+
 ```env
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
@@ -113,9 +148,11 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 ```
 
 4. **Database Setup**
+
 - Create a PostgreSQL database named `hackollab`
 - Update the `DATABASE_URL` in your backend `.env` file with your database credentials
 - Run Prisma migrations:
+
 ```bash
 cd backend
 npx prisma migrate dev
@@ -124,18 +161,21 @@ npx prisma migrate dev
 5. **Running the Application**
 
 Start the backend server:
+
 ```bash
 cd backend
 npm run dev
 ```
 
 In a new terminal, start the frontend:
+
 ```bash
 cd frontend
 npm run start
 ```
 
 The application should now be running at:
+
 - Frontend: http://localhost:3000
 - Backend: http://localhost:4000
 
@@ -160,17 +200,23 @@ The application should now be running at:
 
 1. Fork the repository
 2. Create your feature branch:
+
 ```bash
 git checkout -b feature/amazing-feature
 ```
+
 3. Commit your changes:
+
 ```bash
 git commit -m 'Add some amazing feature'
 ```
+
 4. Push to the branch:
+
 ```bash
 git push origin feature/amazing-feature
 ```
+
 5. Open a Pull Request
 
 ---
@@ -178,5 +224,3 @@ git push origin feature/amazing-feature
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-
