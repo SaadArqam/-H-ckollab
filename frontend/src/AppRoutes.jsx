@@ -25,13 +25,55 @@ export default function AppRoutes() {
       <Route path="/sign-up" element={<SignUpPage />} />
 
       {/* App Routes (wrapped with Layout) */}
-      <Route path="/" element={<Layout><Landing /></Layout>} />
-      <Route path="/explore" element={<Layout><Explore /></Layout>} />
+      <Route
+        path="/"
+        element={
+          <Layout>
+            <Landing />
+          </Layout>
+        }
+      />
+      <Route
+        path="/explore"
+        element={
+          <Layout>
+            <Explore />
+          </Layout>
+        }
+      />
       {/* <Route path="/post-project" element={<Layout><PostProject /></Layout>} /> */}
-      <Route path="/messages" element={<Layout><Messages /></Layout>} />
-      <Route path="/profile" element={<Layout><Profile /></Layout>} />
-      <Route path="/create-profile" element={<Layout><CreateProfile /></Layout>} />
-      <Route path="/post-project" element={<PostProjectPage />} />
+      <Route
+        path="/messages"
+        element={
+          <Layout>
+            <Messages />
+          </Layout>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <Layout>
+            <Profile />
+          </Layout>
+        }
+      />
+      <Route
+        path="/create-profile"
+        element={
+          <Layout>
+            <CreateProfile />
+          </Layout>
+        }
+      />
+      <Route
+        path="/post-project"
+        element={
+          <Layout>
+            <PostProjectPage />
+          </Layout>
+        }
+      />
     </Routes>
   );
 }

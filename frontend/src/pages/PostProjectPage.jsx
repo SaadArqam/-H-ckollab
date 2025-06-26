@@ -4,7 +4,7 @@ import PostProjectForm from "../components/PostProjectForm";
 
 export default function PostProjectPage() {
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
+    <div className="min-h-screen p-6 bg-black">
       <PostProjectForm />
     </div>
   );
