@@ -1,25 +1,19 @@
+// index.js
 import express from 'express';
 import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+import userRoutes from './routes/userRoutes.js'; // your route file
 
-dotenv.config();
 const app = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 4000;
-
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/health', async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.status(200).json({ status: 'ok', users });
-  } catch (err) {
-    res.status(500).json({ error: 'DB connection failed' });
-  }
+//  Use the route
+app.use('/api/users', userRoutes); // This is critical
+
+app.get('/api/health', (req, res) => {
+  res.send('API is healthy');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(4000, () => {
+  console.log('Server running on port 4000');
 });
