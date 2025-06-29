@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const PostProjectForm = () => {
   const [formData, setFormData] = useState({
     title: "",
@@ -34,8 +34,8 @@ const PostProjectForm = () => {
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
 
   return (
-    <div className="min-h-screen px-6 py-12 bg-black text-white">
-      <div className="max-w-5xl mx-auto space-y-10">
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-5xl mx-auto px-6 py-12 space-y-10">
         <div>
           <h1 className="text-4xl font-bold">Post a Project</h1>
           <p className="text-gray-400 mt-1">
