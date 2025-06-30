@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from "../context/AppContext";
+import Loader from "./Loader";
+import ErrorMessage from "./ErrorMessage";
 
 const UserProfileForm = () => {
   const navigate = useNavigate();
-  const { saveProfile, loading, profileData } = useAppContext();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,19 +21,8 @@ const UserProfileForm = () => {
     otherLinks: "",
     projects: [{ title: "", tech: "", link: "" }],
   });
-
-  // Pre-populate form with existing data if available
-  useEffect(() => {
-    if (profileData) {
-      setFormData({
-        ...profileData,
-        projects:
-          profileData.projects && profileData.projects.length > 0
-            ? profileData.projects
-            : [{ title: "", tech: "", link: "" }],
-      });
-    }
-  }, [profileData]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +44,8 @@ const UserProfileForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     // Filter out empty projects
     const filteredProjects = formData.projects.filter(
@@ -64,17 +55,64 @@ const UserProfileForm = () => {
         project.link.trim() !== ""
     );
 
-    const profileData = {
-      ...formData,
-      projects: filteredProjects,
+    // Map skills to backend format (example: all skills as custom for now)
+    const skills = [];
+    if (formData.frontendSkills)
+      formData.frontendSkills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((skill) => skills.push({ skillId: skill, level: "Advanced" }));
+    if (formData.backendSkills)
+      formData.backendSkills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((skill) =>
+          skills.push({ skillId: skill, level: "Intermediate" })
+        );
+    if (formData.dbSkills)
+      formData.dbSkills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((skill) => skills.push({ skillId: skill, level: "Beginner" }));
+    if (formData.customSkills)
+      formData.customSkills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((skill) => skills.push({ skillId: skill, level: "Beginner" }));
+
+    // Prepare payload
+    const payload = {
+      clerkId: "clerk_test_456", // hardcoded
+      name: formData.name,
+      email: "prem@example.com", // hardcoded
+      bio: formData.bio,
+      githubUrl: formData.github,
+      portfolioUrl: formData.otherLinks,
+      availability: formData.availability,
+      skills,
+      // Optionally, you can send other fields if backend supports
     };
 
-    saveProfile(profileData);
-
-    // Redirect to profile page after saving
-    setTimeout(() => {
+    try {
+      const res = await fetch("http://localhost:4000/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to save profile");
+      }
+      setLoading(false);
       navigate("/profile");
-    }, 1000);
+    } catch (err) {
+      setLoading(false);
+      setError(err.message || "Failed to save profile");
+    }
   };
 
   const inputClass =
@@ -86,13 +124,9 @@ const UserProfileForm = () => {
   return (
     <div className="min-h-screen px-6 py-12 bg-black text-white">
       <div className="max-w-5xl mx-auto space-y-10">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold">Create Your Profile</h1>
-          <p className="text-gray-400 mt-1">Tell us more about you.</p>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-10">
+          {error && <ErrorMessage message={error} />}
+          {loading && <Loader loading={loading} />}
           {/* Basic Information */}
           <div className={sectionClass}>
             <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
@@ -328,10 +362,8 @@ const UserProfileForm = () => {
             {loading ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                {profileData ? "Updating Profile..." : "Creating Profile..."}
+                {"Saving..."}
               </div>
-            ) : profileData ? (
-              "Update Profile"
             ) : (
               "Create Profile"
             )}
