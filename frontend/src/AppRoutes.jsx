@@ -7,6 +7,7 @@ import Layout from "./layout/Layout";
 // Pages
 import Landing from "./pages/Landing";
 import Explore from "./pages/Explore";
+import ExploreProjects from "./pages/ExploreProjects"; // ✅ New page
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import CreateProfile from "./pages/CreateProfile";
@@ -38,6 +39,14 @@ export default function AppRoutes() {
         element={
           <Layout>
             <Explore />
+          </Layout>
+        }
+      />
+      <Route
+        path="/explore-projects"
+        element={
+          <Layout>
+            <ExploreProjects />
           </Layout>
         }
       />
