@@ -27,34 +27,22 @@ export default function Navbar() {
           <Link to="/" className="text-gray-400 hover:text-white transition">
             Landing
           </Link>
-          <Link
-            to="/explore"
-            className="text-gray-400 hover:text-white transition"
-          >
+          <Link to="/explore" className="text-gray-400 hover:text-white transition">
             Explore
           </Link>
-          <Link
-            to="/my-projects"
-            className="text-gray-400 hover:text-white transition"
-          >
+          <Link to="/explore-projects" className="text-gray-400 hover:text-white transition">
+            Explore Projects
+          </Link>
+          <Link to="/my-projects" className="text-gray-400 hover:text-white transition">
             My Projects
           </Link>
-          <Link
-            to="/post-project"
-            className="text-gray-400 hover:text-white transition"
-          >
+          <Link to="/post-project" className="text-gray-400 hover:text-white transition">
             Post Project
           </Link>
-          <Link
-            to="/messages"
-            className="text-gray-400 hover:text-white transition"
-          >
+          <Link to="/messages" className="text-gray-400 hover:text-white transition">
             Messages
           </Link>
-          <Link
-            to="/profile"
-            className="text-gray-400 hover:text-white transition"
-          >
+          <Link to="/profile" className="text-gray-400 hover:text-white transition">
             Profile
           </Link>
 
