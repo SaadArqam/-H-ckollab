@@ -231,197 +231,239 @@ export default function Explore() {
   const hasActiveFilters = searchQuery || selectedTechStack !== 'All Tech Stacks' ||
     selectedLevel !== 'All Levels' || selectedAvailability !== 'All Availability';
 
+  const borderColors = [
+    "hover:border-purple-500/30",
+    "hover:border-blue-500/30",
+    "hover:border-green-500/30",
+    "hover:border-yellow-500/30",
+    "hover:border-gray-500/30",
+    "hover:border-red-500/30",
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+    <div className="min-h-screen bg-black text-white px-6 pb-20">
+      <div className="text-center pt-20 pb-10">
+        <h1 className="text-6xl md:text-7xl font-bold mb-4 leading-tight">
+          Explore <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">Users</span>
+        </h1>
+        <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          Find and filter developers by skills, experience, and availability. Invite them to collaborate!
+        </p>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-6 py-12">
-        {/* Enhanced Header */}
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-3 bg-slate-800/50 backdrop-blur-sm px-6 py-3 rounded-full border border-slate-700/50 mb-8">
-            <TrendingUp className="w-5 h-5 text-emerald-400" />
-            <span className="text-emerald-300 font-semibold text-sm">Discover Top Talent</span>
-          </div>
-
-          <h1 className="text-6xl lg:text-8xl font-black mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-              Explore
-            </span>
-            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
-              Developers
-            </span>
-          </h1>
-
-          <p className="text-slate-400 text-xl lg:text-2xl max-w-4xl mx-auto leading-relaxed">
-            Connect with <span className="text-blue-300 font-semibold">talented developers</span>,
-            <span className="text-purple-300 font-semibold"> innovative designers</span>, and
-            <span className="text-emerald-300 font-semibold"> tech visionaries</span> ready to bring your next breakthrough project to life
-          </p>
-        </div>
-
         {/* Enhanced Search and Filters */}
-        <div className="mb-12">
-          <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 mb-8">
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Enhanced Search Bar */}
-              <div className="flex-1 relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
-                  <Search className="w-5 h-5" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search by name, skills, university, or expertise..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-6 py-4 bg-slate-800/60 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-sm backdrop-blur-sm"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors duration-200"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-
-              {/* Enhanced Filter Dropdowns */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative min-w-[200px]">
-                  <select
-                    value={selectedTechStack}
-                    onChange={(e) => setSelectedTechStack(e.target.value)}
-                    className="appearance-none w-full px-4 py-4 pr-12 bg-slate-800/60 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all duration-300 text-sm backdrop-blur-sm"
-                  >
-                    <option>All Tech Stacks</option>
-                    <option>React</option>
-                    <option>Python</option>
-                    <option>Node.js</option>
-                    <option>Go</option>
-                    <option>JavaScript</option>
-                    <option>TypeScript</option>
-                    <option>Figma</option>
-                    <option>AWS</option>
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                </div>
-
-                <div className="relative min-w-[150px]">
-                  <select
-                    value={selectedLevel}
-                    onChange={(e) => setSelectedLevel(e.target.value)}
-                    className="appearance-none w-full px-4 py-4 pr-12 bg-slate-800/60 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all duration-300 text-sm backdrop-blur-sm"
-                  >
-                    <option>All Levels</option>
-                    <option>Junior</option>
-                    <option>Mid-Level</option>
-                    <option>Senior</option>
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                </div>
-
-                <div className="relative min-w-[180px]">
-                  <select
-                    value={selectedAvailability}
-                    onChange={(e) => setSelectedAvailability(e.target.value)}
-                    className="appearance-none w-full px-4 py-4 pr-12 bg-slate-800/60 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all duration-300 text-sm backdrop-blur-sm"
-                  >
-                    <option>All Availability</option>
-                    <option>Actively Looking</option>
-                    <option>Open to Collaborate</option>
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Enhanced Results Summary */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <p className="text-slate-300 text-sm font-medium">
-                Showing <span className="text-white font-bold text-lg bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{filteredDevelopers.length}</span> developer{filteredDevelopers.length !== 1 ? 's' : ''}
-              </p>
-              {hasActiveFilters && (
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <Filter className="w-4 h-4" />
-                  <span>Filters active</span>
-                </div>
+        <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-12">
+          <div className="relative w-full md:w-96">
+            <div className="flex items-center bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl px-5 py-3 shadow-lg focus-within:ring-2 focus-within:ring-blue-500/30 transition-all duration-300 backdrop-blur-md">
+              <Search className="text-blue-400 mr-3 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="bg-transparent outline-none text-white w-full placeholder-gray-400 text-base"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="ml-2 text-gray-400 hover:text-white text-xl font-bold focus:outline-none transition-colors duration-200"
+                  tabIndex={-1}
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
               )}
             </div>
-            {hasActiveFilters && (
-              <button
-                onClick={clearAllFilters}
-                className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white text-sm font-medium transition-all duration-300 hover:bg-slate-800/50 rounded-lg"
+          </div>
+          {/* Filters */}
+          <div className="flex gap-3 w-full md:w-auto">
+            <div className="relative w-full md:w-48">
+              <select
+                value={selectedTechStack}
+                onChange={e => setSelectedTechStack(e.target.value)}
+                className="appearance-none w-full bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl px-4 py-3 text-white shadow-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/40 transition-all duration-300 backdrop-blur-md pr-10"
               >
-                <span>Clear filters</span>
-                <span className="text-xs">×</span>
-              </button>
-            )}
+                <option>All Tech Stacks</option>
+                <option>React</option>
+                <option>Python</option>
+                <option>Node.js</option>
+                <option>Go</option>
+                <option>JavaScript</option>
+                <option>TypeScript</option>
+                <option>Figma</option>
+                <option>AWS</option>
+              </select>
+              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 text-lg">
+                ▼
+              </span>
+            </div>
+            <div className="relative w-full md:w-40">
+              <select
+                value={selectedLevel}
+                onChange={e => setSelectedLevel(e.target.value)}
+                className="appearance-none w-full bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl px-4 py-3 text-white shadow-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/40 transition-all duration-300 backdrop-blur-md pr-10"
+              >
+                <option>All Levels</option>
+                <option>Junior</option>
+                <option>Mid-Level</option>
+                <option>Senior</option>
+              </select>
+              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 text-lg">
+                ▼
+              </span>
+            </div>
+            <div className="relative w-full md:w-56">
+              <select
+                value={selectedAvailability}
+                onChange={e => setSelectedAvailability(e.target.value)}
+                className="appearance-none w-full bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl px-4 py-3 text-white shadow-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/40 transition-all duration-300 backdrop-blur-md pr-10"
+              >
+                <option>All Availability</option>
+                <option>Actively Looking</option>
+                <option>Open to Collaborate</option>
+              </select>
+              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 text-lg">
+                ▼
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Enhanced Developer Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredDevelopers.length > 0 ? (
-            filteredDevelopers.map((developer, index) => (
-              <UserCard key={index} developer={developer} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-20">
-              <div className="max-w-md mx-auto">
-                <div className="w-24 h-24 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl border border-slate-700/50">
-                  <Search className="w-12 h-12 text-slate-400" />
-                </div>
-                <h3 className="text-slate-200 text-2xl font-bold mb-4">No developers found</h3>
-                <p className="text-slate-400 text-base mb-8 leading-relaxed">
-                  We couldn't find any developers matching your criteria.<br />
-                  Try adjusting your search terms or filters to discover more talent.
-                </p>
-                {hasActiveFilters && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-500 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Clear all filters
-                  </button>
-                )}
+        {/* Enhanced Results Summary */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <p className="text-slate-300 text-sm font-medium">
+              Showing <span className="text-white font-bold text-lg bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{filteredDevelopers.length}</span> developer{filteredDevelopers.length !== 1 ? 's' : ''}
+            </p>
+            {hasActiveFilters && (
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Filter className="w-4 h-4" />
+                <span>Filters active</span>
               </div>
-            </div>
+            )}
+          </div>
+          {hasActiveFilters && (
+            <button
+              onClick={clearAllFilters}
+              className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white text-sm font-medium transition-all duration-300 hover:bg-slate-800/50 rounded-lg"
+            >
+              <span>Clear filters</span>
+              <span className="text-xs">×</span>
+            </button>
           )}
         </div>
 
-        {/* Enhanced Footer Stats
-        {filteredDevelopers.length > 0 && (
-          <div className="mt-20 text-center">
-            <div className="inline-flex items-center gap-8 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl px-8 py-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white mb-1">{filteredDevelopers.length}</div>
-                <div className="text-sm text-slate-400">Developers</div>
-              </div>
-              <div className="w-px h-8 bg-slate-700"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400 mb-1">
-                  {filteredDevelopers.reduce((sum, dev) => sum + dev.collaborations, 0)}
+        {/* User Cards Grid */}
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {filteredDevelopers.map((developer, idx) => (
+            <div
+              key={developer.name}
+              className={`bg-gradient-to-b from-gray-900/60 to-gray-900/30 border border-gray-700 rounded-2xl p-8 shadow-lg transition-all group relative overflow-hidden ${borderColors[idx % borderColors.length]}`}
+            >
+              <div className="relative z-10">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="w-18 h-18 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-2xl flex items-center justify-center shadow-lg border border-slate-700/50">
+                        <span className="text-white font-bold text-xl bg-gradient-to-br from-white to-slate-300 bg-clip-text text-transparent">
+                          {developer.name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-white font-bold text-xl mb-2 truncate group-hover:text-blue-400 transition-colors duration-300">
+                        {developer.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
+                        <MapPin className="w-4 h-4 flex-shrink-0 text-slate-500" />
+                        <span className="truncate font-medium">{developer.university}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${developer.level === 'Senior'
+                          ? 'bg-purple-900/40 text-purple-300 border border-purple-800/30'
+                          : developer.level === 'Mid-Level'
+                            ? 'bg-blue-900/40 text-blue-300 border border-blue-800/30'
+                            : 'bg-green-900/40 text-green-300 border border-green-800/30'
+                          }`}>
+                          <Award className="w-3 h-3 inline mr-1" />
+                          {developer.level}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 bg-gradient-to-r from-amber-900/30 to-yellow-900/30 px-4 py-2 rounded-full border border-amber-800/30 backdrop-blur-sm">
+                    <Star className="w-4 h-4 text-amber-400 fill-current drop-shadow-sm" />
+                    <span className="text-white font-bold text-sm">{developer.rating}</span>
+                  </div>
                 </div>
-                <div className="text-sm text-slate-400">Total Projects</div>
-              </div>
-              <div className="w-px h-8 bg-slate-700"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-emerald-400 mb-1">
-                  {filteredDevelopers.filter(dev => dev.availability === 'Actively Looking').length}
+                <div className="mb-6">
+                  <p className="text-slate-300 text-sm leading-relaxed line-clamp-3 group-hover:text-slate-200 transition-colors duration-300">
+                    {developer.description}
+                  </p>
                 </div>
-                <div className="text-sm text-slate-400">Available Now</div>
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <h4 className="text-white text-sm font-bold">Skills</h4>
+                    <Sparkles className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {developer.skills.slice(0, 4).map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1.5 bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-slate-200 text-xs font-medium rounded-full border border-gray-600/50 hover:border-blue-400/50 hover:from-gray-700/80 hover:to-gray-600/80 transition-all duration-300 backdrop-blur-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                    {developer.skills.length > 4 && (
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-gray-800/60 to-gray-700/60 text-gray-400 text-xs font-medium rounded-full border border-gray-700/50 backdrop-blur-sm">
+                        +{developer.skills.length - 4} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mb-6 p-3 bg-gray-800/40 rounded-xl border border-gray-700/30 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <Users className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm font-medium">{developer.collaborations}</span>
+                    <span className="text-xs text-slate-500">projects</span>
+                  </div>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ${developer.availability === 'Actively Looking'
+                    ? 'bg-gradient-to-r from-green-900/50 to-emerald-900/50 text-green-300 border border-green-800/50 shadow-green-900/20'
+                    : 'bg-gradient-to-r from-yellow-900/50 to-amber-900/50 text-yellow-300 border border-yellow-800/50 shadow-yellow-900/20'
+                    }`}>
+                    <div className={`w-2 h-2 rounded-full ${developer.availability === 'Actively Looking' ? 'bg-green-400 animate-pulse' : 'bg-yellow-400'
+                      }`}></div>
+                    {developer.availability}
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 group/btn">
+                    <Send className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform duration-300" />
+                    Invite to Collaborate
+                  </button>
+                  <button className="p-3 bg-gray-800/80 border border-gray-600/50 rounded-xl hover:border-blue-400/50 hover:bg-gray-700/80 transition-all duration-300 backdrop-blur-sm hover:-translate-y-0.5 shadow-lg hover:shadow-blue-500/25">
+                    <Github className="w-4 h-4 text-gray-300 hover:text-white transition-colors duration-300" />
+                  </button>
+                  <button className="p-3 bg-gray-800/80 border border-gray-600/50 rounded-xl hover:border-blue-400/50 hover:bg-gray-700/80 transition-all duration-300 backdrop-blur-sm hover:-translate-y-0.5 shadow-lg hover:shadow-blue-500/25">
+                    <ExternalLink className="w-4 h-4 text-gray-300 hover:text-white transition-colors duration-300" />
+                  </button>
+                </div>
               </div>
+              {/* Card Hover Effect */}
+              <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
             </div>
+          ))}
+        </div>
+
+        {/* Footer (reuse from MyProjectsPage) */}
+        <div className="border-t border-gray-800 px-6 py-12 mt-20">
+          <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-6">
+            <div className="text-3xl font-bold">H@ckollab</div>
+            <div className="text-xl text-gray-400">© 2024 H@ckollab. All rights reserved.</div>
           </div>
-        )} */}
+        </div>
       </div>
     </div>
   );
