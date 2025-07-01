@@ -1,87 +1,21 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+// backend/controllers/userController.js
+import prisma from '../lib/prisma.js';
 
-// GET /api/users
-export const getAllUsers = async (req, res) => {
-    try {
-        const users = await prisma.user.findMany({
-            include: { skills: true },
-        });
-        res.json(users);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch users' });
+// This file will contain user-related controller functions
+// For now, it's a placeholder until user functionality is implemented
+
+export const getUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    // Check for database connection error
+    if (error.message && (error.message.includes('connect to the database') || 
+        error.message.includes("Can't reach database server") || 
+        error.constructor.name === 'PrismaClientInitializationError')) {
+      return res.status(503).json({ error: 'Database connection failed. Please ensure PostgreSQL is running.' });
     }
-};
-
-// GET /api/users/:id
-export const getUserById = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const user = await prisma.user.findUnique({
-            where: { id }, //  use string ID
-            include: { skills: true },
-        });
-
-        if (!user) return res.status(404).json({ error: 'User not found' });
-
-        res.json(user);
-    } catch (err) {
-        console.error('Error in getUserById:', err);
-        res.status(500).json({ error: 'Error fetching user' });
-    }
-};
-
-
-// POST /api/users
-export const createOrUpdateUser = async (req, res) => {
-    const {
-        clerkId,
-        name,
-        email,
-        bio,
-        githubUrl,
-        portfolioUrl,
-        availability,
-        skills, // [{ skillId, level }]
-    } = req.body;
-
-    if (!clerkId || !email) {
-        return res.status(400).json({ error: 'clerkId and email are required' });
-    }
-
-    try {
-        const user = await prisma.user.upsert({
-            where: { clerkId },
-            update: {
-                name,
-                email,
-                bio,
-                githubUrl,
-                portfolioUrl,
-                availability,
-            },
-            create: {
-                clerkId,
-                name,
-                email,
-                bio,
-                githubUrl,
-                portfolioUrl,
-                availability,
-                skills: {
-                    create: skills?.map((skill) => ({
-                        skillId: skill.skillId,
-                        level: skill.level,
-                    })) || [],
-                },
-            },
-            include: { skills: true },
-        });
-
-        res.json(user);
-    } catch (err) {
-        console.error('❌ Error in createOrUpdateUser:', err); //  log full error
-        res.status(500).json({ error: 'Failed to create or update user' });
-    }
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
 };
