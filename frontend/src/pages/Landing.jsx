@@ -160,14 +160,6 @@ export default function Landing() {
           Create Your Profile <ArrowRight size={24} />
         </button>
       </div>
-
-      {/* Footer */}
-      <div className="border-t border-gray-800 px-6 py-12">
-        <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-6">
-          <div className="text-3xl font-bold">H@ckollab</div>
-          <div className="text-xl text-gray-400">© 2024 H@ckollab. All rights reserved.</div>
-        </div>
-      </div>
     </div>
   );
 }
