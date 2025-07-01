@@ -1,6 +1,13 @@
 import React, { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+
 const PostProjectForm = () => {
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -21,10 +28,36 @@ const PostProjectForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Project Submitted:", formData);
-    alert("✅ Project submitted successfully!");
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          tags: formData.tags || '',
+          techStack: formData.techStack || '',
+          maxTeamSize: parseInt(formData.maxTeamSize) || 1,
+          status: formData.status || 'Ideation',
+          creatorId: user?.id, // ✅ Corrected key
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create project');
+
+      console.log('✅ Project created');
+      navigate('/my-projects');
+    } catch (err) {
+      console.error('❌ Error creating project:', err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass =
@@ -34,8 +67,8 @@ const PostProjectForm = () => {
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-5xl mx-auto px-6 py-12 space-y-10">
+    <div className="min-h-screen px-6 py-12 bg-black text-white">
+      <div className="max-w-5xl mx-auto space-y-10">
         <div>
           <h1 className="text-4xl font-bold">Post a Project</h1>
           <p className="text-gray-400 mt-1">
@@ -224,8 +257,9 @@ const PostProjectForm = () => {
           <button
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg hover:opacity-90"
+            disabled={loading}
           >
-            Post Project
+            {loading ? "Posting..." : "Post Project"}
           </button>
         </form>
       </div>

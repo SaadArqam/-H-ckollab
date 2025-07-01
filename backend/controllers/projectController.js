@@ -13,7 +13,9 @@ export const createProject = async (req, res) => {
         techStack,
         maxTeamSize,
         status,
-        creatorId,
+        creator: {
+          connect: { id: creatorId },
+        },
       },
       include: {
         creator: true
@@ -22,34 +24,38 @@ export const createProject = async (req, res) => {
 
     res.status(201).json(project);
   } catch (error) {
-    console.error('Error creating project:', error);
-    // Check for database connection error
-    if (error.message && (error.message.includes('connect to the database') || 
-        error.message.includes("Can't reach database server") || 
-        error.constructor.name === 'PrismaClientInitializationError')) {
+    console.error('❌ Error creating project:', error.message);
+    console.error(error); // Full stack trace
+
+    if (
+      error.message &&
+      (error.message.includes('connect to the database') ||
+        error.message.includes("Can't reach database server") ||
+        error.constructor.name === 'PrismaClientInitializationError')
+    ) {
       return res.status(503).json({ error: 'Database connection failed. Please ensure PostgreSQL is running.' });
     }
-    res.status(500).json({ error: 'Failed to create project' });
+
+    res.status(500).json({ error: error.message || 'Failed to create project' });
   }
 };
+
 
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
       include: {
-        creator: true
+        creator: true, //  works only after fixing schema and migration
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     });
-    res.json(projects);
+
+    res.status(200).json(projects);
   } catch (error) {
-    console.error('Error fetching projects:', error);
-    // Check for database connection error
-    if (error.message && (error.message.includes('connect to the database') || 
-        error.message.includes("Can't reach database server") || 
-        error.constructor.name === 'PrismaClientInitializationError')) {
-      return res.status(503).json({ error: 'Database connection failed. Please ensure PostgreSQL is running.' });
-    }
+    console.error('❌ Error fetching projects:', error.message);
+    console.error(error);
     res.status(500).json({ error: 'Failed to fetch projects' });
   }
 };
@@ -71,9 +77,9 @@ export const getProjectById = async (req, res) => {
   } catch (error) {
     console.error('Error fetching project:', error);
     // Check for database connection error
-    if (error.message && (error.message.includes('connect to the database') || 
-        error.message.includes("Can't reach database server") || 
-        error.constructor.name === 'PrismaClientInitializationError')) {
+    if (error.message && (error.message.includes('connect to the database') ||
+      error.message.includes("Can't reach database server") ||
+      error.constructor.name === 'PrismaClientInitializationError')) {
       return res.status(503).json({ error: 'Database connection failed. Please ensure PostgreSQL is running.' });
     }
     res.status(500).json({ error: 'Failed to fetch project' });

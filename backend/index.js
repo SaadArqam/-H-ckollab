@@ -1,9 +1,8 @@
-// index.js
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
-import projectRoutes from './routes/projectRoutes.js'; // ✅ Add this
+import projectRoutes from './routes/projectRoutes.js';
 
 dotenv.config();
 
@@ -11,16 +10,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ API routes
+// Routes
 app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes); // ✅ Plug project routes
+app.use('/api/projects', projectRoutes); // Projects route is connected
 
-// ✅ Health check route
+// Health check
 app.get('/api/health', (req, res) => {
   res.send('API is healthy');
 });
 
-// ✅ Start server
 app.listen(4000, () => {
   console.log('🚀 Server running on port 4000');
 });
