@@ -1,14 +1,10 @@
+// backend/routes/userRoutes.js
 import express from 'express';
-import {
-    getAllUsers,
-    getUserById,
-    createOrUpdateUser
-} from '../controllers/userController.js';
+import { getUsers } from '../controllers/userController.js';
 
 const router = express.Router();
 
-router.get('/', getAllUsers);
-router.get('/:id', getUserById);
-router.post('/', createOrUpdateUser);
+// Define routes
+router.get('/', getUsers);
 
 export default router;
