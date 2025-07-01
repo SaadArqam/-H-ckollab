@@ -1,3 +1,4 @@
+
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -118,3 +119,4 @@ export const createOrUpdateUser = async (req, res) => {
     res.status(500).json({ error: "Failed to create or update user" });
   }
 };
+

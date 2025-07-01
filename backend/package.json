@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
-"scripts": {
-  "dev": "node index.js",
-  "start": "node index.js",
-  "seed": "node prisma/seed.js"
-}
-,
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js",
+    "seed": "node prisma/seed.js"
+  },
+
   "keywords": [],
   "author": "",
   "license": "ISC",

@@ -80,51 +80,55 @@ async function main() {
   };
 
   // Seed users
-  const users = [
-    {
-      name: 'Prem Pyla',
-      id: 'test_123',
-      skills: [
-        { skill: skillReact, level: 'Advanced' },
-        { skill: skillNode, level: 'Intermediate' },
-      ],
-    },
-    {
-      name: 'Ayush',
-      id: 'test_ayush',
-      skills: [
-        { skill: skillReact, level: 'Intermediate' },
-        { skill: skillPostgres, level: 'Beginner' },
-      ],
-    },
-    {
-      name: 'Aditya',
-      id: 'test_aditya',
-      skills: [
-        { skill: skillNode, level: 'Advanced' },
-      ],
-    },
-    {
-      name: 'Saad',
-      id: 'test_saad',
-      skills: [
-        { skill: skillReact, level: 'Beginner' },
-        { skill: skillNode, level: 'Beginner' },
-      ],
-    },
-    {
-      name: 'Rounak',
-      id: 'test_rounak',
-      skills: [
-        { skill: skillPostgres, level: 'Intermediate' },
-      ],
-    },
-  ];
+  const users = [{
+    name: 'Prem Pyla',
+    id: 'test_123',
+    skills: [
+      { skill: skillReact, level: 'Advanced' },
+      { skill: skillNode, level: 'Intermediate' },
+    ],
+  },
+  {
+    name: 'Ayush',
+    id: 'test_ayush',
+    skills: [
+      { skill: skillReact, level: 'Intermediate' },
+      { skill: skillPostgres, level: 'Beginner' },
+    ],
+  }];
 
-  for (const u of users) {
-    const user = await createUser(u.name, u.id, u.skills);
-    console.log('Seeded user:', user.name);
-  }
+  // Create users
+  const createdUsers = await Promise.all(
+    users.map(user => createUser(user.name, user.id, user.skills))
+  );
+
+  // Create sample projects
+  const projects = await Promise.all([
+    prisma.project.create({
+      data: {
+        title: 'Social Media Dashboard',
+        description: 'A comprehensive dashboard for managing social media accounts and analytics',
+        tags: ['Web Development', 'Dashboard', 'Analytics'],
+        techStack: ['React', 'Node.js', 'PostgreSQL'],
+        maxTeamSize: 4,
+        status: 'Open',
+        creatorId: createdUsers[0].id,
+      },
+    }),
+    prisma.project.create({
+      data: {
+        title: 'Mobile Fitness App',
+        description: 'A fitness tracking application with social features and workout plans',
+        tags: ['Mobile App', 'Health', 'Fitness'],
+        techStack: ['React Native', 'Firebase', 'Node.js'],
+        maxTeamSize: 3,
+        status: 'Open',
+        creatorId: createdUsers[1].id,
+      },
+    }),
+  ]);
+
+  console.log('Seed data created:', { users: createdUsers, projects });
 }
 
 main()
