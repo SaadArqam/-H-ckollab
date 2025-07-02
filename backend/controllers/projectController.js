@@ -5,6 +5,15 @@ export const createProject = async (req, res) => {
   try {
     const { title, description, tags, techStack, maxTeamSize, status, creatorId } = req.body;
 
+    // ✅ Find the user using clerkId instead of id
+    const user = await prisma.user.findUnique({
+      where: { clerkId: creatorId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found for the provided Clerk ID' });
+    }
+
     const project = await prisma.project.create({
       data: {
         title,
@@ -14,7 +23,7 @@ export const createProject = async (req, res) => {
         maxTeamSize,
         status,
         creator: {
-          connect: { id: creatorId },
+          connect: { id: user.id }, // ✅ Use the actual Prisma ID now
         },
       },
       include: {
@@ -40,12 +49,11 @@ export const createProject = async (req, res) => {
   }
 };
 
-
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await prisma.project.findMany({
       include: {
-        creator: true, //  works only after fixing schema and migration
+        creator: true, // Only works if relation is correctly defined
       },
       orderBy: {
         createdAt: 'desc'
@@ -76,12 +84,23 @@ export const getProjectById = async (req, res) => {
     res.json(project);
   } catch (error) {
     console.error('Error fetching project:', error);
-    // Check for database connection error
     if (error.message && (error.message.includes('connect to the database') ||
       error.message.includes("Can't reach database server") ||
       error.constructor.name === 'PrismaClientInitializationError')) {
       return res.status(503).json({ error: 'Database connection failed. Please ensure PostgreSQL is running.' });
     }
     res.status(500).json({ error: 'Failed to fetch project' });
+  }
+};
+export const getUserByClerkId = async (req, res) => {
+  try {
+    const { clerkId } = req.params;
+    const user = await prisma.user.findUnique({ where: { clerkId } });
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
 };

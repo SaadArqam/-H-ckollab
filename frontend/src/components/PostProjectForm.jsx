@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { useAppContext } from '../context/AppContext'; // 👈 import it
 
 const PostProjectForm = () => {
+
   const { user } = useUser();
   const navigate = useNavigate();
+  const { profileData, loading: profileLoading } = useAppContext();
 
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +34,32 @@ const PostProjectForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (profileLoading || !profileData?.id) {
+      alert("User profile is still loading. Please wait a moment.");
+      setLoading(false);
+
+      return;
+    }
+
+
+    console.log("🧪 User ID:", profileData.id);
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
+      techStack: formData.techStack ? formData.techStack.split(',').map(t => t.trim()) : [],
+      maxTeamSize: parseInt(formData.maxTeamSize) || 1,
+      status: formData.status || 'Open',
+      creatorId: profileData?.clerkId,
+    };
+
+
+    console.log("🚀 Payload ready to send:", payload);
+
+
+    console.log("👀 profileData.id (Clerk ID):", profileData?.id);
+    console.log("📤 Final payload being sent:", payload);
+
 
     try {
       const res = await fetch('/api/projects', {
@@ -38,16 +67,9 @@ const PostProjectForm = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          tags: formData.tags || '',
-          techStack: formData.techStack || '',
-          maxTeamSize: parseInt(formData.maxTeamSize) || 1,
-          status: formData.status || 'Ideation',
-          creatorId: user?.id, // ✅ Corrected key
-        }),
+        body: JSON.stringify(payload),
       });
+      console.log("🔗 POSTing to: http://localhost:4000/api/projects");
 
       if (!res.ok) throw new Error('Failed to create project');
 
@@ -65,7 +87,6 @@ const PostProjectForm = () => {
 
   const sectionClass =
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
-
   return (
     <div className="min-h-screen px-6 py-12 bg-black text-white">
       <div className="max-w-5xl mx-auto space-y-10">
