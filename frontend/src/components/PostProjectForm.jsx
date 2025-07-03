@@ -41,8 +41,6 @@ const PostProjectForm = () => {
       return;
     }
 
-
-    console.log("🧪 User ID:", profileData.id);
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -53,27 +51,17 @@ const PostProjectForm = () => {
       creatorId: profileData?.clerkId,
     };
 
-
-    console.log("🚀 Payload ready to send:", payload);
-
-
-    console.log("👀 profileData.id (Clerk ID):", profileData?.id);
-    console.log("📤 Final payload being sent:", payload);
-
-
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
-      console.log("🔗 POSTing to: http://localhost:4000/api/projects");
 
       if (!res.ok) throw new Error('Failed to create project');
 
-      console.log('✅ Project created');
       navigate('/my-projects');
     } catch (err) {
       console.error('❌ Error creating project:', err.message);
@@ -87,6 +75,7 @@ const PostProjectForm = () => {
 
   const sectionClass =
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
+    
   return (
     <div className="min-h-screen px-6 py-12 bg-black text-white">
       <div className="max-w-5xl mx-auto space-y-10">

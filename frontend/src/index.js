@@ -6,6 +6,8 @@ import reportWebVitals from './reportWebVitals';
 import { ClerkProvider, useUser } from '@clerk/clerk-react';
 import { BrowserRouter } from 'react-router-dom';
 import { AppProvider, useAppContext } from './context/AppContext'; // ✅ Import AppProvider and useAppContext
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const clerkPubKey = "pk_test_ZXhjaXRpbmctYW5lbW9uZS02MC5jbGVyay5hY2NvdW50cy5kZXYk";
 
@@ -17,6 +19,7 @@ root.render(
       <BrowserRouter>
         <AppProvider>
           <App />
+          <ToastContainer position="top-center" autoClose={3000} />
         </AppProvider>
       </BrowserRouter>
     </ClerkProvider>

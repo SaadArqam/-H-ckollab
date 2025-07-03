@@ -4,6 +4,8 @@ import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
 import { useUser } from "@clerk/clerk-react";
 import { useAppContext } from "../context/AppContext";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserProfileForm = () => {
   const { user } = useUser();
@@ -127,10 +129,12 @@ const UserProfileForm = () => {
       }
       await refetchProfile();
       setLoading(false);
+      toast.success(profileData ? "Profile updated successfully!" : "Profile created successfully!");
       navigate("/profile");
     } catch (err) {
       setLoading(false);
       setError(err.message || "Failed to save profile");
+      toast.error(err.message || "Failed to save profile");
     }
   };
 
