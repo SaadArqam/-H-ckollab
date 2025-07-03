@@ -1,8 +1,19 @@
 import UserProfileForm from "../components/UserProfileForm";
 import { useAppContext } from "../context/AppContext";
+import { useUser } from "@clerk/clerk-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateProfile() {
+  const { isSignedIn } = useUser();
+  const navigate = useNavigate();
   const { profileData } = useAppContext();
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      navigate("/sign-in");
+    }
+  }, [isSignedIn, navigate]);
 
   return (
     <div className="p-6">

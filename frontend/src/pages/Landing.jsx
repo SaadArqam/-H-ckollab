@@ -5,10 +5,20 @@
 
 import React from 'react';
 import { ArrowRight, Users, Target, FolderOpen, MessageSquare, Github, Star } from 'lucide-react';
+import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
+  const { isSignedIn } = useUser();
   const navigate = useNavigate();
+
+  const handleCreateProfile = () => {
+    if (!isSignedIn) {
+      navigate("/sign-in");
+    } else {
+      navigate("/create-profile");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -154,7 +164,7 @@ export default function Landing() {
         
         {/* Redirect button updated here */}
         <button
-          onClick={() => navigate("/create-profile")}
+          onClick={handleCreateProfile}
           className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-6 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center gap-3 mx-auto text-xl"
         >
           Create Your Profile <ArrowRight size={24} />

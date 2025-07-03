@@ -2,24 +2,28 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
+import { useUser } from "@clerk/clerk-react";
+import { useAppContext } from "../context/AppContext";
 
 const UserProfileForm = () => {
+  const { user } = useUser();
+  const { profileData, refetchProfile } = useAppContext();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "",
-    bio: "",
-    availability: "",
-    academicYear: "",
-    branch: "",
-    frontendSkills: "",
-    backendSkills: "",
-    dbSkills: "",
-    customSkills: "",
-    interests: "",
-    github: "",
-    otherLinks: "",
-    projects: [{ title: "", tech: "", link: "" }],
+    name: profileData?.name || "",
+    bio: profileData?.bio || "",
+    availability: profileData?.availability || "",
+    academicYear: profileData?.academicYear || "",
+    branch: profileData?.branch || "",
+    frontendSkills: profileData?.frontendSkills || "",
+    backendSkills: profileData?.backendSkills || "",
+    dbSkills: profileData?.dbSkills || "",
+    customSkills: profileData?.customSkills || "",
+    interests: profileData?.interests || "",
+    github: profileData?.githubUrl || "",
+    otherLinks: profileData?.portfolioUrl || "",
+    projects: profileData?.projects || [{ title: "", tech: "", link: "" }],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -86,27 +90,42 @@ const UserProfileForm = () => {
 
     // Prepare payload
     const payload = {
-      clerkId: "clerk_test_456", // hardcoded
+      clerkId: user?.id,
       name: formData.name,
-      email: "prem@example.com", // hardcoded
+      email: user?.primaryEmailAddress?.emailAddress,
       bio: formData.bio,
       githubUrl: formData.github,
       portfolioUrl: formData.otherLinks,
       availability: formData.availability,
       skills,
-      // Optionally, you can send other fields if backend supports
+      academicYear: formData.academicYear,
+      branch: formData.branch,
+      interests: formData.interests,
+      projects: formData.projects,
     };
 
     try {
-      const res = await fetch("http://localhost:4000/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res;
+      if (profileData) {
+        // Edit mode: PATCH
+        res = await fetch(`http://localhost:4000/api/users/clerk/${user?.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        // Create mode: POST
+        res = await fetch("http://localhost:4000/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Failed to save profile");
       }
+      await refetchProfile();
       setLoading(false);
       navigate("/profile");
     } catch (err) {
@@ -362,11 +381,9 @@ const UserProfileForm = () => {
             {loading ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                {"Saving..."}
+                {profileData ? "Updating..." : "Saving..."}
               </div>
-            ) : (
-              "Create Profile"
-            )}
+            ) : profileData ? "Update Profile" : "Create Profile"}
           </button>
         </form>
       </div>

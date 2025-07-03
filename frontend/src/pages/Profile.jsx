@@ -2,16 +2,20 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import { useUser } from "@clerk/clerk-react";
 
 export default function Profile() {
+  const { isSignedIn } = useUser();
   const navigate = useNavigate();
   const { profileData, loading } = useAppContext();
 
   useEffect(() => {
-    if (!loading && !profileData) {
+    if (!isSignedIn) {
+      navigate("/sign-in");
+    } else if (!loading && !profileData) {
       navigate("/create-profile");
     }
-  }, [profileData, loading, navigate]);
+  }, [isSignedIn, profileData, loading, navigate]);
 
   if (loading) {
     return (
