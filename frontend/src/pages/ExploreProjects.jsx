@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import dummyProjects from "../data/dummyProjects";
 import {
   MapPin,
   Sparkles,
@@ -15,13 +14,19 @@ export default function ExploreProjects() {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    setTimeout(() => {
-      const openProjects = dummyProjects.filter(
-        (proj) => proj.status === "Open for Collaboration"
-      );
-      setProjects(openProjects);
+    const fetchProjects = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/projects');
+        const data = await res.json();
+        setProjects(data.filter(p => p.collaborationType === 'Open to all'));
+      } catch (err) {
+        setProjects([]);
+      } finally {
       setLoading(false);
-    }, 1000); // Simulate loading
+      }
+    };
+    fetchProjects();
   }, []);
 
   if (loading)

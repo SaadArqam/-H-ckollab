@@ -1,45 +1,8 @@
-// import { PrismaClient } from '@prisma/client';
-// const prisma = new PrismaClient();
-
-// async function main() {
-//   const skillReact = await prisma.skill.upsert({
-//     where: { name: 'React' },
-//     update: {},
-//     create: {
-//       name: 'React',
-//       category: 'Frontend',
-//     },
-//   });
-
-//   const user = await prisma.user.create({
-//     data: {
-//       clerkId: 'clerk_test_123',
-//       name: 'Prem Pyla',
-//       email: 'prem@example.com',
-//       bio: 'Full-stack dev passionate about building teams.',
-//       githubUrl: 'https://github.com/prempyla',
-//       portfolioUrl: 'https://prem.dev',
-//       availability: 'Available',
-//       skills: {
-//         create: {
-//           skillId: skillReact.id,
-//           level: 'Advanced',
-//         },
-//       },
-//     },
-//   });
-
-//   console.log('Seeded user:', user);
-// }
-
-// main()
-//   .catch((e) => console.error(e))
-//   .finally(async () => await prisma.$disconnect());
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create or reuse skills
+  // Seed skills
   const skillReact = await prisma.skill.upsert({
     where: { name: 'React' },
     update: {},
@@ -59,19 +22,19 @@ async function main() {
   });
 
   // Helper to create users
-  const createUser = async (name, clerkIdSuffix, skills) => {
+  const createUser = async (name, firebaseUidSuffix, skillObjs) => {
     return await prisma.user.create({
       data: {
-        clerkId: `clerk_${clerkIdSuffix}`,
+        firebaseUid: `firebase_${firebaseUidSuffix}`,
         name,
-        email: `${name.toLowerCase()}@example.com`,
+        email: `${name.toLowerCase().replace(' ', '')}@example.com`,
         bio: `${name} is a developer.`,
-        githubUrl: `https://github.com/${name.toLowerCase()}`,
-        portfolioUrl: `https://${name.toLowerCase()}.dev`,
+        githubUrl: `https://github.com/${name.toLowerCase().replace(' ', '')}`,
+        portfolioUrl: `https://${name.toLowerCase().replace(' ', '')}.dev`,
         availability: 'Available',
         skills: {
-          create: skills.map(({ skill, level }) => ({
-            skillId: skill.id,
+          create: skillObjs.map(({ skill, level }) => ({
+            skill: { connect: { id: skill.id } },
             level,
           })),
         },
@@ -80,26 +43,28 @@ async function main() {
   };
 
   // Seed users
-  const users = [{
-    name: 'Prem Pyla',
-    id: 'test_123',
-    skills: [
-      { skill: skillReact, level: 'Advanced' },
-      { skill: skillNode, level: 'Intermediate' },
-    ],
-  },
-  {
-    name: 'Ayush',
-    id: 'test_ayush',
-    skills: [
-      { skill: skillReact, level: 'Intermediate' },
-      { skill: skillPostgres, level: 'Beginner' },
-    ],
-  }];
+  const users = [
+    {
+      name: 'Prem Pyla',
+      id: 'test_123',
+      skills: [
+        { skill: skillReact, level: 'Advanced' },
+        { skill: skillNode, level: 'Intermediate' },
+      ],
+    },
+    {
+      name: 'Ayush',
+      id: 'test_ayush',
+      skills: [
+        { skill: skillReact, level: 'Intermediate' },
+        { skill: skillPostgres, level: 'Beginner' },
+      ],
+    },
+  ];
 
   // Create users
   const createdUsers = await Promise.all(
-    users.map(user => createUser(user.name, user.id, user.skills))
+    users.map((u) => createUser(u.name, u.id, u.skills))
   );
 
   // Create sample projects
@@ -128,9 +93,12 @@ async function main() {
     }),
   ]);
 
-  console.log('Seed data created:', { users: createdUsers, projects });
+  console.log('✅ Seed data created successfully:', { users: createdUsers, projects });
 }
 
 main()
-  .catch((e) => console.error(e))
+  .catch((e) => {
+    console.error('❌ Error while seeding:', e);
+    process.exit(1);
+  })
   .finally(async () => await prisma.$disconnect());

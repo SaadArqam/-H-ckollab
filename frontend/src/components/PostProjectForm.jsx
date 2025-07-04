@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from '../context/UserContext';
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from '../context/AppContext'; // 👈 import it
+import { toast } from 'react-toastify';
 
 const PostProjectForm = () => {
 
-  const { user } = useUser();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { profileData, loading: profileLoading } = useAppContext();
 
@@ -35,9 +36,8 @@ const PostProjectForm = () => {
     e.preventDefault();
     setLoading(true);
     if (profileLoading || !profileData?.id) {
-      alert("User profile is still loading. Please wait a moment.");
+      toast.error("User profile is still loading. Please wait a moment.");
       setLoading(false);
-
       return;
     }
 
@@ -48,11 +48,12 @@ const PostProjectForm = () => {
       techStack: formData.techStack ? formData.techStack.split(',').map(t => t.trim()) : [],
       maxTeamSize: parseInt(formData.maxTeamSize) || 1,
       status: formData.status || 'Open',
-      creatorId: profileData?.clerkId,
+      collaborationType: formData.collaborationType,
+      creatorId: profileData?.id,
     };
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/projects`, {
+      const res = await fetch('/api/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,9 +63,14 @@ const PostProjectForm = () => {
 
       if (!res.ok) throw new Error('Failed to create project');
 
-      navigate('/my-projects');
+      toast.success('✅ Project created successfully!');
+      if (formData.collaborationType === 'Open to all') {
+        navigate('/explore-projects');
+      } else {
+        navigate('/my-projects');
+      }
     } catch (err) {
-      console.error('❌ Error creating project:', err.message);
+      toast.error('❌ Error creating project: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -75,7 +81,7 @@ const PostProjectForm = () => {
 
   const sectionClass =
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
-    
+
   return (
     <div className="min-h-screen px-6 py-12 bg-black text-white">
       <div className="max-w-5xl mx-auto space-y-10">

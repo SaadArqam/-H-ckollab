@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "./UserContext";
 
 const AppContext = createContext();
 
@@ -14,20 +14,24 @@ export const useAppContext = () => {
 export const AppProvider = ({ children }) => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useUser(); // 👈 Clerk user object
+  const { user } = useAuth(); // 👈 Firebase user object
 
   const fetchProfile = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      if (user?.id) {
-        const res = await fetch(`http://localhost:4000/api/users/clerk/${user.id}`);
+      if (user?.uid) {
+        const res = await fetch(`http://localhost:4000/api/users/firebase/${user.uid}`);
+        if (res.status === 404) {
+          setProfileData('notfound');
+          return;
+        }
         if (!res.ok) throw new Error('User not found');
         const data = await res.json();
         setProfileData(data);
       }
     } catch (err) {
-      setProfileData(null);
+      setProfileData('notfound');
       console.error("Failed to fetch profile:", err.message);
     } finally {
       setLoading(false);
@@ -43,6 +47,7 @@ export const AppProvider = ({ children }) => {
     profileData,
     loading,
     refetchProfile: fetchProfile,
+    profileNotFound: profileData === 'notfound',
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

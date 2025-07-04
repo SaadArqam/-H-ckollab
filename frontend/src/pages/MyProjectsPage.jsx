@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Edit, Eye, Users, X } from "lucide-react";
+import { useAuth } from '../context/UserContext';
+import { toast } from 'react-toastify';
 
 const projects = [
   {
@@ -115,9 +117,31 @@ const inviteStatusColors = {
 };
 
 export default function MyProjectsPage() {
+  const { user } = useAuth();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [viewProject, setViewProject] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [editInviteStatus, setEditInviteStatus] = useState("");
+  const [inviteProject, setInviteProject] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/projects');
+        const data = await res.json();
+        setProjects(data.filter(p => p.creatorId === user?.uid));
+      } catch (err) {
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, [user]);
 
   const handleView = (project) => setViewProject(project);
   const handleEdit = (project) => {
@@ -133,6 +157,37 @@ export default function MyProjectsPage() {
     // In real app, update backend here
     if (editProject) editProject.inviteStatus = editInviteStatus;
     closeModal();
+  };
+
+  const openInviteModal = async (project) => {
+    setInviteProject(project);
+    // Fetch all users for selection (except self)
+    try {
+      const res = await fetch('/api/users');
+      const users = await res.json();
+      setAllUsers(users.filter(u => u.firebaseUid !== user?.uid));
+    } catch {
+      setAllUsers([]);
+    }
+  };
+
+  const sendInvites = async () => {
+    if (!inviteProject || selectedUsers.length === 0) return;
+    try {
+      // Map selected firebaseUids to user.id
+      const userIds = allUsers.filter(u => selectedUsers.includes(u.firebaseUid)).map(u => u.id);
+      const res = await fetch(`/api/projects/${inviteProject.id}/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds }),
+      });
+      if (!res.ok) throw new Error('Failed to send invites');
+      toast.success('Invitations sent!');
+      setInviteProject(null);
+      setSelectedUsers([]);
+    } catch (err) {
+      toast.error('Failed to send invites');
+    }
   };
 
   return (
@@ -186,6 +241,7 @@ export default function MyProjectsPage() {
               <button onClick={() => handleEdit(project)} className="flex items-center gap-2 px-6 py-2 rounded-xl border border-gray-600 text-white font-semibold hover:border-blue-500 hover:text-blue-400 transition-colors text-lg">
                 <Edit size={20} /> Edit
               </button>
+              <button onClick={() => openInviteModal(project)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Invite Collaborators</button>
             </div>
             {/* Card Hover Effect */}
             <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
@@ -250,6 +306,27 @@ export default function MyProjectsPage() {
             >
               Save
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Collaborators Modal */}
+      {inviteProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-white p-8 rounded-xl max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">Invite Collaborators</h2>
+            <div className="mb-4">
+              <label className="block mb-2">Select users to invite:</label>
+              <select multiple value={selectedUsers} onChange={e => setSelectedUsers(Array.from(e.target.selectedOptions, o => o.value))} className="w-full border rounded p-2">
+                {allUsers.map(u => (
+                  <option key={u.id} value={u.firebaseUid}>{u.name} ({u.email})</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={sendInvites} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Send Invites</button>
+              <button onClick={() => setInviteProject(null)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+            </div>
           </div>
         </div>
       )}

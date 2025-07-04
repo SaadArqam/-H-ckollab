@@ -1,19 +1,20 @@
 // backend/routes/userRoutes.js
 import express from 'express';
-import { getUsers, getUserByClerkId, createUser, updateUserByClerkId } from '../controllers/userController.js';
+import { getUsers, getUserByFirebaseUid, createUser, updateUserByFirebaseUid } from '../controllers/userController.js';
 import prisma from '../lib/prisma.js';
+import { verifyFirebaseToken } from '../middleware/firebaseAuth.js';
 const router = express.Router();
 
 // Define routes
 router.get('/', getUsers);
-router.get('/clerk/:clerkId', getUserByClerkId);
-router.post('/', createUser);
+router.get('/firebase/:firebaseUid', getUserByFirebaseUid);
+router.post('/', verifyFirebaseToken, createUser);
 router.post('/seed', async (req, res) => {
-    const { clerkId, name, email } = req.body;
+    const { firebaseUid, name, email } = req.body;
     try {
         const user = await prisma.user.create({
             data: {
-                clerkId,
+                firebaseUid,
                 name,
                 email,
                 bio: "This is a temporary user.",
@@ -28,6 +29,6 @@ router.post('/seed', async (req, res) => {
         res.status(500).json({ error: 'Failed to seed user' });
     }
 });
-router.patch('/clerk/:clerkId', updateUserByClerkId);
+router.patch('/firebase/:firebaseUid', verifyFirebaseToken, updateUserByFirebaseUid);
 
 export default router;

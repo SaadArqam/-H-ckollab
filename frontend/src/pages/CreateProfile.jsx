@@ -1,11 +1,11 @@
 import UserProfileForm from "../components/UserProfileForm";
 import { useAppContext } from "../context/AppContext";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/UserContext";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function CreateProfile() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn } = useAuth();
   const navigate = useNavigate();
   const { profileData } = useAppContext();
 

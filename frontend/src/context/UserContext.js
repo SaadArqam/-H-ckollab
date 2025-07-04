@@ -1,10 +1,22 @@
-import { createContext, useContext } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-  const { user, isSignedIn, isLoaded } = useUser();
+  const [user, setUser] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setIsLoaded(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const isSignedIn = !!user;
 
   return (
     <UserContext.Provider value={{ user, isSignedIn, isLoaded }}>

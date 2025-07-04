@@ -3,15 +3,12 @@ import prisma from '../lib/prisma.js';
 
 export const createProject = async (req, res) => {
   try {
-    const { title, description, tags, techStack, maxTeamSize, status, creatorId } = req.body;
+    const { title, description, tags, techStack, maxTeamSize, status, creatorId, collaborationType } = req.body;
 
-    // ✅ Find the user using clerkId instead of id
-    const user = await prisma.user.findUnique({
-      where: { clerkId: creatorId },
-    });
-
+    // Use creatorId directly (Prisma user.id)
+    const user = await prisma.user.findUnique({ where: { id: creatorId } });
     if (!user) {
-      return res.status(404).json({ error: 'User not found for the provided Clerk ID' });
+      return res.status(404).json({ error: 'User not found for the provided user ID' });
     }
 
     const project = await prisma.project.create({
@@ -22,8 +19,9 @@ export const createProject = async (req, res) => {
         techStack,
         maxTeamSize,
         status,
+        collaborationType,
         creator: {
-          connect: { id: user.id }, // ✅ Use the actual Prisma ID now
+          connect: { id: creatorId },
         },
       },
       include: {
@@ -92,15 +90,38 @@ export const getProjectById = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch project' });
   }
 };
-export const getUserByClerkId = async (req, res) => {
+
+export const getUserByFirebaseUid = async (req, res) => {
   try {
-    const { clerkId } = req.params;
-    const user = await prisma.user.findUnique({ where: { clerkId } });
+    const { firebaseUid } = req.params;
+    const user = await prisma.user.findUnique({ where: { firebaseUid } });
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const inviteCollaborators = async (req, res) => {
+  const { id } = req.params; // projectId
+  const { userIds } = req.body;
+  if (!Array.isArray(userIds) || userIds.length === 0) {
+    return res.status(400).json({ error: 'No users selected for invitation' });
+  }
+  try {
+    const invitations = await Promise.all(userIds.map(async (userId) => {
+      return await prisma.invitation.create({
+        data: {
+          projectId: id,
+          userId,
+          status: 'Pending',
+        },
+      });
+    }));
+    res.status(201).json({ message: 'Invitations sent', invitations });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to send invitations' });
   }
 };
