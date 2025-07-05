@@ -70,6 +70,10 @@ export const getUserByFirebaseUid = async (req, res) => {
       },
     });
     if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    console.log('User data fetched:', user);
+    console.log('Featured projects:', user.featuredProjects);
+    
     res.json(user);
   } catch (err) {
     console.error("Error fetching user by Firebase UID:", err.message);
@@ -83,6 +87,7 @@ export const createUser = async (req, res) => {
   try {
     const existingUser = await prisma.user.findUnique({ where: { firebaseUid } });
     if (existingUser) return res.status(400).json({ error: 'User already exists' });
+
     const user = await prisma.user.create({
       data: { firebaseUid, name, email, ...rest },
     });
@@ -107,29 +112,54 @@ export const updateUserByFirebaseUid = async (req, res) => {
     branch,
     interests,
     skills = [],
+    projects = [],
   } = req.body;
+
+  console.log('Received update request for firebaseUid:', firebaseUid);
+  console.log('Projects data received:', projects);
+  console.log('Skills data received:', skills);
 
   try {
     // Validate and prepare skill relations
     const skillRelations = [];
+    const seenSkillIds = new Set();
 
     for (const skillObj of skills) {
       const skillName = skillObj.skillId?.trim();
       const level = skillObj.level || "Beginner";
 
-      if (!skillName) continue;
+      if (!skillName || seenSkillIds.has(skillName)) continue;
+      seenSkillIds.add(skillName);
 
-      const existingSkill = await prisma.skill.findUnique({
+      console.log('Processing skill:', skillName, 'with level:', level);
+
+      // Find or create the skill
+      let skill = await prisma.skill.findUnique({
         where: { name: skillName },
       });
 
-      if (existingSkill) {
-        skillRelations.push({
-          skillId: existingSkill.id,
-          level,
+      if (!skill) {
+        console.log('Creating new skill:', skillName);
+        skill = await prisma.skill.create({
+          data: { name: skillName },
         });
       }
+
+      skillRelations.push({
+        skillId: skill.id,
+        level,
+      });
     }
+
+    console.log('Final skill relations:', skillRelations);
+
+    // Filter out empty projects
+    const filteredProjects = projects.filter(
+      (project) =>
+        project.title?.trim() !== "" ||
+        project.tech?.trim() !== "" ||
+        project.link?.trim() !== ""
+    );
 
     const user = await prisma.user.upsert({
       where: { firebaseUid },
@@ -143,6 +173,7 @@ export const updateUserByFirebaseUid = async (req, res) => {
         academicYear,
         branch,
         interests,
+        featuredProjects: filteredProjects,
         skills: {
           deleteMany: {}, // remove existing first
           create: skillRelations,
@@ -159,15 +190,23 @@ export const updateUserByFirebaseUid = async (req, res) => {
         academicYear,
         branch,
         interests,
+        featuredProjects: filteredProjects,
         skills: {
           create: skillRelations,
         },
       },
+      include: {
+        skills: {
+          include: { skill: true },
+        },
+      },
     });
 
+    console.log('User updated/created with skills:', user.skills);
     res.json(user);
   } catch (err) {
     console.error("❌ Error in updateUserByFirebaseUid:", err);
     res.status(500).json({ error: err.message });
   }
 };
+    

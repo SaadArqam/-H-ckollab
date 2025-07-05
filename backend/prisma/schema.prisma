@@ -20,6 +20,7 @@ model User {
   academicYear String?
   branch       String?
   interests    String?
+  featuredProjects Json? // Array of featured projects with title, tech, link
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

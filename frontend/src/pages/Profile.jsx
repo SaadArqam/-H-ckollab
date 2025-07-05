@@ -32,6 +32,10 @@ export default function Profile() {
     return null; // Will redirect to create-profile
   }
 
+  // Debug logging
+  console.log('Profile data:', profileData);
+  console.log('Featured projects:', profileData.featuredProjects);
+
   // Helper function to split skills into array
   const splitSkills = (skillsString) => {
     if (!skillsString) return [];
@@ -43,6 +47,12 @@ export default function Profile() {
 
   // Helper function to get all skills as array
   const getAllSkills = () => {
+    // Check if skills are in the new format (from backend)
+    if (profileData.skills && Array.isArray(profileData.skills)) {
+      return profileData.skills.map(skillRelation => skillRelation.skill.name);
+    }
+    
+    // Fallback to old format (from form fields)
     const skills = [
       ...splitSkills(profileData.frontendSkills),
       ...splitSkills(profileData.backendSkills),
@@ -151,9 +161,9 @@ export default function Profile() {
           <div className="lg:col-span-2">
             <div className="bg-gray-950 p-6 rounded-xl border border-gray-800">
               <h2 className="text-2xl font-semibold mb-6">Featured Projects</h2>
-              {profileData.projects && profileData.projects.length > 0 ? (
+              {profileData.featuredProjects && Array.isArray(profileData.featuredProjects) && profileData.featuredProjects.length > 0 ? (
                 <div className="space-y-6">
-                  {profileData.projects.map((project, index) => (
+                  {profileData.featuredProjects.map((project, index) => (
                     <div
                       key={index}
                       className="border border-gray-700 p-6 rounded-lg bg-gray-900 hover:bg-gray-800 transition-colors"

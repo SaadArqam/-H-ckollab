@@ -15,9 +15,10 @@ app.use(cors({
   origin: [
     'https://h-ckollab.vercel.app',
     'http://localhost:3000',
-    'http://192.168.29.230:3000',
+    'http://localhost:3001',
     'http://localhost:3002',
-    'http://localhost:3001'
+    'http://localhost:3003',
+    'http://192.168.29.230:3000'
   ],
   credentials: true
 }));

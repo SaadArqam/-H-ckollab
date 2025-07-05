@@ -13,22 +13,65 @@ const UserProfileForm = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: profileData?.name || "",
-    bio: profileData?.bio || "",
-    availability: profileData?.availability || "",
-    academicYear: profileData?.academicYear || "",
-    branch: profileData?.branch || "",
-    frontendSkills: profileData?.frontendSkills || "",
-    backendSkills: profileData?.backendSkills || "",
-    dbSkills: profileData?.dbSkills || "",
-    customSkills: profileData?.customSkills || "",
-    interests: profileData?.interests || "",
-    github: profileData?.githubUrl || "",
-    otherLinks: profileData?.portfolioUrl || "",
-    projects: profileData?.projects || [{ title: "", tech: "", link: "" }],
+    name: "",
+    bio: "",
+    availability: "",
+    academicYear: "",
+    branch: "",
+    frontendSkills: "",
+    backendSkills: "",
+    dbSkills: "",
+    customSkills: "",
+    interests: "",
+    github: "",
+    otherLinks: "",
+    projects: [{ title: "", tech: "", link: "" }],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Populate form data when profileData is available
+  useEffect(() => {
+    if (profileData) {
+      // Convert backend skills format to form format
+      let frontendSkills = "";
+      let backendSkills = "";
+      let dbSkills = "";
+      let customSkills = "";
+
+      if (profileData.skills && Array.isArray(profileData.skills)) {
+        profileData.skills.forEach(skillRelation => {
+          const skillName = skillRelation.skill.name;
+          const level = skillRelation.level;
+          
+          // Categorize skills based on level (this is a simple mapping)
+          if (level === "Advanced") {
+            frontendSkills += (frontendSkills ? ", " : "") + skillName;
+          } else if (level === "Intermediate") {
+            backendSkills += (backendSkills ? ", " : "") + skillName;
+          } else {
+            customSkills += (customSkills ? ", " : "") + skillName;
+          }
+        });
+      }
+
+      setFormData({
+        name: profileData.name || "",
+        bio: profileData.bio || "",
+        availability: profileData.availability || "",
+        academicYear: profileData.academicYear || "",
+        branch: profileData.branch || "",
+        frontendSkills,
+        backendSkills,
+        dbSkills,
+        customSkills,
+        interests: profileData.interests || "",
+        github: profileData.githubUrl || "",
+        otherLinks: profileData.portfolioUrl || "",
+        projects: profileData.featuredProjects || [{ title: "", tech: "", link: "" }],
+      });
+    }
+  }, [profileData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,6 +146,7 @@ const UserProfileForm = () => {
       academicYear: formData.academicYear,
       branch: formData.branch,
       interests: formData.interests,
+      projects: formData.projects, // Add projects to payload
     };
 
     try {
