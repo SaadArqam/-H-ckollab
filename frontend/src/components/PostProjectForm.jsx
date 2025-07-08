@@ -1,17 +1,15 @@
 import React, { useState } from "react";
-import { useAuth } from '../context/UserContext';
+import { useAuth } from "../context/UserContext";
+import { useAppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from '../context/AppContext'; // 👈 import it
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const PostProjectForm = () => {
-
   const { user } = useAuth();
   const navigate = useNavigate();
   const { profileData, loading: profileLoading } = useAppContext();
 
   const [loading, setLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -35,6 +33,7 @@ const PostProjectForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     if (profileLoading || !profileData?.id) {
       toast.error("User profile is still loading. Please wait a moment.");
       setLoading(false);
@@ -44,33 +43,42 @@ const PostProjectForm = () => {
     const payload = {
       title: formData.title,
       description: formData.description,
-      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
-      techStack: formData.techStack ? formData.techStack.split(',').map(t => t.trim()) : [],
+      tags: formData.tags ? formData.tags.split(",").map((t) => t.trim()) : [],
+      techStack: formData.techStack
+        ? formData.techStack.split(",").map((t) => t.trim())
+        : [],
       maxTeamSize: parseInt(formData.maxTeamSize) || 1,
-      status: formData.status || 'Open',
+      status: formData.status || "Open",
+      difficulty: formData.difficulty || "",
       collaborationType: formData.collaborationType,
-      creatorId: profileData?.id,
+      rolesNeeded: formData.roles
+        ? formData.roles.split(",").map((r) => r.trim())
+        : [],
+      deadline: formData.deadline ? new Date(formData.deadline) : null,
+      visibility:
+        formData.collaborationType === "Open to all"
+          ? "Open to All"
+          : "Invite Only",
+      creatorId: profileData.id,
     };
 
     try {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error('Failed to create project');
+      if (!res.ok) throw new Error("Failed to create project");
 
-      toast.success('✅ Project created successfully!');
-      if (formData.collaborationType === 'Open to all') {
-        navigate('/explore-projects');
+      toast.success("✅ Project created successfully!");
+      if (formData.collaborationType === "Open to all") {
+        navigate("/explore-projects");
       } else {
-        navigate('/my-projects');
+        navigate("/my-projects");
       }
     } catch (err) {
-      toast.error('❌ Error creating project: ' + err.message);
+      toast.error("❌ Error creating project: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -78,7 +86,6 @@ const PostProjectForm = () => {
 
   const inputClass =
     "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500";
-
   const sectionClass =
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
 
@@ -96,7 +103,6 @@ const PostProjectForm = () => {
           {/* Basic Info */}
           <div className={sectionClass}>
             <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
-
             <div>
               <label className="block mb-1">Project Title</label>
               <input
@@ -108,7 +114,6 @@ const PostProjectForm = () => {
                 placeholder="e.g. CodeMatch"
               />
             </div>
-
             <div>
               <label className="block mb-1">Description</label>
               <textarea
@@ -124,7 +129,9 @@ const PostProjectForm = () => {
 
           {/* Collaboration */}
           <div className={sectionClass}>
-            <h2 className="text-2xl font-semibold mb-4">Collaboration Details</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Collaboration Details
+            </h2>
 
             <div>
               <label className="block mb-1">Project Status</label>
@@ -158,7 +165,9 @@ const PostProjectForm = () => {
 
           {/* Tech Requirements */}
           <div className={sectionClass}>
-            <h2 className="text-2xl font-semibold mb-4">Technical Requirements</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Technical Requirements
+            </h2>
 
             <div>
               <label className="block mb-1">Tech Stack Needed</label>

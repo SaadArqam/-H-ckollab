@@ -1,106 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Eye, Users, X } from "lucide-react";
-import { useAuth } from '../context/UserContext';
-import { toast } from 'react-toastify';
-
-const projects = [
-  {
-    id: 1,
-    name: "Hackathon Helper",
-    description: "A tool to help teams organize for hackathons.",
-    status: "In Progress",
-    inviteStatus: "Pending",
-    collaborationType: "Open to all",
-    techStack: "React, Node.js",
-    customTech: "Figma",
-    difficulty: "Intermediate",
-    roles: "Frontend Developer, Designer",
-    customRoles: "UI/UX Specialist",
-    maxTeamSize: 5,
-    deadline: "2024-08-01",
-    tags: "Hackathon, Organizer, WebApp",
-  },
-  {
-    id: 2,
-    name: "Project Collab",
-    description: "A platform for students to find project partners.",
-    status: "Completed",
-    inviteStatus: "Accepted",
-    collaborationType: "Invite only",
-    techStack: "Next.js, Prisma",
-    customTech: "Socket.io",
-    difficulty: "Advanced",
-    roles: "Backend Developer, Fullstack",
-    customRoles: "DevOps",
-    maxTeamSize: 6,
-    deadline: "2024-07-15",
-    tags: "Collaboration, Platform, WebApp",
-  },
-  {
-    id: 3,
-    name: "Idea Board",
-    description: "A collaborative whiteboard for brainstorming and ideation.",
-    status: "In Progress",
-    inviteStatus: "Pending",
-    collaborationType: "Open to all",
-    techStack: "Vue, Firebase",
-    customTech: "Draw.io",
-    difficulty: "Beginner",
-    roles: "Frontend Developer, Tester",
-    customRoles: "Product Manager",
-    maxTeamSize: 4,
-    deadline: "2024-09-10",
-    tags: "Whiteboard, Brainstorm, Teamwork",
-  },
-  {
-    id: 4,
-    name: "DevConnect",
-    description: "A networking app for developers to connect and share portfolios.",
-    status: "Completed",
-    inviteStatus: "Accepted",
-    collaborationType: "Invite only",
-    techStack: "React Native, Express",
-    customTech: "Expo",
-    difficulty: "Intermediate",
-    roles: "Mobile Developer, Designer",
-    customRoles: "Community Manager",
-    maxTeamSize: 8,
-    deadline: "2024-10-05",
-    tags: "Networking, Mobile, Portfolio",
-  },
-  {
-    id: 5,
-    name: "Bug Tracker",
-    description: "A simple bug tracking tool for small teams and hackathons.",
-    status: "In Progress",
-    inviteStatus: "Pending",
-    collaborationType: "Open to all",
-    techStack: "Django, React",
-    customTech: "Sentry",
-    difficulty: "Intermediate",
-    roles: "Backend Developer, QA",
-    customRoles: "Scrum Master",
-    maxTeamSize: 7,
-    deadline: "2024-08-20",
-    tags: "Bug, Tracker, QA",
-  },
-  {
-    id: 6,
-    name: "Open Source Hub",
-    description: "A hub for discovering and contributing to open source projects.",
-    status: "Completed",
-    inviteStatus: "Accepted",
-    collaborationType: "Open to all",
-    techStack: "Ruby on Rails, React",
-    customTech: "GitHub API",
-    difficulty: "Advanced",
-    roles: "Fullstack Developer, Maintainer",
-    customRoles: "Community Lead",
-    maxTeamSize: 10,
-    deadline: "2024-12-01",
-    tags: "Open Source, Community, Contribution",
-  },
-];
+import { useUser } from "@clerk/clerk-react";
+import { useAppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 
 const borderColors = [
   "hover:border-purple-500/30",
@@ -114,10 +16,14 @@ const borderColors = [
 const inviteStatusColors = {
   Accepted: "bg-green-700/30 text-green-400",
   Pending: "bg-yellow-700/30 text-yellow-400",
+  Declined: "bg-red-700/30 text-red-400",
+  Expired: "bg-gray-600/30 text-gray-300",
 };
 
 export default function MyProjectsPage() {
-  const { user } = useAuth();
+  const { user } = useUser();
+  const { profileData } = useAppContext();
+
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewProject, setViewProject] = useState(null);
@@ -128,44 +34,69 @@ export default function MyProjectsPage() {
   const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
+    if (!profileData?.clerkId) return;
+
     const fetchProjects = async () => {
-      setLoading(true);
       try {
-        const res = await fetch('/api/projects');
+        const res = await fetch(`/api/projects/mine`);
         const data = await res.json();
-        setProjects(data.filter(p => p.creatorId === user?.uid));
+        setProjects(data || []);
       } catch (err) {
-        setProjects([]);
+        console.error("Error fetching projects:", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProjects();
-  }, [user]);
+  }, [profileData]);
 
   const handleView = (project) => setViewProject(project);
+
   const handleEdit = (project) => {
     setEditProject(project);
-    setEditInviteStatus(project.inviteStatus);
+    setEditInviteStatus(project.inviteStatus || "Pending");
   };
+
   const closeModal = () => {
     setViewProject(null);
     setEditProject(null);
+    setInviteProject(null);
+    setSelectedUsers([]);
   };
+
   const handleInviteStatusChange = (e) => setEditInviteStatus(e.target.value);
-  const handleSave = () => {
-    // In real app, update backend here
-    if (editProject) editProject.inviteStatus = editInviteStatus;
-    closeModal();
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`/api/projects/${editProject.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inviteStatus: editInviteStatus }),
+      });
+
+      if (!res.ok) throw new Error("Update failed");
+
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === editProject.id ? { ...p, inviteStatus: editInviteStatus } : p
+        )
+      );
+      toast.success("Invite status updated!");
+    } catch (err) {
+      console.error("Failed to update invite status:", err.message);
+      toast.error("Update failed!");
+    } finally {
+      closeModal();
+    }
   };
 
   const openInviteModal = async (project) => {
     setInviteProject(project);
-    // Fetch all users for selection (except self)
     try {
-      const res = await fetch('/api/users');
+      const res = await fetch("/api/users");
       const users = await res.json();
-      setAllUsers(users.filter(u => u.firebaseUid !== user?.uid));
+      setAllUsers(users.filter((u) => u.clerkId !== profileData?.clerkId));
     } catch {
       setAllUsers([]);
     }
@@ -174,104 +105,150 @@ export default function MyProjectsPage() {
   const sendInvites = async () => {
     if (!inviteProject || selectedUsers.length === 0) return;
     try {
-      // Map selected firebaseUids to user.id
-      const userIds = allUsers.filter(u => selectedUsers.includes(u.firebaseUid)).map(u => u.id);
+      const userIds = allUsers
+        .filter((u) => selectedUsers.includes(u.clerkId))
+        .map((u) => u.id);
+
       const res = await fetch(`/api/projects/${inviteProject.id}/invite`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userIds }),
       });
-      if (!res.ok) throw new Error('Failed to send invites');
-      toast.success('Invitations sent!');
-      setInviteProject(null);
-      setSelectedUsers([]);
+
+      if (!res.ok) throw new Error("Failed to send invites");
+
+      toast.success("Invitations sent!");
+      closeModal();
     } catch (err) {
-      toast.error('Failed to send invites');
+      toast.error("Failed to send invites");
     }
   };
 
   return (
     <div className="min-h-screen bg-black text-white px-6 pb-20">
-      {/* Heading */}
       <div className="text-center pt-20 pb-10">
         <h1 className="text-6xl md:text-7xl font-bold mb-4 leading-tight">
-          My <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">Projects</span>
+          My{" "}
+          <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+            Projects
+          </span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          View and manage your hackathon and collaboration projects. Track status, invites, and more.
+          View and manage your hackathon and collaboration projects. Track
+          status, invites, and more.
         </p>
       </div>
 
-      {/* Project Cards */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-        {projects.map((project, idx) => (
-          <div
-            key={project.id}
-            className={`bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-8 shadow-lg transition-all group relative overflow-hidden ${borderColors[idx % borderColors.length]}`}
-          >
-            {/* Project Title */}
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="text-blue-400" size={28} />
-              <h2 className="text-3xl font-bold group-hover:text-blue-400 transition-colors">
-                {project.name}
-              </h2>
-            </div>
-            {/* Description */}
-            <p className="text-gray-300 text-lg mb-6">{project.description}</p>
-            {/* Status & Invite */}
-            <div className="flex flex-wrap gap-6 items-center mb-6">
-              <div>
-                <span className="text-gray-400 text-sm">Status:</span>
-                <span className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${project.status === "Completed" ? "bg-green-700/30 text-green-400" : "bg-blue-700/30 text-blue-400"}`}>
-                  {project.status}
-                </span>
+      {loading ? (
+        <div className="text-center text-gray-400 text-xl">
+          Loading projects...
+        </div>
+      ) : projects.length === 0 ? (
+        <div className="text-center text-gray-400 text-xl">
+          No projects posted yet.
+        </div>
+      ) : (
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {projects.map((project, idx) => (
+            <div
+              key={project.id}
+              className={`bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-8 shadow-lg transition-all group relative overflow-hidden ${
+                borderColors[idx % borderColors.length]
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <Users className="text-blue-400" size={28} />
+                <h2 className="text-3xl font-bold group-hover:text-blue-400 transition-colors">
+                  {project.title}
+                </h2>
               </div>
-              <div>
-                <span className="text-gray-400 text-sm">Invite Status:</span>
-                <span className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${inviteStatusColors[project.inviteStatus] || "bg-gray-700/30 text-gray-300"}`}>
-                  {project.inviteStatus}
-                </span>
+              <p className="text-gray-300 text-lg mb-6">{project.description}</p>
+              <div className="flex flex-wrap gap-6 items-center mb-6">
+                <div>
+                  <span className="text-gray-400 text-sm">Status:</span>
+                  <span
+                    className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${
+                      project.status === "Completed"
+                        ? "bg-green-700/30 text-green-400"
+                        : "bg-blue-700/30 text-blue-400"
+                    }`}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-400 text-sm">Invite Status:</span>
+                  <span
+                    className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${
+                      inviteStatusColors[project.inviteStatus] ||
+                      "bg-gray-700/30 text-gray-300"
+                    }`}
+                  >
+                    {project.inviteStatus || "Pending"}
+                  </span>
+                </div>
               </div>
+
+              <div className="flex gap-4 mt-4">
+                <button
+                  onClick={() => handleView(project)}
+                  className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black font-semibold hover:bg-gray-100 transition-colors text-lg shadow"
+                >
+                  <Eye size={20} /> View
+                </button>
+                <button
+                  onClick={() => handleEdit(project)}
+                  className="flex items-center gap-2 px-6 py-2 rounded-xl border border-gray-600 text-white font-semibold hover:border-blue-500 hover:text-blue-400 transition-colors text-lg"
+                >
+                  <Edit size={20} /> Edit
+                </button>
+                <button
+                  onClick={() => openInviteModal(project)}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Invite Collaborators
+                </button>
+              </div>
+              <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
             </div>
-            {/* Buttons */}
-            <div className="flex gap-4 mt-4">
-              <button onClick={() => handleView(project)} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black font-semibold hover:bg-gray-100 transition-colors text-lg shadow">
-                <Eye size={20} /> View
-              </button>
-              <button onClick={() => handleEdit(project)} className="flex items-center gap-2 px-6 py-2 rounded-xl border border-gray-600 text-white font-semibold hover:border-blue-500 hover:text-blue-400 transition-colors text-lg">
-                <Edit size={20} /> Edit
-              </button>
-              <button onClick={() => openInviteModal(project)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Invite Collaborators</button>
-            </div>
-            {/* Card Hover Effect */}
-            <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* View Modal */}
       {viewProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-gradient-to-b from-gray-900/90 to-gray-900/70 border border-gray-700 rounded-2xl p-10 max-w-2xl w-full shadow-2xl relative animate-fade-in">
-            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-red-400 transition-colors">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-10 max-w-2xl w-full shadow-2xl relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-400"
+            >
               <X size={28} />
             </button>
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
-              {viewProject.name}
+              {viewProject.title}
             </h2>
-            <div className="space-y-3 text-lg">
-              <div><span className="font-semibold text-gray-400">Description:</span> {viewProject.description}</div>
-              <div><span className="font-semibold text-gray-400">Status:</span> {viewProject.status}</div>
-              <div><span className="font-semibold text-gray-400">Invite Status:</span> {viewProject.inviteStatus}</div>
-              <div><span className="font-semibold text-gray-400">Collaboration Type:</span> {viewProject.collaborationType}</div>
-              <div><span className="font-semibold text-gray-400">Tech Stack:</span> {viewProject.techStack}</div>
-              <div><span className="font-semibold text-gray-400">Custom Tech:</span> {viewProject.customTech}</div>
-              <div><span className="font-semibold text-gray-400">Difficulty:</span> {viewProject.difficulty}</div>
-              <div><span className="font-semibold text-gray-400">Roles Open:</span> {viewProject.roles}</div>
-              <div><span className="font-semibold text-gray-400">Custom Roles:</span> {viewProject.customRoles}</div>
-              <div><span className="font-semibold text-gray-400">Max Team Size:</span> {viewProject.maxTeamSize}</div>
-              <div><span className="font-semibold text-gray-400">Deadline:</span> {viewProject.deadline}</div>
-              <div><span className="font-semibold text-gray-400">Tags:</span> {viewProject.tags}</div>
+            <div className="space-y-3 text-lg text-gray-300">
+              <div>
+                <strong>Description:</strong> {viewProject.description}
+              </div>
+              <div>
+                <strong>Status:</strong> {viewProject.status}
+              </div>
+              <div>
+                <strong>Invite Status:</strong>{" "}
+                {viewProject.inviteStatus || "Pending"}
+              </div>
+              <div>
+                <strong>Tech Stack:</strong>{" "}
+                {(viewProject.techStack || []).join(", ")}
+              </div>
+              <div>
+                <strong>Tags:</strong> {(viewProject.tags || []).join(", ")}
+              </div>
+              <div>
+                <strong>Max Team Size:</strong> {viewProject.maxTeamSize}
+              </div>
             </div>
           </div>
         </div>
@@ -280,19 +257,24 @@ export default function MyProjectsPage() {
       {/* Edit Modal */}
       {editProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-gradient-to-b from-gray-900/90 to-gray-900/70 border border-gray-700 rounded-2xl p-10 max-w-xl w-full shadow-2xl relative animate-fade-in">
-            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-red-400 transition-colors">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-10 max-w-xl w-full shadow-2xl relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-400"
+            >
               <X size={28} />
             </button>
             <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
               Edit Invite Status
             </h2>
             <div className="mb-8">
-              <label className="block mb-2 text-lg font-semibold text-gray-400">Invite Status</label>
+              <label className="block mb-2 text-lg text-gray-400">
+                Invite Status
+              </label>
               <select
                 value={editInviteStatus}
                 onChange={handleInviteStatusChange}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
               >
                 <option>Pending</option>
                 <option>Accepted</option>
@@ -310,26 +292,43 @@ export default function MyProjectsPage() {
         </div>
       )}
 
-      {/* Invite Collaborators Modal */}
+      {/* Invite Modal */}
       {inviteProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-white p-8 rounded-xl max-w-md w-full">
+          <div className="bg-white p-8 rounded-xl max-w-md w-full text-black">
             <h2 className="text-2xl font-bold mb-4">Invite Collaborators</h2>
-            <div className="mb-4">
-              <label className="block mb-2">Select users to invite:</label>
-              <select multiple value={selectedUsers} onChange={e => setSelectedUsers(Array.from(e.target.selectedOptions, o => o.value))} className="w-full border rounded p-2">
-                {allUsers.map(u => (
-                  <option key={u.id} value={u.firebaseUid}>{u.name} ({u.email})</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={sendInvites} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Send Invites</button>
-              <button onClick={() => setInviteProject(null)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+            <label className="block mb-2">Select users to invite:</label>
+            <select
+              multiple
+              value={selectedUsers}
+              onChange={(e) =>
+                setSelectedUsers(Array.from(e.target.selectedOptions, (o) => o.value))
+              }
+              className="w-full border rounded p-2"
+            >
+              {allUsers.map((u) => (
+                <option key={u.id} value={u.clerkId}>
+                  {u.name} ({u.email})
+                </option>
+              ))}
+            </select>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={sendInvites}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Send Invites
+              </button>
+              <button
+                onClick={() => setInviteProject(null)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-} 
+}

@@ -24,7 +24,9 @@ model User {
   updatedAt    DateTime @updatedAt
 
   skills          UserSkill[]
-  projects        Project[]
+  projects        Project[]                        // Projects created by the user
+  invitations     Invitation[]                     // Invitations received by the user
+  interestedIn    Project[] @relation("ProjectInterest") // Projects user is interested in
   sentInvites     Invite[] @relation("SentInvites")
   receivedInvites Invite[] @relation("ReceivedInvites")
 }
@@ -49,20 +51,29 @@ model UserSkill {
 }
 
 model Project {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  tags        String[] // ✅ Array field
-  techStack   String[] // ✅ Array field
-  maxTeamSize Int
-  status      String   @default("Open")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(uuid())
+  title             String
+  description       String
+  tags              String[]      // ✅ Array field
+  techStack         String[]      // ✅ Array field
+  maxTeamSize       Int
+  status            String   @default("Open")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  creator     User     @relation(fields: [creatorId], references: [id])
-  creatorId   String
-  invites     Invite[]
-  collaborators User[] @relation("ProjectCollaborators")
+  collaborationType String           // ✅ New
+  difficulty        String           // ✅ New
+  rolesNeeded       String[]         // ✅ New
+  deadline          DateTime?        // ✅ New
+  visibility        String           @default("Open to All")
+
+  creator           User             @relation(fields: [creatorId], references: [id])
+  creatorId         String
+
+  invitations       Invitation[]     // Invitations sent from this project
+  interestedUsers   User[]           @relation("ProjectInterest") // Users who showed interest
+  collaborators     User[]           @relation("ProjectCollaborators")
+  invites           Invite[]         // Optional: aliases invites used in one of the branches
 }
 
 model Invite {
