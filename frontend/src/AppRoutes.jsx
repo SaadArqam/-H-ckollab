@@ -1,4 +1,3 @@
-// AppRoutes.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -14,6 +13,7 @@ import Profile from "./pages/Profile";
 import CreateProfile from "./pages/CreateProfile";
 import PostProjectPage from "./pages/PostProjectPage";
 import MyProjectsPage from "./pages/MyProjectsPage";
+import MyInvites from "./pages/MyInvites"; // ✅ NEW: MyInvites route
 
 // Auth
 import SignInPage from "./components/SignIn";
@@ -35,6 +35,7 @@ export default function AppRoutes() {
       <Route path="/create-profile" element={<Layout><CreateProfile /></Layout>} />
       <Route path="/post-project" element={<Layout><PostProjectPage /></Layout>} />
       <Route path="/my-projects" element={<Layout><MyProjectsPage /></Layout>} />
+      <Route path="/my-invites" element={<Layout><MyInvites /></Layout>} /> {/* ✅ NEW */}
     </Routes>
   );
 }
