@@ -16,13 +16,11 @@ export const createProject = async (req, res) => {
     } = req.body;
 
     const user = await prisma.user.findUnique({
-      where: { clerkId: creatorId },
+      where: { id: creatorId }, // Using Prisma user.id directly
     });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User not found for the provided Clerk ID" });
+      return res.status(404).json({ error: "User not found for the provided user ID" });
     }
 
     const project = await prisma.project.create({
@@ -35,8 +33,10 @@ export const createProject = async (req, res) => {
         status,
         difficulty,
         visibility,
-        inviteStatus: "Pending",
-        creator: { connect: { id: user.id } },
+        inviteStatus: "Pending", // custom field
+        creator: {
+          connect: { id: user.id },
+        },
       },
       include: { creator: true },
     });
@@ -46,13 +46,10 @@ export const createProject = async (req, res) => {
     console.error("❌ Error creating project:", error.message);
     if (error.message?.includes("connect to the database")) {
       return res.status(503).json({
-        error:
-          "Database connection failed. Please ensure PostgreSQL is running.",
+        error: "Database connection failed. Please ensure PostgreSQL is running.",
       });
     }
-    res
-      .status(500)
-      .json({ error: error.message || "Failed to create project" });
+    res.status(500).json({ error: error.message || "Failed to create project" });
   }
 };
 
@@ -112,9 +109,9 @@ export const showInterest = async (req, res) => {
       where: { id: projectId },
       data: {
         interestedUsers: {
-          connect: { id: userId }
-        }
-      }
+          connect: { id: userId },
+        },
+      },
     });
 
     res.status(200).json(project);
@@ -165,16 +162,44 @@ export const updateProjectInviteStatus = async (req, res) => {
   }
 };
 
-// Optional helper
-export const getUserByClerkId = async (req, res) => {
+// Get user by Firebase UID (used if not using Clerk)
+export const getUserByFirebaseUid = async (req, res) => {
   try {
-    const { clerkId } = req.params;
-    const user = await prisma.user.findUnique({ where: { clerkId } });
+    const { firebaseUid } = req.params;
+    const user = await prisma.user.findUnique({ where: { firebaseUid } });
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Invite collaborators to a project
+export const inviteCollaborators = async (req, res) => {
+  const { id } = req.params; // projectId
+  const { userIds } = req.body;
+
+  if (!Array.isArray(userIds) || userIds.length === 0) {
+    return res.status(400).json({ error: "No users selected for invitation" });
+  }
+
+  try {
+    const invitations = await Promise.all(
+      userIds.map(async (userId) => {
+        return await prisma.invitation.create({
+          data: {
+            projectId: id,
+            userId,
+            status: "Pending",
+          },
+        });
+      })
+    );
+
+    res.status(201).json({ message: "Invitations sent", invitations });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to send invitations" });
   }
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Edit, Eye, Users, X } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useAppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 
 const borderColors = [
   "hover:border-purple-500/30",
@@ -22,12 +23,15 @@ const inviteStatusColors = {
 export default function MyProjectsPage() {
   const { user } = useUser();
   const { profileData } = useAppContext();
+
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [viewProject, setViewProject] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [editInviteStatus, setEditInviteStatus] = useState("");
+  const [inviteProject, setInviteProject] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
     if (!profileData?.clerkId) return;
@@ -57,6 +61,8 @@ export default function MyProjectsPage() {
   const closeModal = () => {
     setViewProject(null);
     setEditProject(null);
+    setInviteProject(null);
+    setSelectedUsers([]);
   };
 
   const handleInviteStatusChange = (e) => setEditInviteStatus(e.target.value);
@@ -76,16 +82,50 @@ export default function MyProjectsPage() {
           p.id === editProject.id ? { ...p, inviteStatus: editInviteStatus } : p
         )
       );
+      toast.success("Invite status updated!");
     } catch (err) {
       console.error("Failed to update invite status:", err.message);
+      toast.error("Update failed!");
     } finally {
       closeModal();
     }
   };
 
+  const openInviteModal = async (project) => {
+    setInviteProject(project);
+    try {
+      const res = await fetch("/api/users");
+      const users = await res.json();
+      setAllUsers(users.filter((u) => u.clerkId !== profileData?.clerkId));
+    } catch {
+      setAllUsers([]);
+    }
+  };
+
+  const sendInvites = async () => {
+    if (!inviteProject || selectedUsers.length === 0) return;
+    try {
+      const userIds = allUsers
+        .filter((u) => selectedUsers.includes(u.clerkId))
+        .map((u) => u.id);
+
+      const res = await fetch(`/api/projects/${inviteProject.id}/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds }),
+      });
+
+      if (!res.ok) throw new Error("Failed to send invites");
+
+      toast.success("Invitations sent!");
+      closeModal();
+    } catch (err) {
+      toast.error("Failed to send invites");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white px-6 pb-20">
-      {/* Heading */}
       <div className="text-center pt-20 pb-10">
         <h1 className="text-6xl md:text-7xl font-bold mb-4 leading-tight">
           My{" "}
@@ -99,7 +139,6 @@ export default function MyProjectsPage() {
         </p>
       </div>
 
-      {/* Project Cards */}
       {loading ? (
         <div className="text-center text-gray-400 text-xl">
           Loading projects...
@@ -117,18 +156,13 @@ export default function MyProjectsPage() {
                 borderColors[idx % borderColors.length]
               }`}
             >
-              {/* Project Title */}
               <div className="flex items-center gap-3 mb-2">
                 <Users className="text-blue-400" size={28} />
                 <h2 className="text-3xl font-bold group-hover:text-blue-400 transition-colors">
                   {project.title}
                 </h2>
               </div>
-              {/* Description */}
-              <p className="text-gray-300 text-lg mb-6">
-                {project.description}
-              </p>
-              {/* Status & Invite */}
+              <p className="text-gray-300 text-lg mb-6">{project.description}</p>
               <div className="flex flex-wrap gap-6 items-center mb-6">
                 <div>
                   <span className="text-gray-400 text-sm">Status:</span>
@@ -154,7 +188,7 @@ export default function MyProjectsPage() {
                   </span>
                 </div>
               </div>
-              {/* Buttons */}
+
               <div className="flex gap-4 mt-4">
                 <button
                   onClick={() => handleView(project)}
@@ -168,6 +202,12 @@ export default function MyProjectsPage() {
                 >
                   <Edit size={20} /> Edit
                 </button>
+                <button
+                  onClick={() => openInviteModal(project)}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Invite Collaborators
+                </button>
               </div>
               <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
             </div>
@@ -178,46 +218,36 @@ export default function MyProjectsPage() {
       {/* View Modal */}
       {viewProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-gradient-to-b from-gray-900/90 to-gray-900/70 border border-gray-700 rounded-2xl p-10 max-w-2xl w-full shadow-2xl relative animate-fade-in">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-10 max-w-2xl w-full shadow-2xl relative">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-red-400 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-400"
             >
               <X size={28} />
             </button>
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
               {viewProject.title}
             </h2>
-            <div className="space-y-3 text-lg">
+            <div className="space-y-3 text-lg text-gray-300">
               <div>
-                <span className="font-semibold text-gray-400">
-                  Description:
-                </span>{" "}
-                {viewProject.description}
+                <strong>Description:</strong> {viewProject.description}
               </div>
               <div>
-                <span className="font-semibold text-gray-400">Status:</span>{" "}
-                {viewProject.status}
+                <strong>Status:</strong> {viewProject.status}
               </div>
               <div>
-                <span className="font-semibold text-gray-400">
-                  Invite Status:
-                </span>{" "}
+                <strong>Invite Status:</strong>{" "}
                 {viewProject.inviteStatus || "Pending"}
               </div>
               <div>
-                <span className="font-semibold text-gray-400">Tech Stack:</span>{" "}
+                <strong>Tech Stack:</strong>{" "}
                 {(viewProject.techStack || []).join(", ")}
               </div>
               <div>
-                <span className="font-semibold text-gray-400">Tags:</span>{" "}
-                {(viewProject.tags || []).join(", ")}
+                <strong>Tags:</strong> {(viewProject.tags || []).join(", ")}
               </div>
               <div>
-                <span className="font-semibold text-gray-400">
-                  Max Team Size:
-                </span>{" "}
-                {viewProject.maxTeamSize}
+                <strong>Max Team Size:</strong> {viewProject.maxTeamSize}
               </div>
             </div>
           </div>
@@ -227,10 +257,10 @@ export default function MyProjectsPage() {
       {/* Edit Modal */}
       {editProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-gradient-to-b from-gray-900/90 to-gray-900/70 border border-gray-700 rounded-2xl p-10 max-w-xl w-full shadow-2xl relative animate-fade-in">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-10 max-w-xl w-full shadow-2xl relative">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-red-400 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-400"
             >
               <X size={28} />
             </button>
@@ -238,13 +268,13 @@ export default function MyProjectsPage() {
               Edit Invite Status
             </h2>
             <div className="mb-8">
-              <label className="block mb-2 text-lg font-semibold text-gray-400">
+              <label className="block mb-2 text-lg text-gray-400">
                 Invite Status
               </label>
               <select
                 value={editInviteStatus}
                 onChange={handleInviteStatusChange}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
               >
                 <option>Pending</option>
                 <option>Accepted</option>
@@ -258,6 +288,44 @@ export default function MyProjectsPage() {
             >
               Save
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Modal */}
+      {inviteProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-white p-8 rounded-xl max-w-md w-full text-black">
+            <h2 className="text-2xl font-bold mb-4">Invite Collaborators</h2>
+            <label className="block mb-2">Select users to invite:</label>
+            <select
+              multiple
+              value={selectedUsers}
+              onChange={(e) =>
+                setSelectedUsers(Array.from(e.target.selectedOptions, (o) => o.value))
+              }
+              className="w-full border rounded p-2"
+            >
+              {allUsers.map((u) => (
+                <option key={u.id} value={u.clerkId}>
+                  {u.name} ({u.email})
+                </option>
+              ))}
+            </select>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={sendInvites}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Send Invites
+              </button>
+              <button
+                onClick={() => setInviteProject(null)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,13 +1,10 @@
-import {
-  SignInButton,
-  SignUpButton,
-  UserButton,
-  useUser,
-} from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/UserContext";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
 
 export default function Navbar() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useAuth();
 
   return (
     <nav className="w-full border-b border-gray-800 bg-gray-950 text-white">
@@ -48,21 +45,27 @@ export default function Navbar() {
 
           {/* Auth Buttons */}
           {isSignedIn ? (
-            <div className="ml-2">
-              <UserButton afterSignOutUrl="/" />
+            <div className="ml-2 flex items-center gap-2">
+              <span className="text-gray-300 text-sm">{user?.email}</span>
+              <button
+                onClick={() => signOut(auth)}
+                className="px-4 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-500 transition text-sm font-semibold ml-2"
+              >
+                Sign Out
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-3 ml-4">
-              <SignInButton mode="modal">
+              <Link to="/sign-in">
                 <button className="px-4 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-500 transition text-sm font-semibold">
                   Sign In
                 </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
+              </Link>
+              <Link to="/sign-up">
                 <button className="px-4 py-1.5 rounded-md border border-gray-700 hover:border-indigo-500 hover:text-indigo-400 transition text-sm font-medium">
                   Sign Up
                 </button>
-              </SignUpButton>
+              </Link>
             </div>
           )}
         </div>

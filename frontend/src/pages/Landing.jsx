@@ -5,11 +5,11 @@
 
 import React from 'react';
 import { ArrowRight, Users, Target, FolderOpen, MessageSquare, Github, Star } from 'lucide-react';
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn } = useAuth();
   const navigate = useNavigate();
 
   const handleCreateProfile = () => {

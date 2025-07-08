@@ -2,31 +2,76 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/UserContext";
 import { useAppContext } from "../context/AppContext";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserProfileForm = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const { profileData, refetchProfile } = useAppContext();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: profileData?.name || "",
-    bio: profileData?.bio || "",
-    availability: profileData?.availability || "",
-    academicYear: profileData?.academicYear || "",
-    branch: profileData?.branch || "",
-    frontendSkills: profileData?.frontendSkills || "",
-    backendSkills: profileData?.backendSkills || "",
-    dbSkills: profileData?.dbSkills || "",
-    customSkills: profileData?.customSkills || "",
-    interests: profileData?.interests || "",
-    github: profileData?.githubUrl || "",
-    otherLinks: profileData?.portfolioUrl || "",
-    projects: profileData?.projects || [{ title: "", tech: "", link: "" }],
+    name: "",
+    bio: "",
+    availability: "",
+    academicYear: "",
+    branch: "",
+    frontendSkills: "",
+    backendSkills: "",
+    dbSkills: "",
+    customSkills: "",
+    interests: "",
+    github: "",
+    otherLinks: "",
+    projects: [{ title: "", tech: "", link: "" }],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Populate form data when profileData is available
+  useEffect(() => {
+    if (profileData) {
+      // Convert backend skills format to form format
+      let frontendSkills = "";
+      let backendSkills = "";
+      let dbSkills = "";
+      let customSkills = "";
+
+      if (profileData.skills && Array.isArray(profileData.skills)) {
+        profileData.skills.forEach(skillRelation => {
+          const skillName = skillRelation.skill.name;
+          const level = skillRelation.level;
+          
+          // Categorize skills based on level (this is a simple mapping)
+          if (level === "Advanced") {
+            frontendSkills += (frontendSkills ? ", " : "") + skillName;
+          } else if (level === "Intermediate") {
+            backendSkills += (backendSkills ? ", " : "") + skillName;
+          } else {
+            customSkills += (customSkills ? ", " : "") + skillName;
+          }
+        });
+      }
+
+      setFormData({
+        name: profileData.name || "",
+        bio: profileData.bio || "",
+        availability: profileData.availability || "",
+        academicYear: profileData.academicYear || "",
+        branch: profileData.branch || "",
+        frontendSkills,
+        backendSkills,
+        dbSkills,
+        customSkills,
+        interests: profileData.interests || "",
+        github: profileData.githubUrl || "",
+        otherLinks: profileData.portfolioUrl || "",
+        projects: profileData.featuredProjects || [{ title: "", tech: "", link: "" }],
+      });
+    }
+  }, [profileData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,47 +135,66 @@ const UserProfileForm = () => {
 
     // Prepare payload
     const payload = {
-      clerkId: user?.id,
+      firebaseUid: user?.uid,
       name: formData.name,
-      email: user?.primaryEmailAddress?.emailAddress,
+      email: user?.email,
       bio: formData.bio,
       githubUrl: formData.github,
       portfolioUrl: formData.otherLinks,
-      availability: formData.availability,
+      availability: formData.availability || "Available",
       skills,
       academicYear: formData.academicYear,
       branch: formData.branch,
       interests: formData.interests,
-      projects: formData.projects,
+      projects: formData.projects, // Add projects to payload
     };
 
     try {
       let res;
+      const token = user && await user.getIdToken();
       if (profileData) {
         // Edit mode: PATCH
-        res = await fetch(`http://localhost:4000/api/users/clerk/${user?.id}`, {
+        res = await fetch(`http://localhost:4000/api/users/firebase/${user?.uid}`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
           body: JSON.stringify(payload),
         });
       } else {
         // Create mode: POST
         res = await fetch("http://localhost:4000/api/users", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
           body: JSON.stringify(payload),
         });
       }
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to save profile");
+        let errorMsg = 'Failed to save profile';
+        try {
+          // Try to parse as JSON
+          const data = await res.json();
+          errorMsg = data.error || errorMsg;
+        } catch (e) {
+          // If not JSON, get text (likely HTML error page)
+          try {
+            errorMsg = await res.text();
+          } catch { }
+        }
+        throw new Error(errorMsg);
       }
       await refetchProfile();
       setLoading(false);
+      toast.success(profileData ? "Profile updated successfully!" : "Profile created successfully!");
       navigate("/profile");
     } catch (err) {
       setLoading(false);
       setError(err.message || "Failed to save profile");
+      toast.error(err.message || "Failed to save profile");
     }
   };
 
@@ -374,9 +438,8 @@ const UserProfileForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg transition-all duration-200 ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
-            }`}
+            className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg transition-all duration-200 ${loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+              }`}
           >
             {loading ? (
               <div className="flex items-center justify-center">

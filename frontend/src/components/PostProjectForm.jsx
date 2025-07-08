@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useUser } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/UserContext";
 import { useAppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PostProjectForm = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { profileData, loading: profileLoading } = useAppContext();
 
@@ -33,8 +34,8 @@ const PostProjectForm = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (profileLoading || !profileData?.clerkId) {
-      alert("User profile is still loading. Please wait a moment.");
+    if (profileLoading || !profileData?.id) {
+      toast.error("User profile is still loading. Please wait a moment.");
       setLoading(false);
       return;
     }
@@ -49,11 +50,16 @@ const PostProjectForm = () => {
       maxTeamSize: parseInt(formData.maxTeamSize) || 1,
       status: formData.status || "Open",
       difficulty: formData.difficulty || "",
+      collaborationType: formData.collaborationType,
+      rolesNeeded: formData.roles
+        ? formData.roles.split(",").map((r) => r.trim())
+        : [],
+      deadline: formData.deadline ? new Date(formData.deadline) : null,
       visibility:
         formData.collaborationType === "Open to all"
           ? "Open to All"
           : "Invite Only",
-      creatorId: profileData.clerkId,
+      creatorId: profileData.id,
     };
 
     try {
@@ -65,9 +71,14 @@ const PostProjectForm = () => {
 
       if (!res.ok) throw new Error("Failed to create project");
 
-      navigate("/my-projects");
+      toast.success("✅ Project created successfully!");
+      if (formData.collaborationType === "Open to all") {
+        navigate("/explore-projects");
+      } else {
+        navigate("/my-projects");
+      }
     } catch (err) {
-      console.error("❌ Error creating project:", err.message);
+      toast.error("❌ Error creating project: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -75,7 +86,6 @@ const PostProjectForm = () => {
 
   const inputClass =
     "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500";
-
   const sectionClass =
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
 
@@ -104,7 +114,6 @@ const PostProjectForm = () => {
                 placeholder="e.g. CodeMatch"
               />
             </div>
-
             <div>
               <label className="block mb-1">Description</label>
               <textarea
