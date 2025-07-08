@@ -51,12 +51,10 @@ export const getUsers = async (req, res) => {
         error.message.includes("Can't reach database server") ||
         error.constructor.name === "PrismaClientInitializationError")
     ) {
-      return res
-        .status(503)
-        .json({
-          error:
-            "Database connection failed. Please ensure PostgreSQL is running.",
-        });
+      return res.status(503).json({
+        error:
+          "Database connection failed. Please ensure PostgreSQL is running.",
+      });
     }
     res.status(500).json({ error: "Failed to fetch users" });
   }
@@ -66,7 +64,16 @@ export const getUsers = async (req, res) => {
 export const getUserByClerkId = async (req, res) => {
   try {
     const { clerkId } = req.params;
-    const user = await prisma.user.findUnique({ where: { clerkId } });
+    const user = await prisma.user.findUnique({
+      where: { clerkId },
+      include: {
+        skills: {
+          include: { skill: true },
+        },
+        // You can include projects here if needed, e.g.:
+        // projects: true,
+      },
+    });
 
     if (!user) return res.status(404).json({ error: "User not found" });
 

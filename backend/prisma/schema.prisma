@@ -23,7 +23,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   skills   UserSkill[]
-  projects Project[] // 👈 Add this
+  projects Project[] // 👈 One-to-many relationship with projects
 }
 
 model Skill {
@@ -46,16 +46,22 @@ model UserSkill {
 }
 
 model Project {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  tags        String[] // ✅ Array field
-  techStack   String[] // ✅ Array field
-  maxTeamSize Int
-  status      String   @default("Open")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(uuid())
+  title             String
+  description       String
+  tags              String[] // ✅ Array field
+  techStack         String[] // ✅ Array field
+  maxTeamSize       Int
+  status            String   @default("Open")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
+  collaborationType String           // ✅ New
+  difficulty        String           // ✅ New
+  rolesNeeded       String[]         // ✅ New
+  deadline          DateTime?        // ✅ New
+  visibility      String    @default("Open to All")
+  interestedUsers User[]    @relation("ProjectInterest")
   creator   User   @relation(fields: [creatorId], references: [id])
   creatorId String
 }

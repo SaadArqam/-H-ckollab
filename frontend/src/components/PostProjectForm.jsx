@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from '../context/AppContext'; // 👈 import it
+import { useAppContext } from "../context/AppContext";
 
 const PostProjectForm = () => {
-
   const { user } = useUser();
   const navigate = useNavigate();
   const { profileData, loading: profileLoading } = useAppContext();
 
   const [loading, setLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -34,49 +32,42 @@ const PostProjectForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (profileLoading || !profileData?.id) {
+
+    if (profileLoading || !profileData?.clerkId) {
       alert("User profile is still loading. Please wait a moment.");
       setLoading(false);
-
       return;
     }
 
-
-    console.log("🧪 User ID:", profileData.id);
     const payload = {
       title: formData.title,
       description: formData.description,
-      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
-      techStack: formData.techStack ? formData.techStack.split(',').map(t => t.trim()) : [],
+      tags: formData.tags ? formData.tags.split(",").map((t) => t.trim()) : [],
+      techStack: formData.techStack
+        ? formData.techStack.split(",").map((t) => t.trim())
+        : [],
       maxTeamSize: parseInt(formData.maxTeamSize) || 1,
-      status: formData.status || 'Open',
-      creatorId: profileData?.clerkId,
+      status: formData.status || "Open",
+      difficulty: formData.difficulty || "",
+      visibility:
+        formData.collaborationType === "Open to all"
+          ? "Open to All"
+          : "Invite Only",
+      creatorId: profileData.clerkId,
     };
 
-
-    console.log("🚀 Payload ready to send:", payload);
-
-
-    console.log("👀 profileData.id (Clerk ID):", profileData?.id);
-    console.log("📤 Final payload being sent:", payload);
-
-
     try {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      console.log("🔗 POSTing to: http://localhost:4000/api/projects");
 
-      if (!res.ok) throw new Error('Failed to create project');
+      if (!res.ok) throw new Error("Failed to create project");
 
-      console.log('✅ Project created');
-      navigate('/my-projects');
+      navigate("/my-projects");
     } catch (err) {
-      console.error('❌ Error creating project:', err.message);
+      console.error("❌ Error creating project:", err.message);
     } finally {
       setLoading(false);
     }
@@ -87,6 +78,7 @@ const PostProjectForm = () => {
 
   const sectionClass =
     "space-y-6 bg-gray-950 p-6 rounded-xl border border-gray-800";
+
   return (
     <div className="min-h-screen px-6 py-12 bg-black text-white">
       <div className="max-w-5xl mx-auto space-y-10">
@@ -101,7 +93,6 @@ const PostProjectForm = () => {
           {/* Basic Info */}
           <div className={sectionClass}>
             <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
-
             <div>
               <label className="block mb-1">Project Title</label>
               <input
@@ -129,7 +120,9 @@ const PostProjectForm = () => {
 
           {/* Collaboration */}
           <div className={sectionClass}>
-            <h2 className="text-2xl font-semibold mb-4">Collaboration Details</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Collaboration Details
+            </h2>
 
             <div>
               <label className="block mb-1">Project Status</label>
@@ -163,7 +156,9 @@ const PostProjectForm = () => {
 
           {/* Tech Requirements */}
           <div className={sectionClass}>
-            <h2 className="text-2xl font-semibold mb-4">Technical Requirements</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Technical Requirements
+            </h2>
 
             <div>
               <label className="block mb-1">Tech Stack Needed</label>
