@@ -3,11 +3,13 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import inviteRoutes from './routes/inviteRoutes.js'; // ✅ NEW
 
 dotenv.config();
 
-const app = express(); //  This was missing!
+const app = express();
 
+// Middleware
 app.use(express.json());
 
 // CORS setup
@@ -23,7 +25,6 @@ app.use(cors({
   credentials: true
 }));
 
-
 // Routes
 console.log('✅ Before /api/users');
 app.use('/api/users', userRoutes);
@@ -31,7 +32,9 @@ app.use('/api/users', userRoutes);
 console.log('✅ Before /api/projects');
 app.use('/api/projects', projectRoutes);
 
-console.log('✅ /api/users and /api/projects routes loaded');
+console.log('✅ Before /api/invites');
+app.use('/api/invites', inviteRoutes); // ✅ NEW
+console.log('✅ /api/invites routes loaded');
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -42,6 +45,7 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working!' });
 });
 
+// Start server
 app.listen(4000, () => {
   console.log('🚀 Server running on port 4000');
 });

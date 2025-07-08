@@ -23,10 +23,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  skills       UserSkill[]
-  projects     Project[]              // Projects created by the user
-  invitations  Invitation[]           // Invitations received by the user
-  interestedIn Project[] @relation("ProjectInterest") // Projects user is interested in
+  skills          UserSkill[]
+  projects        Project[]                        // Projects created by the user
+  invitations     Invitation[]                     // Invitations received by the user
+  interestedIn    Project[] @relation("ProjectInterest") // Projects user is interested in
+  sentInvites     Invite[] @relation("SentInvites")
+  receivedInvites Invite[] @relation("ReceivedInvites")
 }
 
 model Skill {
@@ -52,8 +54,8 @@ model Project {
   id                String   @id @default(uuid())
   title             String
   description       String
-  tags              String[] // ✅ Array field
-  techStack         String[] // ✅ Array field
+  tags              String[]      // ✅ Array field
+  techStack         String[]      // ✅ Array field
   maxTeamSize       Int
   status            String   @default("Open")
   createdAt         DateTime @default(now())
@@ -70,14 +72,20 @@ model Project {
 
   invitations       Invitation[]     // Invitations sent from this project
   interestedUsers   User[]           @relation("ProjectInterest") // Users who showed interest
+  collaborators     User[]           @relation("ProjectCollaborators")
+  invites           Invite[]         // Optional: aliases invites used in one of the branches
 }
 
-model Invitation {
-  id        String   @id @default(cuid())
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  status    String   @default("Pending") // Pending, Accepted, Declined
-  createdAt DateTime @default(now())
+model Invite {
+  id           String   @id @default(cuid())
+  project      Project  @relation(fields: [projectId], references: [id])
+  projectId    String
+  sender       User     @relation("SentInvites", fields: [senderId], references: [id])
+  senderId     String
+  receiver     User     @relation("ReceivedInvites", fields: [receiverId], references: [id])
+  receiverId   String
+  role         String
+  status       String   @default("pending") // pending, accepted, declined
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
