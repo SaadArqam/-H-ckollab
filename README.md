@@ -11,7 +11,7 @@ A full-stack collaboration platform that empowers students to effortlessly find 
 - React.js
 - React Router DOM
 - Tailwind CSS
-- Clerk (Authentication)
+- Firebase Auth (Authentication)
 - React Context (Global State)
 
 **Backend**
