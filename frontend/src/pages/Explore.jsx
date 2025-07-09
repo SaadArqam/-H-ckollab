@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Star, MapPin, Users, Send, Github, ExternalLink, Search, Filter, Sparkles } from 'lucide-react';
-
+import { Award } from "lucide-react";
 // Enhanced UserCard Component with premium design
 function UserCard({ developer }) {
 
