@@ -8,25 +8,26 @@ generator client {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  firebaseUid  String   @unique
-  name         String
-  email        String   @unique
-  bio          String?
-  githubUrl    String?
-  portfolioUrl String?
-  availability String // Available | Busy | Not Available
-  academicYear String?
-  branch       String?
-  interests    String?
+  id               String   @id @default(cuid())
+  firebaseUid      String   @unique
+  name             String
+  email            String   @unique
+  bio              String?
+  githubUrl        String?
+  portfolioUrl     String?
+  availability     String // Available | Busy | Not Available
+  academicYear     String?
+  branch           String?
+  interests        String?
   featuredProjects Json? // Array of featured projects with title, tech, link
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  skills          UserSkill[]
-  projects        Project[]
-  sentInvites     Invite[] @relation("SentInvites")
-  receivedInvites Invite[] @relation("ReceivedInvites")
+  skills               UserSkill[]
+  projects             Project[] // Projects created by this user
+  sentInvites          Invite[]    @relation("SentInvites")
+  receivedInvites      Invite[]    @relation("ReceivedInvites")
+  collaboratedProjects Project[]   @relation("ProjectCollaborators") //  reverse relation for collaborators
 }
 
 model Skill {
@@ -52,29 +53,29 @@ model Project {
   id          String   @id @default(uuid())
   title       String
   description String
-  tags        String[] // ✅ Array field
-  techStack   String[] // ✅ Array field
+  tags        String[] // Array field
+  techStack   String[] // Array field
   maxTeamSize Int
   status      String   @default("Open")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  creator     User     @relation(fields: [creatorId], references: [id])
-  creatorId   String
-  invites     Invite[]
-  collaborators User[] @relation("ProjectCollaborators")
+  creator       User     @relation(fields: [creatorId], references: [id])
+  creatorId     String
+  invites       Invite[]
+  collaborators User[]   @relation("ProjectCollaborators") // relation to collaborators
 }
 
 model Invite {
-  id           String   @id @default(cuid())
-  project      Project  @relation(fields: [projectId], references: [id])
-  projectId    String
-  sender       User     @relation("SentInvites", fields: [senderId], references: [id])
-  senderId     String
-  receiver     User     @relation("ReceivedInvites", fields: [receiverId], references: [id])
-  receiverId   String
-  role         String
-  status       String   @default("pending") // pending, accepted, declined
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String   @id @default(cuid())
+  project    Project  @relation(fields: [projectId], references: [id])
+  projectId  String
+  sender     User     @relation("SentInvites", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User     @relation("ReceivedInvites", fields: [receiverId], references: [id])
+  receiverId String
+  role       String
+  status     String   @default("pending") // pending, accepted, declined
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
