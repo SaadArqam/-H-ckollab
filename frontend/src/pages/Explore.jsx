@@ -1,15 +1,12 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, Star, MapPin, Users, Send, Github, ExternalLink, Search, Filter, Sparkles, Zap, Calendar, Trophy, Award, Clock, TrendingUp } from 'lucide-react';
+import { Star, MapPin, Users, Send, Github, ExternalLink, Search, Filter, Sparkles } from 'lucide-react';
 
 // Enhanced UserCard Component with premium design
 function UserCard({ developer }) {
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div
       className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-7 hover:border-slate-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-slate-900/20 hover:-translate-y-1"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Premium gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -219,7 +216,7 @@ export default function Explore() {
 
       return matchesSearch && matchesTechStack && matchesLevel && matchesAvailability;
     });
-  }, [searchQuery, selectedTechStack, selectedLevel, selectedAvailability]);
+  }, [searchQuery, selectedTechStack, selectedLevel, selectedAvailability, allDevelopers]);
 
   const clearAllFilters = () => {
     setSearchQuery('');

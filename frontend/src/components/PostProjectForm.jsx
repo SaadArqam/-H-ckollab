@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const PostProjectForm = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { profileData, loading: profileLoading } = useAppContext();
 

@@ -177,29 +177,33 @@ export const getUserByFirebaseUid = async (req, res) => {
 };
 
 // Invite collaborators to a project
+// Invite collaborators to a project
 export const inviteCollaborators = async (req, res) => {
   const { id } = req.params; // projectId
-  const { userIds } = req.body;
+  const { userIds, role } = req.body;
 
   if (!Array.isArray(userIds) || userIds.length === 0) {
-    return res.status(400).json({ error: "No users selected for invitation" });
+    return res.status(400).json({ error: "No users selected for invite" });
   }
 
   try {
-    const invitations = await Promise.all(
+    const invites = await Promise.all(
       userIds.map(async (userId) => {
-        return await prisma.invitation.create({
+        return await prisma.invite.create({
           data: {
             projectId: id,
-            userId,
-            status: "Pending",
+            senderId: req.user.id,
+            receiverId: userId,
+            role,
+            status: "pending",
           },
         });
       })
     );
 
-    res.status(201).json({ message: "Invitations sent", invitations });
+    res.status(201).json({ message: "Invites sent", invites });
   } catch (err) {
-    res.status(500).json({ error: "Failed to send invitations" });
+    console.error("❌ Failed to send invites:", err);
+    res.status(500).json({ error: "Failed to send invites" });
   }
 };

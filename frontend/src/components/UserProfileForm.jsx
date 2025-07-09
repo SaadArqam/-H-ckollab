@@ -97,12 +97,12 @@ const UserProfileForm = () => {
     setLoading(true);
 
     // Filter out empty projects
-    const filteredProjects = formData.projects.filter(
-      (project) =>
-        project.title.trim() !== "" ||
-        project.tech.trim() !== "" ||
-        project.link.trim() !== ""
-    );
+    // const filteredProjects = formData.projects.filter(
+    //   (project) =>
+    //     project.title.trim() !== "" ||
+    //     project.tech.trim() !== "" ||
+    //     project.link.trim() !== ""
+    // );
 
     // Map skills to backend format (example: all skills as custom for now)
     const skills = [];

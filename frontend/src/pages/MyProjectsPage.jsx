@@ -21,7 +21,6 @@ const inviteStatusColors = {
 };
 
 export default function MyProjectsPage() {
-  const { user } = useUser();
   const { profileData } = useAppContext();
 
   const [projects, setProjects] = useState([]);

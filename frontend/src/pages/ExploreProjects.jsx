@@ -43,7 +43,7 @@ export default function ExploreProjects() {
 
   useEffect(() => {
     fetchProjects();
-  }, [filters]);
+  }, [filters, fetchProjects]);
 
   const handleInterest = async (projectId) => {
     if (!profileData?.id) {
