@@ -24,10 +24,11 @@ model User {
   updatedAt        DateTime @updatedAt
 
   skills               UserSkill[]
-  projects             Project[] // Projects created by this user
+  projects             Project[] // Projects created by the user
   sentInvites          Invite[]    @relation("SentInvites")
   receivedInvites      Invite[]    @relation("ReceivedInvites")
-  collaboratedProjects Project[]   @relation("ProjectCollaborators") //  reverse relation for collaborators
+  collaboratedProjects Project[]   @relation("ProjectCollaborators") // reverse relation for collaborators
+  interestedIn         Project[]   @relation("ProjectInterest") // Projects the user showed interest in
 }
 
 model Skill {
@@ -60,10 +61,18 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  creator       User     @relation(fields: [creatorId], references: [id])
-  creatorId     String
-  invites       Invite[]
-  collaborators User[]   @relation("ProjectCollaborators") // relation to collaborators
+  collaborationType String
+  difficulty        String
+  rolesNeeded       String[]
+  deadline          DateTime?
+  visibility        String    @default("Open to All")
+
+  creator   User   @relation(fields: [creatorId], references: [id])
+  creatorId String
+
+  collaborators   User[]   @relation("ProjectCollaborators")
+  interestedUsers User[]   @relation("ProjectInterest")
+  invites         Invite[]
 }
 
 model Invite {

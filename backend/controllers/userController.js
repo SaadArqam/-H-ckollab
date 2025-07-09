@@ -1,7 +1,6 @@
-// backend/controllers/userController.js
 import prisma from "../lib/prisma.js";
 
-// Get all users
+// Get all users with optional skill stack filter
 export const getUsers = async (req, res) => {
   try {
     const { stack, page = 1, limit = 0 } = req.query;
@@ -39,9 +38,11 @@ export const getUsers = async (req, res) => {
       ...(take && { take }),
       ...(skip && { skip }),
     });
+
     res.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
+
     if (
       error.message &&
       (error.message.includes("connect to the database") ||
@@ -52,6 +53,7 @@ export const getUsers = async (req, res) => {
         error: "Database connection failed. Please ensure PostgreSQL is running.",
       });
     }
+
     res.status(500).json({ error: "Failed to fetch users" });
   }
 };
@@ -59,6 +61,7 @@ export const getUsers = async (req, res) => {
 // Get user by Firebase UID
 export const getUserByFirebaseUid = async (req, res) => {
   const { firebaseUid } = req.params;
+
   try {
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
@@ -69,31 +72,35 @@ export const getUserByFirebaseUid = async (req, res) => {
         projects: true,
       },
     });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    
-    console.log('User data fetched:', user);
-    console.log('Featured projects:', user.featuredProjects);
-    
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    console.log("User data fetched:", user);
+    console.log("Featured projects:", user.featuredProjects);
+
     res.json(user);
   } catch (err) {
     console.error("Error fetching user by Firebase UID:", err.message);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Create a new user
 export const createUser = async (req, res) => {
   const { firebaseUid, name, email, ...rest } = req.body;
+
   try {
     const existingUser = await prisma.user.findUnique({ where: { firebaseUid } });
-    if (existingUser) return res.status(400).json({ error: 'User already exists' });
+
+    if (existingUser) return res.status(400).json({ error: "User already exists" });
 
     const user = await prisma.user.create({
       data: { firebaseUid, name, email, ...rest },
     });
+
     res.status(201).json(user);
   } catch (err) {
-    console.error('❌ Error in createUser:', err);
+    console.error("❌ Error in createUser:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -101,6 +108,7 @@ export const createUser = async (req, res) => {
 // Update or create user by Firebase UID
 export const updateUserByFirebaseUid = async (req, res) => {
   const { firebaseUid } = req.params;
+
   const {
     name,
     email,
@@ -115,9 +123,9 @@ export const updateUserByFirebaseUid = async (req, res) => {
     projects = [],
   } = req.body;
 
-  console.log('Received update request for firebaseUid:', firebaseUid);
-  console.log('Projects data received:', projects);
-  console.log('Skills data received:', skills);
+  console.log("Received update request for firebaseUid:", firebaseUid);
+  console.log("Projects data received:", projects);
+  console.log("Skills data received:", skills);
 
   try {
     // Validate and prepare skill relations
@@ -131,7 +139,7 @@ export const updateUserByFirebaseUid = async (req, res) => {
       if (!skillName || seenSkillIds.has(skillName)) continue;
       seenSkillIds.add(skillName);
 
-      console.log('Processing skill:', skillName, 'with level:', level);
+      console.log("Processing skill:", skillName, "with level:", level);
 
       // Find or create the skill
       let skill = await prisma.skill.findUnique({
@@ -139,7 +147,7 @@ export const updateUserByFirebaseUid = async (req, res) => {
       });
 
       if (!skill) {
-        console.log('Creating new skill:', skillName);
+        console.log("Creating new skill:", skillName);
         skill = await prisma.skill.create({
           data: { name: skillName },
         });
@@ -151,9 +159,9 @@ export const updateUserByFirebaseUid = async (req, res) => {
       });
     }
 
-    console.log('Final skill relations:', skillRelations);
+    console.log("Final skill relations:", skillRelations);
 
-    // Filter out empty projects
+    // Filter out empty featured projects
     const filteredProjects = projects.filter(
       (project) =>
         project.title?.trim() !== "" ||
@@ -161,6 +169,7 @@ export const updateUserByFirebaseUid = async (req, res) => {
         project.link?.trim() !== ""
     );
 
+    // Upsert user
     const user = await prisma.user.upsert({
       where: { firebaseUid },
       update: {
@@ -202,11 +211,10 @@ export const updateUserByFirebaseUid = async (req, res) => {
       },
     });
 
-    console.log('User updated/created with skills:', user.skills);
+    console.log("User updated/created with skills:", user.skills);
     res.json(user);
   } catch (err) {
     console.error("❌ Error in updateUserByFirebaseUid:", err);
     res.status(500).json({ error: err.message });
   }
 };
-    
