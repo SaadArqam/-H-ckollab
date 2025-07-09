@@ -1,15 +1,14 @@
 import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-// Required to resolve __dirname in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Load and decode base64 service account config from environment variable
+const base64Config = process.env.FIREBASE_CONFIG_BASE64;
 
-// Read the serviceAccount JSON file manually
+if (!base64Config) {
+  throw new Error("Missing FIREBASE_CONFIG_BASE64 environment variable.");
+}
+
 const serviceAccount = JSON.parse(
-  readFileSync(path.join(__dirname, 'serviceAccountKey.json'), 'utf8')
+  Buffer.from(base64Config, 'base64').toString('utf8')
 );
 
 if (!admin.apps.length) {
