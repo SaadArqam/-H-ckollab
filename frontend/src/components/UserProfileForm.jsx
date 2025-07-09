@@ -43,7 +43,7 @@ const UserProfileForm = () => {
         profileData.skills.forEach(skillRelation => {
           const skillName = skillRelation.skill.name;
           const level = skillRelation.level;
-          
+
           // Categorize skills based on level (this is a simple mapping)
           if (level === "Advanced") {
             frontendSkills += (frontendSkills ? ", " : "") + skillName;
@@ -154,7 +154,7 @@ const UserProfileForm = () => {
       const token = user && await user.getIdToken();
       if (profileData) {
         // Edit mode: PATCH
-        res = await fetch(`http://localhost:4000/api/users/firebase/${user?.uid}`, {
+        res = await fetch(`${process.env.REACT_APP_API_URL}/users/firebase/${user?.uid}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -164,7 +164,7 @@ const UserProfileForm = () => {
         });
       } else {
         // Create mode: POST
-        res = await fetch("http://localhost:4000/api/users", {
+        res = await fetch(`${process.env.REACT_APP_API_URL}/users`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

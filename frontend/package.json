@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:4000",
   "dependencies": {
     "@clerk/clerk-react": "^5.32.4",
     "@testing-library/dom": "^10.4.0",

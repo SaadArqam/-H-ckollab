@@ -21,7 +21,7 @@ export const AppProvider = ({ children }) => {
     setLoading(true);
     try {
       if (user?.uid) {
-        const res = await fetch(`http://localhost:4000/api/users/firebase/${user.uid}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/users/firebase/${user.uid}`);
         if (res.status === 404) {
           setProfileData('notfound');
           return;
