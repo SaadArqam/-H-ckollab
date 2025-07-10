@@ -3,6 +3,13 @@ import express from 'express';
 import { getUsers, getUserByFirebaseUid, createUser, updateUserByFirebaseUid } from '../controllers/userController.js';
 import prisma from '../lib/prisma.js';
 import { verifyFirebaseToken } from '../middleware/firebaseAuth.js';
+import cors from 'cors';
+
+const allowedOrigins = [
+  'https://your-frontend-domain.com', // your deployed frontend
+  'http://localhost:3000'             // for local dev
+];
+
 const router = express.Router();
 
 // Define routes
