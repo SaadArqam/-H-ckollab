@@ -92,6 +92,8 @@ const UserProfileForm = () => {
     }));
   };
 
+  const apiBase = process.env.REACT_APP_API_URL || "";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -126,15 +128,15 @@ const UserProfileForm = () => {
       academicYear: formData.academicYear,
       branch: formData.branch,
       interests: formData.interests,
-      projects: formData.projects,
+      // projects: formData.projects, // removed, backend ignores this
     };
 
     try {
       const token = await user?.getIdToken();
       const res = await fetch(
         isEditing
-          ? `${process.env.REACT_APP_API_URL}/users/firebase/${user?.uid}`
-          : `${process.env.REACT_APP_API_URL}/users`,
+          ? `${apiBase}/api/users/firebase/${user?.uid}`
+          : `${apiBase}/api/users`,
         {
           method: isEditing ? "PATCH" : "POST",
           headers: {
