@@ -3,6 +3,7 @@ import {
   sendInvite,
   getReceivedInvites,
   respondToInvite,
+  testEmailRoute,
 } from '../controllers/inviteController.js';
 
 const router = express.Router();
@@ -15,5 +16,7 @@ router.get('/received', getReceivedInvites);
 
 // Accept or decline an invite
 router.patch('/:id', respondToInvite);
+
+router.get('/test-email', testEmailRoute);
 
 export default router;

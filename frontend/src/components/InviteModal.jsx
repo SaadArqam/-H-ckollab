@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useUser } from "@clerk/clerk-react"; // or your auth system
+import { useAuth } from "../context/UserContext"; // or wherever your Firebase auth context is
 
 export default function InviteModal({ isOpen, onClose, receiverId, receiverName }) {
-  const { user } = useUser(); // Assumes Clerk. Replace with your auth system if needed.
-  const senderId = user?.publicMetadata?.userId; // Replace with your user ID logic
+  const { user } = useAuth();
+  const senderId = user?.uid; // For Firebase Auth
 
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
