@@ -10,13 +10,17 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/users')
+    const apiBase = import.meta.env.VITE_API_URL || '';
+    fetch(`${apiBase}/users`)
       .then(res => res.json())
       .then(data => {
         setAllUsers(data);
         setLoading(false);
       })
-      .catch(() => setAllUsers([]));
+      .catch(err => {
+        setLoading(false);
+        console.error(err);
+      });
   }, []);
 
   // Map backend user data to card format

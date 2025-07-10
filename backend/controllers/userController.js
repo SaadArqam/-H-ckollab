@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 // Get all users with optional skill stack filter
 export const getUsers = async (req, res) => {
   try {
+    console.log('📦 Fetching all users...');
     const { stack, page = 1, limit = 0 } = req.query;
     let where = {};
 
@@ -31,6 +32,7 @@ export const getUsers = async (req, res) => {
       ...(take && { take }),
       ...(skip && { skip }),
     });
+    console.log('✅ Users found:', users.length);
 
     res.json(users);
   } catch (error) {
