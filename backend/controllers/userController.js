@@ -71,7 +71,7 @@ export const getUserByFirebaseUid = async (req, res) => {
 
 // Create a new user
 export const createUser = async (req, res) => {
-  let { firebaseUid, name, email, skills = [], featuredProjects = [], ...rest } = req.body;
+  let { firebaseUid, name, email, skills = [], featuredProjects = [], projects, ...rest } = req.body;
   skills = skills.filter((s) => s.skillId?.trim());
 
   try {
@@ -104,7 +104,13 @@ export const createUser = async (req, res) => {
       ...(skillRelations.length > 0 && { skills: { create: skillRelations } }),
     };
 
-    const user = await prisma.user.create({ data: userData });
+    // Final safeguard: remove projects if present
+    delete userData.projects;
+
+    console.log("userData being sent to Prisma:", userData);
+    // Final destructure to ensure 'projects' is not present
+    const { projects: _removed, ...userDataSafe } = userData;
+    const user = await prisma.user.create({ data: userDataSafe });
 
     res.status(201).json(user);
   } catch (err) {
