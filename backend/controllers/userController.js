@@ -7,25 +7,19 @@ export const getUsers = async (req, res) => {
     let where = {};
 
     if (stack) {
-      const skillNames = stack
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const skillNames = stack.split(",").map((s) => s.trim()).filter(Boolean);
       if (skillNames.length > 0) {
-        where = {
-          ...where,
-          skills: {
-            some: {
-              skill: {
-                name: { in: skillNames },
-              },
+        where.skills = {
+          some: {
+            skill: {
+              name: { in: skillNames },
             },
           },
         };
       }
     }
 
-    const take = parseInt(limit, 10) > 0 ? parseInt(limit, 10) : undefined;
+    const take = parseInt(limit, 10) || undefined;
     const skip = take ? (parseInt(page, 10) - 1) * take : undefined;
 
     const users = await prisma.user.findMany({
@@ -77,8 +71,8 @@ export const getUserByFirebaseUid = async (req, res) => {
 
 // Create a new user
 export const createUser = async (req, res) => {
-  let { firebaseUid, name, email, skills = [], ...rest } = req.body;
-  skills = skills.filter(s => s.skillId?.trim());
+  let { firebaseUid, name, email, skills = [], featuredProjects = [], ...rest } = req.body;
+  skills = skills.filter((s) => s.skillId?.trim());
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { firebaseUid } });
@@ -86,6 +80,7 @@ export const createUser = async (req, res) => {
 
     const skillRelations = [];
     const seenSkillIds = new Set();
+
     for (const s of skills) {
       const skillName = s.skillId.trim();
       const level = s.level || "Beginner";
@@ -104,12 +99,10 @@ export const createUser = async (req, res) => {
       firebaseUid,
       name,
       email,
+      featuredProjects,
       ...rest,
+      ...(skillRelations.length > 0 && { skills: { create: skillRelations } }),
     };
-
-    if (skillRelations.length > 0) {
-      userData.skills = { create: skillRelations };
-    }
 
     const user = await prisma.user.create({ data: userData });
 
@@ -134,10 +127,10 @@ export const updateUserByFirebaseUid = async (req, res) => {
     branch,
     interests,
     skills = [],
-    projects = [],
+    featuredProjects = [],
   } = req.body;
 
-  skills = skills.filter(s => s.skillId?.trim());
+  skills = skills.filter((s) => s.skillId?.trim());
 
   try {
     const skillRelations = [];
@@ -157,10 +150,6 @@ export const updateUserByFirebaseUid = async (req, res) => {
       skillRelations.push({ skillId: skill.id, level });
     }
 
-    const filteredProjects = projects.filter(
-      (p) => p.title?.trim() || p.tech?.trim() || p.link?.trim()
-    );
-
     const user = await prisma.user.upsert({
       where: { firebaseUid },
       update: {
@@ -173,9 +162,9 @@ export const updateUserByFirebaseUid = async (req, res) => {
         academicYear,
         branch,
         interests,
-        featuredProjects: filteredProjects,
+        featuredProjects,
         skills: {
-          deleteMany: {}, // Remove all existing skills
+          deleteMany: {},
           ...(skillRelations.length > 0 && { create: skillRelations }),
         },
       },
@@ -190,10 +179,8 @@ export const updateUserByFirebaseUid = async (req, res) => {
         academicYear,
         branch,
         interests,
-        featuredProjects: filteredProjects,
-        ...(skillRelations.length > 0 && {
-          skills: { create: skillRelations },
-        }),
+        featuredProjects,
+        ...(skillRelations.length > 0 && { skills: { create: skillRelations } }),
       },
       include: {
         skills: { include: { skill: true } },
