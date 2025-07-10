@@ -10,7 +10,7 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiBase = import.meta.env.VITE_API_URL || '';
+    const apiBase = process.env.REACT_APP_API_URL || '';
     fetch(`${apiBase}/users`)
       .then(res => res.json())
       .then(data => {
