@@ -133,10 +133,11 @@ const UserProfileForm = () => {
 
     try {
       const token = await user?.getIdToken();
+      const url = isEditing
+        ? `${apiBase}/users/firebase/${user?.uid}`
+        : `${apiBase}/users`;
       const res = await fetch(
-        isEditing
-          ? `${apiBase}/api/users/firebase/${user?.uid}`
-          : `${apiBase}/api/users`,
+        url,
         {
           method: isEditing ? "PATCH" : "POST",
           headers: {
