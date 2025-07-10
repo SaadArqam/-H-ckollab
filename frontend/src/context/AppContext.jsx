@@ -19,20 +19,33 @@ export const AppProvider = ({ children }) => {
   const fetchProfile = async () => {
     if (!user) return;
     setLoading(true);
+
     try {
-      if (user?.uid) {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/users/firebase/${user.uid}`);
-        if (res.status === 404) {
-          setProfileData('notfound');
-          return;
-        }
-        if (!res.ok) throw new Error('User not found');
-        const data = await res.json();
-        setProfileData(data);
+      const token = await user.getIdToken();
+
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/users/firebase/${user.uid}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 404) {
+        setProfileData("notfound");
+        return;
       }
+
+      if (!res.ok) {
+        const errorText = await res.text(); // Handle HTML error responses
+        console.error("❌ Profile fetch failed with status:", res.status);
+        console.error("❌ Response body:", errorText);
+        throw new Error("Failed to fetch profile");
+      }
+
+      const data = await res.json();
+      setProfileData(data);
     } catch (err) {
-      setProfileData('notfound');
-      console.error("Failed to fetch profile:", err.message);
+      console.error("❌ Error in fetchProfile:", err.message);
+      setProfileData("notfound");
     } finally {
       setLoading(false);
     }
@@ -47,7 +60,7 @@ export const AppProvider = ({ children }) => {
     profileData,
     loading,
     refetchProfile: fetchProfile,
-    profileNotFound: profileData === 'notfound',
+    profileNotFound: profileData === "notfound",
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,11 +1,16 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, './.env') });
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
-import inviteRoutes from './routes/inviteRoutes.js'; // ✅ NEW
-
-dotenv.config();
+import inviteRoutes from './routes/inviteRoutes.js';
 
 const app = express();
 

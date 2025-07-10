@@ -31,9 +31,7 @@ export const getUsers = async (req, res) => {
     const users = await prisma.user.findMany({
       where,
       include: {
-        skills: {
-          include: { skill: true },
-        },
+        skills: { include: { skill: true } },
       },
       ...(take && { take }),
       ...(skip && { skip }),
@@ -42,18 +40,15 @@ export const getUsers = async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
-
     if (
-      error.message &&
-      (error.message.includes("connect to the database") ||
-        error.message.includes("Can't reach database server") ||
-        error.constructor.name === "PrismaClientInitializationError")
+      error.message?.includes("connect to the database") ||
+      error.message?.includes("Can't reach database server") ||
+      error.constructor.name === "PrismaClientInitializationError"
     ) {
       return res.status(503).json({
         error: "Database connection failed. Please ensure PostgreSQL is running.",
       });
     }
-
     res.status(500).json({ error: "Failed to fetch users" });
   }
 };
@@ -66,17 +61,12 @@ export const getUserByFirebaseUid = async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
       include: {
-        skills: {
-          include: { skill: true },
-        },
+        skills: { include: { skill: true } },
         projects: true,
       },
     });
 
     if (!user) return res.status(404).json({ error: "User not found" });
-
-    console.log("User data fetched:", user);
-    console.log("Featured projects:", user.featuredProjects);
 
     res.json(user);
   } catch (err) {
@@ -87,16 +77,41 @@ export const getUserByFirebaseUid = async (req, res) => {
 
 // Create a new user
 export const createUser = async (req, res) => {
-  const { firebaseUid, name, email, ...rest } = req.body;
+  let { firebaseUid, name, email, skills = [], ...rest } = req.body;
+  skills = skills.filter(s => s.skillId?.trim());
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { firebaseUid } });
-
     if (existingUser) return res.status(400).json({ error: "User already exists" });
 
-    const user = await prisma.user.create({
-      data: { firebaseUid, name, email, ...rest },
-    });
+    const skillRelations = [];
+    const seenSkillIds = new Set();
+    for (const s of skills) {
+      const skillName = s.skillId.trim();
+      const level = s.level || "Beginner";
+      if (seenSkillIds.has(skillName)) continue;
+      seenSkillIds.add(skillName);
+
+      let skill = await prisma.skill.findUnique({ where: { name: skillName } });
+      if (!skill) {
+        skill = await prisma.skill.create({ data: { name: skillName } });
+      }
+
+      skillRelations.push({ skillId: skill.id, level });
+    }
+
+    const userData = {
+      firebaseUid,
+      name,
+      email,
+      ...rest,
+    };
+
+    if (skillRelations.length > 0) {
+      userData.skills = { create: skillRelations };
+    }
+
+    const user = await prisma.user.create({ data: userData });
 
     res.status(201).json(user);
   } catch (err) {
@@ -108,8 +123,7 @@ export const createUser = async (req, res) => {
 // Update or create user by Firebase UID
 export const updateUserByFirebaseUid = async (req, res) => {
   const { firebaseUid } = req.params;
-
-  const {
+  let {
     name,
     email,
     bio,
@@ -123,53 +137,30 @@ export const updateUserByFirebaseUid = async (req, res) => {
     projects = [],
   } = req.body;
 
-  console.log("Received update request for firebaseUid:", firebaseUid);
-  console.log("Projects data received:", projects);
-  console.log("Skills data received:", skills);
+  skills = skills.filter(s => s.skillId?.trim());
 
   try {
-    // Validate and prepare skill relations
     const skillRelations = [];
     const seenSkillIds = new Set();
 
-    for (const skillObj of skills) {
-      const skillName = skillObj.skillId?.trim();
-      const level = skillObj.level || "Beginner";
-
-      if (!skillName || seenSkillIds.has(skillName)) continue;
+    for (const s of skills) {
+      const skillName = s.skillId.trim();
+      const level = s.level || "Beginner";
+      if (seenSkillIds.has(skillName)) continue;
       seenSkillIds.add(skillName);
 
-      console.log("Processing skill:", skillName, "with level:", level);
-
-      // Find or create the skill
-      let skill = await prisma.skill.findUnique({
-        where: { name: skillName },
-      });
-
+      let skill = await prisma.skill.findUnique({ where: { name: skillName } });
       if (!skill) {
-        console.log("Creating new skill:", skillName);
-        skill = await prisma.skill.create({
-          data: { name: skillName },
-        });
+        skill = await prisma.skill.create({ data: { name: skillName } });
       }
 
-      skillRelations.push({
-        skillId: skill.id,
-        level,
-      });
+      skillRelations.push({ skillId: skill.id, level });
     }
 
-    console.log("Final skill relations:", skillRelations);
-
-    // Filter out empty featured projects
     const filteredProjects = projects.filter(
-      (project) =>
-        project.title?.trim() !== "" ||
-        project.tech?.trim() !== "" ||
-        project.link?.trim() !== ""
+      (p) => p.title?.trim() || p.tech?.trim() || p.link?.trim()
     );
 
-    // Upsert user
     const user = await prisma.user.upsert({
       where: { firebaseUid },
       update: {
@@ -184,8 +175,8 @@ export const updateUserByFirebaseUid = async (req, res) => {
         interests,
         featuredProjects: filteredProjects,
         skills: {
-          deleteMany: {}, // remove existing first
-          create: skillRelations,
+          deleteMany: {}, // Remove all existing skills
+          ...(skillRelations.length > 0 && { create: skillRelations }),
         },
       },
       create: {
@@ -200,18 +191,15 @@ export const updateUserByFirebaseUid = async (req, res) => {
         branch,
         interests,
         featuredProjects: filteredProjects,
-        skills: {
-          create: skillRelations,
-        },
+        ...(skillRelations.length > 0 && {
+          skills: { create: skillRelations },
+        }),
       },
       include: {
-        skills: {
-          include: { skill: true },
-        },
+        skills: { include: { skill: true } },
       },
     });
 
-    console.log("User updated/created with skills:", user.skills);
     res.json(user);
   } catch (err) {
     console.error("❌ Error in updateUserByFirebaseUid:", err);

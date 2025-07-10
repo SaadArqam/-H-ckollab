@@ -1,6 +1,9 @@
 import admin from 'firebase-admin';
 
-// Load and decode base64 service account config from environment variable
+// Debug prints
+console.log("🔥 ENV FIREBASE_CONFIG_BASE64 exists?", !!process.env.FIREBASE_CONFIG_BASE64);
+console.log("🌱 FIREBASE_CONFIG_BASE64 preview:", process.env.FIREBASE_CONFIG_BASE64?.slice(0, 30));
+
 const base64Config = process.env.FIREBASE_CONFIG_BASE64;
 
 if (!base64Config) {
