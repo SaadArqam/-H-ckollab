@@ -1,90 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id               String   @id @default(cuid())
-  firebaseUid      String   @unique
-  name             String
-  email            String   @unique
-  bio              String?
-  githubUrl        String?
-  portfolioUrl     String?
-  availability     String // Available | Busy | Not Available
-  academicYear     String?
-  branch           String?
-  interests        String?
-  featuredProjects Json? // Array of featured projects with title, tech, link
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  skills               UserSkill[]
-  projects             Project[] // Projects created by the user
-  sentInvites          Invite[]    @relation("SentInvites")
+  id                   String      @id @default(cuid())
+  name                 String
+  email                String      @unique
+  bio                  String?
+  githubUrl            String?
+  portfolioUrl         String?
+  availability         String
+  academicYear         String?
+  branch               String?
+  interests            String?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  featuredProjects     Json?
+  firebaseUid          String      @unique
   receivedInvites      Invite[]    @relation("ReceivedInvites")
-  collaboratedProjects Project[]   @relation("ProjectCollaborators") // reverse relation for collaborators
-  interestedIn         Project[]   @relation("ProjectInterest") // Projects the user showed interest in
+  sentInvites          Invite[]    @relation("SentInvites")
+  projects             Project[]
+  skills               UserSkill[]
+  collaboratedProjects Project[]   @relation("ProjectCollaborators")
+  interestedIn         Project[]   @relation("ProjectInterest")
 }
 
 model Skill {
-  id       String  @id @default(cuid())
-  name     String  @unique
+  id       String      @id @default(cuid())
+  name     String      @unique
   category String?
-
-  users UserSkill[]
+  users    UserSkill[]
 }
 
 model UserSkill {
   id      String @id @default(cuid())
-  user    User   @relation(fields: [userId], references: [id])
   userId  String
-  skill   Skill  @relation(fields: [skillId], references: [id])
   skillId String
-  level   String // Beginner, Intermediate, Advanced
+  level   String
+  skill   Skill  @relation(fields: [skillId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
 
   @@unique([userId, skillId])
 }
 
 model Project {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  tags        String[] // Array field
-  techStack   String[] // Array field
-  maxTeamSize Int
-  status      String   @default("Open")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
+  id                String    @id @default(uuid())
+  title             String
+  description       String
+  tags              String[]
+  techStack         String[]
+  maxTeamSize       Int
+  status            String    @default("Open")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  creatorId         String
   collaborationType String
+  deadline          DateTime?
   difficulty        String
   rolesNeeded       String[]
-  deadline          DateTime?
   visibility        String    @default("Open to All")
-
-  creator   User   @relation(fields: [creatorId], references: [id])
-  creatorId String
-
-  collaborators   User[]   @relation("ProjectCollaborators")
-  interestedUsers User[]   @relation("ProjectInterest")
-  invites         Invite[]
+  inviteStatus      String?   @default("Pending")
+  invites           Invite[]
+  creator           User      @relation(fields: [creatorId], references: [id])
+  collaborators     User[]    @relation("ProjectCollaborators")
+  interestedUsers   User[]    @relation("ProjectInterest")
 }
 
 model Invite {
   id         String   @id @default(cuid())
-  project    Project  @relation(fields: [projectId], references: [id])
   projectId  String
-  sender     User     @relation("SentInvites", fields: [senderId], references: [id])
   senderId   String
-  receiver   User     @relation("ReceivedInvites", fields: [receiverId], references: [id])
   receiverId String
   role       String
-  status     String   @default("pending") // pending, accepted, declined
+  status     String   @default("pending")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  project    Project  @relation(fields: [projectId], references: [id])
+  receiver   User     @relation("ReceivedInvites", fields: [receiverId], references: [id])
+  sender     User     @relation("SentInvites", fields: [senderId], references: [id])
 }

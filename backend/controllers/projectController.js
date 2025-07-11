@@ -13,11 +13,23 @@ export const createProject = async (req, res) => {
       difficulty,
       visibility,
     } = req.body;
+    const { collaborationType, inviteStatus } = req.body;
 
     const user = req.user; // set by verifyFirebaseToken
 
     if (!user) {
       return res.status(401).json({ error: "Unauthorized: User not found" });
+    }
+    if (!collaborationType || typeof collaborationType !== 'string' || !collaborationType.trim()) {
+      return res.status(400).json({ error: "collaborationType is required and must not be empty" });
+    }
+
+    console.log("🔥 Decoded Firebase UID:", user?.uid);
+
+    // Fetch the user from the DB using firebaseUid
+    const dbUser = await prisma.user.findUnique({ where: { firebaseUid: user.uid } });
+    if (!dbUser || !dbUser.id) {
+      return res.status(404).json({ error: "User not found in DB" });
     }
 
     const project = await prisma.project.create({
@@ -30,10 +42,11 @@ export const createProject = async (req, res) => {
         status,
         difficulty,
         visibility,
-        inviteStatus: "Pending", // custom field
         creator: {
-          connect: { id: user.id },
+          connect: { id: dbUser.id },
         },
+        collaborationType,
+        inviteStatus: inviteStatus || "Pending",
       },
       include: { creator: true },
     });

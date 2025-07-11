@@ -68,7 +68,7 @@ const PostProjectForm = () => {
         formData.collaborationType === "Open to all"
           ? "Open to All"
           : "Invite Only",
-      // creatorId REMOVED
+        inviteStatus: "Pending",
     };
 
     try {
