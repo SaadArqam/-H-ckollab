@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import axios from "axios";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // POST /api/invites
@@ -16,8 +15,8 @@ export const sendInvite = async (req, res) => {
     });
     res.status(201).json(invite);
   } catch (err) {
-    console.error('Error sending invite:', err);
-    res.status(500).json({ error: 'Failed to send invite' });
+    console.error("Error sending invite:", err);
+    res.status(500).json({ error: "Failed to send invite" });
   }
 };
 
@@ -41,8 +40,8 @@ export const getReceivedInvites = async (req, res) => {
     });
     res.json(invites);
   } catch (err) {
-    console.error('Error fetching invites:', err);
-    res.status(500).json({ error: 'Failed to fetch invites' });
+    console.error("Error fetching invites:", err);
+    res.status(500).json({ error: "Failed to fetch invites" });
   }
 };
 
@@ -57,7 +56,7 @@ export const respondToInvite = async (req, res) => {
       data: { status },
     });
 
-    if (status === 'accepted') {
+    if (status === "accepted") {
       // Add receiver as collaborator
       await prisma.project.update({
         where: { id: updatedInvite.projectId },
@@ -71,8 +70,8 @@ export const respondToInvite = async (req, res) => {
 
     res.json(updatedInvite);
   } catch (err) {
-    console.error('Error updating invite:', err);
-    res.status(500).json({ error: 'Failed to respond to invite' });
+    console.error("Error updating invite:", err);
+    res.status(500).json({ error: "Failed to respond to invite" });
   }
 };
 
@@ -82,10 +81,14 @@ export const testEmailRoute = async (req, res) => {
     // This part of the code is now frontend-only, so it cannot use Nodemailer directly.
     // It should be replaced with a frontend-to-backend API call.
     // For demonstration, we'll just log a message.
-    console.log('Test email route called. This is a frontend-only route.');
-    res.json({ message: 'Test email route called. This is a frontend-only route.' });
+    console.log("Test email route called. This is a frontend-only route.");
+    res.json({
+      message: "Test email route called. This is a frontend-only route.",
+    });
   } catch (err) {
-    console.error('❌ Failed to send test email:', err);
-    res.status(500).json({ error: 'Failed to send test email', details: err.message });
+    console.error("❌ Failed to send test email:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to send test email", details: err.message });
   }
 };

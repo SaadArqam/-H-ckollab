@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 const PostProjectForm = () => {
   const navigate = useNavigate();
   const { profileData, loading: profileLoading } = useAppContext();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -39,6 +40,15 @@ const PostProjectForm = () => {
       return;
     }
 
+    let token;
+    try {
+      token = await user.getIdToken();
+    } catch (err) {
+      toast.error("Authentication error. Please sign in again.");
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -58,13 +68,16 @@ const PostProjectForm = () => {
         formData.collaborationType === "Open to all"
           ? "Open to All"
           : "Invite Only",
-      creatorId: profileData.id,
+      // creatorId REMOVED
     };
 
     try {
       const res = await fetch("/api/projects", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 

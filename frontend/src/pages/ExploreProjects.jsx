@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Sparkles,
-  Users,
-  Send,
-  Github,
-  ExternalLink,
-} from "lucide-react";
+import { Sparkles, Users, Send, Github, ExternalLink } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 
 export default function ExploreProjects() {
@@ -29,9 +23,7 @@ export default function ExploreProjects() {
 
       const res = await fetch(`/api/projects?${params.toString()}`);
       const data = await res.json();
-      const openProjects = data.filter(
-        (p) => p.visibility === "Open to All"
-      );
+      const openProjects = data.filter((p) => p.visibility === "Open to All");
       setProjects(openProjects);
     } catch (err) {
       console.error("❌ Error fetching projects:", err);
