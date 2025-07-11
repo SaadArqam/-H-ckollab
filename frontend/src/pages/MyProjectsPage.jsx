@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Eye, Users, X } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
 import { useAppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/UserContext"; // <-- Import Firebase Auth context
 
 const borderColors = [
   "hover:border-purple-500/30",
@@ -22,6 +22,7 @@ const inviteStatusColors = {
 
 export default function MyProjectsPage() {
   const { profileData } = useAppContext();
+  const { user } = useAuth(); // <-- Get Firebase user
 
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,22 +34,27 @@ export default function MyProjectsPage() {
   const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
-    if (!profileData?.clerkId) return;
+    if (!user) return;
 
     const fetchProjects = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/mine`);
+        const token = await user.getIdToken();
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/mine`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
-        setProjects(data || []);
+        console.log("Fetched projects:", data);
+        setProjects(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error fetching projects:", err);
+        setProjects([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProjects();
-  }, [profileData]);
+  }, [user]);
 
   const handleView = (project) => setViewProject(project);
 
@@ -142,11 +148,11 @@ export default function MyProjectsPage() {
         <div className="text-center text-gray-400 text-xl">
           Loading projects...
         </div>
-      ) : projects.length === 0 ? (
+      ) : Array.isArray(projects) && projects.length === 0 ? (
         <div className="text-center text-gray-400 text-xl">
           No projects posted yet.
         </div>
-      ) : (
+      ) : Array.isArray(projects) ? (
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           {projects.map((project, idx) => (
             <div
@@ -213,6 +219,10 @@ export default function MyProjectsPage() {
               <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="text-center text-red-400 text-xl">
+          Failed to load projects.
         </div>
       )}
 

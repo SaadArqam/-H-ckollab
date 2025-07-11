@@ -18,7 +18,7 @@ router.get("/", getAllProjects); // ✅ Explore projects
 router.get("/:id", getProjectById); // ✅ Get single project by ID
 
 router.post("/:projectId/interest", showInterest); // ✅ Show interest
-router.get("/my-projects/:clerkId", getMyProjects); // ✅ My projects
+router.get("/mine", verifyFirebaseToken, getMyProjects); // ✅ My projects
 router.patch("/:id", updateProjectInviteStatus); // ✅ Update invite status
 
 router.post("/:id/invite", verifyFirebaseToken, inviteCollaborators); // ✅ Invite collaborators
