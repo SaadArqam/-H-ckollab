@@ -161,7 +161,9 @@ export default function MyProjectsPage() {
                   {project.title}
                 </h2>
               </div>
-              <p className="text-gray-300 text-lg mb-6">{project.description}</p>
+              <p className="text-gray-300 text-lg mb-6">
+                {project.description}
+              </p>
               <div className="flex flex-wrap gap-6 items-center mb-6">
                 <div>
                   <span className="text-gray-400 text-sm">Status:</span>
@@ -301,7 +303,9 @@ export default function MyProjectsPage() {
               multiple
               value={selectedUsers}
               onChange={(e) =>
-                setSelectedUsers(Array.from(e.target.selectedOptions, (o) => o.value))
+                setSelectedUsers(
+                  Array.from(e.target.selectedOptions, (o) => o.value)
+                )
               }
               className="w-full border rounded p-2"
             >

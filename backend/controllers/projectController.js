@@ -12,15 +12,12 @@ export const createProject = async (req, res) => {
       status,
       difficulty,
       visibility,
-      creatorId,
     } = req.body;
 
-    const user = await prisma.user.findUnique({
-      where: { id: creatorId }, // Using Prisma user.id directly
-    });
+    const user = req.user; // set by verifyFirebaseToken
 
     if (!user) {
-      return res.status(404).json({ error: "User not found for the provided user ID" });
+      return res.status(401).json({ error: "Unauthorized: User not found" });
     }
 
     const project = await prisma.project.create({
@@ -43,13 +40,16 @@ export const createProject = async (req, res) => {
 
     res.status(201).json(project);
   } catch (error) {
-    console.error("❌ Error creating project:", error.message);
+    console.error("❌ Error creating project:", error); // Log full error object
     if (error.message?.includes("connect to the database")) {
       return res.status(503).json({
-        error: "Database connection failed. Please ensure PostgreSQL is running.",
+        error:
+          "Database connection failed. Please ensure PostgreSQL is running.",
       });
     }
-    res.status(500).json({ error: error.message || "Failed to create project" });
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to create project" });
   }
 };
 
