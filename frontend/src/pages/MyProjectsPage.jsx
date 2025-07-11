@@ -37,7 +37,7 @@ export default function MyProjectsPage() {
 
     const fetchProjects = async () => {
       try {
-        const res = await fetch(`/api/projects/mine`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/mine`);
         const data = await res.json();
         setProjects(data || []);
       } catch (err) {
@@ -68,7 +68,7 @@ export default function MyProjectsPage() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`/api/projects/${editProject.id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ inviteStatus: editInviteStatus }),
@@ -93,7 +93,7 @@ export default function MyProjectsPage() {
   const openInviteModal = async (project) => {
     setInviteProject(project);
     try {
-      const res = await fetch("/api/users");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users`);
       const users = await res.json();
       setAllUsers(users.filter((u) => u.clerkId !== profileData?.clerkId));
     } catch {
@@ -108,7 +108,7 @@ export default function MyProjectsPage() {
         .filter((u) => selectedUsers.includes(u.clerkId))
         .map((u) => u.id);
 
-      const res = await fetch(`/api/projects/${inviteProject.id}/invite`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${inviteProject.id}/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userIds }),

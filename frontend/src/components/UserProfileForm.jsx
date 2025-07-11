@@ -134,8 +134,8 @@ const UserProfileForm = () => {
     try {
       const token = await user?.getIdToken();
       const url = isEditing
-        ? `${apiBase}/users/firebase/${user?.uid}`
-        : `${apiBase}/users`;
+        ? `${apiBase}/api/users/firebase/${user?.uid}`
+        : `${apiBase}/api/users`;
       const res = await fetch(
         url,
         {

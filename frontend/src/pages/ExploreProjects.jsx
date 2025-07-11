@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Sparkles, Users, Send, Github, ExternalLink } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 
@@ -13,7 +13,7 @@ export default function ExploreProjects() {
 
   const { profileData } = useAppContext();
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -21,7 +21,7 @@ export default function ExploreProjects() {
       if (filters.tags) params.append("tags", filters.tags);
       if (filters.difficulty) params.append("difficulty", filters.difficulty);
 
-      const res = await fetch(`/api/projects?${params.toString()}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects?${params.toString()}`);
       const data = await res.json();
       const openProjects = data.filter((p) => p.visibility === "Open to All");
       setProjects(openProjects);
@@ -31,11 +31,11 @@ export default function ExploreProjects() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     fetchProjects();
-  }, [filters, fetchProjects]);
+  }, [fetchProjects]);
 
   const handleInterest = async (projectId) => {
     if (!profileData?.id) {
@@ -44,7 +44,7 @@ export default function ExploreProjects() {
     }
 
     try {
-      const res = await fetch(`/api/projects/${projectId}/interest`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/interest`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: profileData.id }),

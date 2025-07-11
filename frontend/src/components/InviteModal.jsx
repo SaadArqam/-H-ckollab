@@ -16,7 +16,7 @@ export default function InviteModal({ isOpen, onClose, receiverId, receiverName 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await axios.get(`/api/projects/mine?userId=${senderId}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/mine?userId=${senderId}`);
         setProjects(res.data || []);
       } catch (err) {
         console.error("Failed to fetch projects:", err);
@@ -36,7 +36,7 @@ export default function InviteModal({ isOpen, onClose, receiverId, receiverName 
 
     try {
       setLoading(true);
-      const res = await axios.post("/api/invites", {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/invites`, {
         senderId,
         receiverId,
         projectId: selectedProjectId,

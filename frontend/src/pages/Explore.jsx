@@ -11,17 +11,25 @@ export default function Explore() {
 
   useEffect(() => {
     const apiBase = process.env.REACT_APP_API_URL || '';
-    fetch(`${apiBase}/users`)
-      .then(res => res.json())
+    fetch(`${apiBase}/api/users`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch users: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
+        if (!Array.isArray(data)) throw new Error("Invalid user data format");
         setAllUsers(data);
         setLoading(false);
       })
       .catch(err => {
+        console.error("❌ Error fetching users:", err.message);
+        setAllUsers([]); 
         setLoading(false);
-        console.error(err);
       });
   }, []);
+  
 
   // Map backend user data to card format
   const mappedDevelopers = allUsers.map(user => ({

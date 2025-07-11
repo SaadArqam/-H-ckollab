@@ -23,7 +23,7 @@ export const AppProvider = ({ children }) => {
     try {
       const token = await user.getIdToken();
 
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/users/firebase/${user.uid}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`, {
         headers: {
           "Authorization": `Bearer ${token}`,
         },

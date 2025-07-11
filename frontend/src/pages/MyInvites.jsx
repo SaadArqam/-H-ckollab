@@ -12,7 +12,7 @@ export default function MyInvites() {
   const fetchInvites = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/invites/received?userId=${receiverId}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/received?userId=${receiverId}`);
       setInvites(res.data || []);
     } catch (err) {
       console.error("Error fetching invites:", err);
@@ -23,7 +23,7 @@ export default function MyInvites() {
 
   const handleRespond = async (inviteId, action) => {
     try {
-      await axios.patch(`/api/invites/${inviteId}`, { status: action });
+      await axios.patch(`${process.env.REACT_APP_API_URL}/api/invites/${inviteId}`, { status: action });
       fetchInvites(); // Refresh list
     } catch (err) {
       console.error("Error responding to invite:", err);
