@@ -139,10 +139,12 @@ export const getMyProjects = async (req, res) => {
   try {
     // Use Firebase UID from authenticated user
     const firebaseUid = req.user?.uid;
+    console.log("[getMyProjects] Firebase UID:", firebaseUid);
     if (!firebaseUid) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     const user = await prisma.user.findUnique({ where: { firebaseUid } });
+    console.log("[getMyProjects] DB User:", user);
     if (!user) return res.status(404).json({ error: "User not found" });
     const projects = await prisma.project.findMany({
       where: { creatorId: user.id },
