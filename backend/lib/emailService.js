@@ -5,7 +5,7 @@ const createTransporter = () => {
   // Debug: Check environment variables
   console.log('📧 Email config check:');
   console.log('EMAIL_USER:', process.env.EMAIL_USER ? '✅ Set' : '❌ Missing');
-  console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '✅ Set' : '❌ Missing');
+
   console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Set' : '❌ Missing');
   
   // Use EMAIL_PASS if EMAIL_PASSWORD is not set
@@ -144,6 +144,66 @@ export const sendInviteResponseEmail = async (senderEmail, senderName, receiverN
     return true;
   } catch (error) {
     console.error('❌ Error sending response email:', error);
+    return false;
+  }
+}; 
+
+// Send interest email to project creator
+export const sendInterestEmail = async (creatorEmail, creatorName, interestedUserName, projectTitle) => {
+  try {
+    const transporter = createTransporter();
+    
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: creatorEmail,
+      subject: `🎉 ${interestedUserName} showed interest in your project "${projectTitle}"!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px;">🎉 New Project Interest!</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Someone is interested in your project</p>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333; margin-top: 0;">Hi ${creatorName},</h2>
+            
+            <p style="color: #555; line-height: 1.6;">
+              Great news! <strong>${interestedUserName}</strong> has shown interest in your project:
+            </p>
+            
+            <div style="background: white; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 5px;">
+              <h3 style="color: #333; margin: 0 0 10px 0;">${projectTitle}</h3>
+            </div>
+            
+            <p style="color: #555; line-height: 1.6;">
+              This developer is excited about your project and wants to collaborate. 
+              You can view their profile and reach out to start working together.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/my-projects" 
+                 style="background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                View Project
+              </a>
+            </div>
+            
+            <p style="color: #888; font-size: 14px; margin-top: 30px;">
+              You can manage all project interests and invitations from your dashboard.
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 20px; color: #888; font-size: 12px;">
+            <p>This email was sent from Hackollab - Your Collaborative Development Platform</p>
+          </div>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('📧 Interest email sent successfully:', info.messageId);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending interest email:', error);
     return false;
   }
 }; 

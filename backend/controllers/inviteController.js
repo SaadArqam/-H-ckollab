@@ -89,6 +89,43 @@ export const getReceivedInvites = async (req, res) => {
   }
 };
 
+// GET /api/invites/user/:firebaseUid
+export const getUserInvitesByFirebaseUid = async (req, res) => {
+  const { firebaseUid } = req.params;
+  
+  try {
+    // First find the user by Firebase UID
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Get all invites for this user
+    const invites = await prisma.invite.findMany({
+      where: { receiverId: user.id },
+      include: {
+        project: true,
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json(invites);
+  } catch (err) {
+    console.error("❌ Error fetching user invites:", err);
+    res.status(500).json({ error: "Failed to fetch user invites" });
+  }
+};
+
 // PATCH /api/invites/:id
 export const respondToInvite = async (req, res) => {
   const { id } = req.params;

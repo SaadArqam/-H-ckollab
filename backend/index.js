@@ -11,51 +11,27 @@ import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import inviteRoutes from "./routes/inviteRoutes.js";
+import interestRoutes from "./routes/interestRoutes.js";
 
 const app = express();
 
 // Middleware
 app.use(express.json());
-
-// CORS setup
-app.use(
-  cors({
-    origin: [
-      "https://h-ckollab.vercel.app",
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3002",
-      "http://localhost:3003",
-      "http://192.168.29.230:3000",
-    ],
-    credentials: true,
-  })
-);
-
-// Handle preflight requests for all routes
-app.options("*", cors());
+app.use(cors());
 
 // Routes
-console.log("✅ Before /api/users");
 app.use("/api/users", userRoutes);
-
-console.log("✅ Before /api/projects");
 app.use("/api/projects", projectRoutes);
-
-console.log("✅ Before /api/invites");
-app.use("/api/invites", inviteRoutes); // ✅ NEW
-console.log("✅ /api/invites routes loaded");
+app.use("/api/invites", inviteRoutes);
+app.use("/api/interests", interestRoutes);
 
 // Health check
-app.get("/api/health", (req, res) => {
-  res.send("API is healthy");
+app.get("/", (req, res) => {
+  res.json({ message: "Hackollab API is running!" });
 });
 
-app.get("/api/test", (req, res) => {
-  res.json({ message: "API is working!" });
-});
+const PORT = process.env.PORT || 5000;
 
-// Start server
-app.listen(4000, () => {
-  console.log("🚀 Server running on port 4000");
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

@@ -63,7 +63,7 @@ export const AppProvider = ({ children }) => {
     try {
       const token = await user.getIdToken();
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/projects/user/${user.uid}`,
+        `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/projects`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,7 +76,7 @@ export const AppProvider = ({ children }) => {
         setUserProjects(data);
       }
     } catch (err) {
-      console.error("❌ Error in fetchUserProjects:", err.message);
+      console.error("❌ Error fetching user projects:", err);
     }
   };
 
@@ -109,7 +109,7 @@ export const AppProvider = ({ children }) => {
     try {
       const token = await user.getIdToken();
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/collaborations/user/${user.uid}`,
+        `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/collaborations`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -122,7 +122,7 @@ export const AppProvider = ({ children }) => {
         setCollaborations(data);
       }
     } catch (err) {
-      console.error("❌ Error in fetchCollaborations:", err.message);
+      console.error("❌ Error fetching collaborations:", err);
     }
   };
 

@@ -201,3 +201,107 @@ export const updateUserByFirebaseUid = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Get user projects by Firebase UID
+export const getUserProjects = async (req, res) => {
+  const { firebaseUid } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      include: {
+        projects: true,
+      },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json(user.projects);
+  } catch (err) {
+    console.error("Error fetching user projects:", err);
+    res.status(500).json({ error: "Failed to fetch user projects" });
+  }
+};
+
+// Get user collaborations by Firebase UID
+export const getUserCollaborations = async (req, res) => {
+  const { firebaseUid } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      include: {
+        collaboratedProjects: {
+          include: {
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json(user.collaboratedProjects);
+  } catch (err) {
+    console.error("Error fetching user collaborations:", err);
+    res.status(500).json({ error: "Failed to fetch user collaborations" });
+  }
+};
+
+// Get user collaborations by user ID (not Firebase UID)
+export const getUserCollaborationsById = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        collaboratedProjects: {
+          include: {
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json(user.collaboratedProjects);
+  } catch (err) {
+    console.error("Error fetching user collaborations by ID:", err);
+    res.status(500).json({ error: "Failed to fetch user collaborations" });
+  }
+};
+
+// Get user projects by user ID (not Firebase UID)
+export const getUserProjectsById = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        projects: true,
+      },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json(user.projects);
+  } catch (err) {
+    console.error("Error fetching user projects by ID:", err);
+    res.status(500).json({ error: "Failed to fetch user projects" });
+  }
+};

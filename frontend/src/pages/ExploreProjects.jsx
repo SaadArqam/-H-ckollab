@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Sparkles, Users, Send, Github, ExternalLink } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
+import { useAuth } from "../context/UserContext";
+import { toast } from "react-toastify";
 
 export default function ExploreProjects() {
   const [loading, setLoading] = useState(true);
@@ -10,9 +12,12 @@ export default function ExploreProjects() {
     tags: "",
     difficulty: "",
   });
+  const [interestedProjects, setInterestedProjects] = useState([]);
 
   const { profileData } = useAppContext();
+  const { user } = useAuth();
 
+  // Fetch all open projects
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
@@ -33,27 +38,56 @@ export default function ExploreProjects() {
     }
   }, [filters]);
 
+  // Fetch projects user has already shown interest in
+  const fetchUserInterests = useCallback(async () => {
+    if (!profileData?.id) return;
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/interests/user/${profileData.id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      // Backend returns array of project objects, extract project IDs
+      setInterestedProjects(data.map((project) => project.id));
+    } catch (err) {
+      // Silent fail
+    }
+  }, [profileData]);
+
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
 
-  const handleInterest = async (projectId) => {
+  useEffect(() => {
+    fetchUserInterests();
+  }, [fetchUserInterests]);
+
+  const handleShowInterest = async (projectId) => {
     if (!profileData?.id) {
-      alert("Please complete your profile first.");
+      toast.error("Please complete your profile first.");
       return;
     }
-
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/interest`, {
+      const token = await user.getIdToken();
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/interests`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: profileData.id }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: profileData.id,
+          projectId,
+        }),
       });
-
-      if (!res.ok) throw new Error("Interest failed");
-      alert("✅ Interest recorded!");
-    } catch (err) {
-      console.error("❌ Error showing interest:", err.message);
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("✅ Interest sent successfully!");
+        setInterestedProjects((prev) => [...prev, projectId]);
+      } else {
+        toast.error(data.error || "❌ Failed to show interest");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
     }
   };
 
@@ -79,9 +113,7 @@ export default function ExploreProjects() {
         <select
           className={inputClass}
           value={filters.difficulty}
-          onChange={(e) =>
-            setFilters({ ...filters, difficulty: e.target.value })
-          }
+          onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}
         >
           <option value="">All Levels</option>
           <option>Beginner</option>
@@ -160,11 +192,18 @@ export default function ExploreProjects() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleInterest(proj.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl text-sm font-semibold shadow-lg"
+                    onClick={() => handleShowInterest(proj.id)}
+                    disabled={interestedProjects.includes(proj.id)}
+                    className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold shadow-lg ${
+                      interestedProjects.includes(proj.id)
+                        ? "bg-gray-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:opacity-90"
+                    }`}
                   >
                     <Send className="w-4 h-4" />
-                    Show Interest
+                    {interestedProjects.includes(proj.id)
+                      ? "Interest Sent"
+                      : "Show Interest"}
                   </button>
                   <button className="p-3 bg-slate-800/80 border border-slate-600/50 rounded-xl">
                     <Github className="w-4 h-4 text-slate-300" />

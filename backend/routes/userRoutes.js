@@ -1,12 +1,12 @@
 // backend/routes/userRoutes.js
 import express from 'express';
-import { getUsers, getUserByFirebaseUid, createUser, updateUserByFirebaseUid } from '../controllers/userController.js';
+import { getUsers, getUserByFirebaseUid, createUser, updateUserByFirebaseUid, getUserProjects, getUserCollaborations, getUserCollaborationsById, getUserProjectsById } from '../controllers/userController.js';
 import prisma from '../lib/prisma.js';
 import { verifyFirebaseToken } from '../middleware/firebaseAuth.js';
 import cors from 'cors';
 
 const allowedOrigins = [
-  'https://your-frontend-domain.com', // your deployed frontend
+  'https://h-ckollab.vercel.app',
   'http://localhost:3000'             // for local dev
 ];
 
@@ -15,6 +15,12 @@ const router = express.Router();
 // Define routes
 router.get('/', getUsers);
 router.get('/firebase/:firebaseUid', getUserByFirebaseUid);
+router.get('/firebase/:firebaseUid/projects', getUserProjects);
+router.get('/firebase/:firebaseUid/collaborations', getUserCollaborations);
+router.get('/:firebaseUid/projects', getUserProjects);
+router.get('/:firebaseUid/collaborations', getUserCollaborations);
+router.get('/:userId/projects', getUserProjectsById);
+router.get('/:userId/collaborations', getUserCollaborationsById);
 router.post('/', verifyFirebaseToken, createUser);
 router.post('/seed', async (req, res) => {
     const { firebaseUid, name, email } = req.body;
@@ -30,12 +36,10 @@ router.post('/seed', async (req, res) => {
                 availability: "Available"
             }
         });
-        res.status(201).json(user);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to seed user' });
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
-router.patch('/firebase/:firebaseUid', verifyFirebaseToken, updateUserByFirebaseUid);
 
 export default router;
