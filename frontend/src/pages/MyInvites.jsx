@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useUser } from "@clerk/clerk-react"; // or your auth system
+import { useAuth } from "../context/UserContext";
+import { useAppContext } from "../context/AppContext";
 
 export default function MyInvites() {
-  const { user } = useUser(); // Replace with your system if not using Clerk
-  const receiverId = user?.publicMetadata?.userId;
+  const { user } = useAuth();
+  const { profileData } = useAppContext();
 
   const [invites, setInvites] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchInvites = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/received?userId=${receiverId}`);
+      const token = await user.getIdToken();
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setInvites(res.data || []);
     } catch (err) {
       console.error("Error fetching invites:", err);
@@ -23,7 +30,12 @@ export default function MyInvites() {
 
   const handleRespond = async (inviteId, action) => {
     try {
-      await axios.patch(`${process.env.REACT_APP_API_URL}/api/invites/${inviteId}`, { status: action });
+      const token = await user.getIdToken();
+      await axios.patch(
+        `${process.env.REACT_APP_API_URL}/api/invites/${inviteId}`, 
+        { status: action },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchInvites(); // Refresh list
     } catch (err) {
       console.error("Error responding to invite:", err);
@@ -31,10 +43,10 @@ export default function MyInvites() {
   };
 
   useEffect(() => {
-    if (receiverId) {
+    if (user) {
       fetchInvites();
     }
-  }, [receiverId, fetchInvites]);
+  }, [user]);
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
