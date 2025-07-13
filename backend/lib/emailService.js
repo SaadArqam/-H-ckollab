@@ -2,11 +2,24 @@ import nodemailer from 'nodemailer';
 
 // Create transporter
 const createTransporter = () => {
+  // Debug: Check environment variables
+  console.log('📧 Email config check:');
+  console.log('EMAIL_USER:', process.env.EMAIL_USER ? '✅ Set' : '❌ Missing');
+  console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '✅ Set' : '❌ Missing');
+  console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Set' : '❌ Missing');
+  
+  // Use EMAIL_PASS if EMAIL_PASSWORD is not set
+  const emailPassword = process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS;
+  
+  if (!process.env.EMAIL_USER || !emailPassword) {
+    throw new Error('Missing email credentials. Check EMAIL_USER and EMAIL_PASSWORD/EMAIL_PASS environment variables.');
+  }
+
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD, // Use App Password for Gmail
+      pass: emailPassword,
     },
   });
 };
