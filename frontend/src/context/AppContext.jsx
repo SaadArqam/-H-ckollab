@@ -13,6 +13,9 @@ export const useAppContext = () => {
 
 export const AppProvider = ({ children }) => {
   const [profileData, setProfileData] = useState(null);
+  const [userProjects, setUserProjects] = useState([]);
+  const [invites, setInvites] = useState([]);
+  const [collaborations, setCollaborations] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth(); // 👈 Firebase user object
 
@@ -23,11 +26,14 @@ export const AppProvider = ({ children }) => {
     try {
       const token = await user.getIdToken();
 
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (res.status === 404) {
         setProfileData("notfound");
@@ -51,15 +57,93 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const fetchUserProjects = async () => {
+    if (!user) return;
+
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/projects/user/${user.uid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setUserProjects(data);
+      }
+    } catch (err) {
+      console.error("❌ Error in fetchUserProjects:", err.message);
+    }
+  };
+
+  const fetchInvites = async () => {
+    if (!user) return;
+
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setInvites(data);
+      }
+    } catch (err) {
+      console.error("❌ Error in fetchInvites:", err.message);
+    }
+  };
+
+  const fetchCollaborations = async () => {
+    if (!user) return;
+
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/collaborations/user/${user.uid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setCollaborations(data);
+      }
+    } catch (err) {
+      console.error("❌ Error in fetchCollaborations:", err.message);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
+    fetchUserProjects();
+    fetchInvites();
+    fetchCollaborations();
     // eslint-disable-next-line
   }, [user]);
 
   const value = {
     profileData,
+    userProjects,
+    invites,
+    collaborations,
     loading,
     refetchProfile: fetchProfile,
+    fetchUserProjects,
+    fetchInvites,
+    fetchCollaborations,
     profileNotFound: profileData === "notfound",
   };
 
