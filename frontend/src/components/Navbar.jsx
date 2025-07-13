@@ -42,6 +42,9 @@ export default function Navbar() {
           <Link to="/profile" className="text-gray-400 hover:text-white transition">
             Profile
           </Link>
+          <Link to="/dashboard" className="text-gray-400 hover:text-white transition">
+            Dashboard
+          </Link>
 
           {/* Auth Buttons */}
           {isSignedIn ? (
