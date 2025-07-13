@@ -12,6 +12,9 @@ export default function InviteModal({ isOpen, onClose, selectedUserId, receiverN
   const [loading, setLoading] = useState(false);
   const [fetchingProjects, setFetchingProjects] = useState(false);
 
+  // Debug log to confirm selectedUserId is received correctly
+  console.log("👤 selectedUserId received in InviteModal:", selectedUserId);
+
   useEffect(() => {
     const fetchProjects = async () => {
       setFetchingProjects(true);

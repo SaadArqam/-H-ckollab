@@ -1,5 +1,6 @@
 // inviteController.js
 import prisma from "../lib/prisma.js";
+import { sendInviteEmail, sendInviteResponseEmail } from "../lib/emailService.js";
 
 // POST /api/invites
 export const sendInvite = async (req, res) => {
@@ -28,6 +29,13 @@ export const sendInvite = async (req, res) => {
     if (!sender) return res.status(404).json({ error: "Sender not found" });
     if (!receiver) return res.status(404).json({ error: "Receiver not found" });
 
+    // Get project details for email
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) return res.status(404).json({ error: "Project not found" });
+
     const invite = await prisma.invite.create({
       data: {
         projectId,
@@ -36,6 +44,17 @@ export const sendInvite = async (req, res) => {
         role,
         status: "pending",
       },
+    });
+
+    // Send email notification (don't block the response)
+    sendInviteEmail(
+      receiver.email,
+      receiver.name,
+      sender.name,
+      project.title,
+      role
+    ).catch(err => {
+      console.error("❌ Failed to send invite email:", err);
     });
 
     res.status(201).json(invite);
@@ -76,6 +95,20 @@ export const respondToInvite = async (req, res) => {
   const { status } = req.body; // "accepted" or "declined"
 
   try {
+    // Get the invite with related data
+    const invite = await prisma.invite.findUnique({
+      where: { id },
+      include: {
+        sender: true,
+        receiver: true,
+        project: true,
+      },
+    });
+
+    if (!invite) {
+      return res.status(404).json({ error: "Invite not found" });
+    }
+
     const updatedInvite = await prisma.invite.update({
       where: { id },
       data: { status },
@@ -92,6 +125,17 @@ export const respondToInvite = async (req, res) => {
         },
       });
     }
+
+    // Send email notification to sender about the response
+    sendInviteResponseEmail(
+      invite.sender.email,
+      invite.sender.name,
+      invite.receiver.name,
+      invite.project.title,
+      status
+    ).catch(err => {
+      console.error("❌ Failed to send response email:", err);
+    });
 
     res.json(updatedInvite);
   } catch (err) {

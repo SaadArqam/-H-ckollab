@@ -20,6 +20,7 @@ export default function UserCard({
   };
 
   const handleInviteClick = () => {
+    console.log("🔍 Selected User ID being passed to modal:", id);
     setIsModalOpen(true);
   };
 
@@ -77,7 +78,7 @@ export default function UserCard({
         <InviteModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          receiverId={id} // 👈 Pass ID of the user being invited
+          selectedUserId={id} // ✅ DB user ID, NOT Firebase UID
           receiverName={name}
         />
       )}
