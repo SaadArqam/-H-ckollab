@@ -1,3 +1,4 @@
+// InviteModal.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/UserContext";
@@ -44,7 +45,7 @@ export default function InviteModal({ isOpen, onClose, selectedUserId, receiverN
         `${process.env.REACT_APP_API_URL}/api/invites`,
         {
           projectId: selectedProjectId,
-          receiverId: selectedUserId,
+          receiverId: selectedUserId, // ✅ This is the DB user id!
           role,
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -88,7 +89,7 @@ export default function InviteModal({ isOpen, onClose, selectedUserId, receiverN
               <select
                 value={selectedProjectId}
                 onChange={(e) => setSelectedProjectId(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">-- Choose Project --</option>
                 {projects.map((project) => (
@@ -108,7 +109,7 @@ export default function InviteModal({ isOpen, onClose, selectedUserId, receiverN
                 placeholder="e.g. Frontend Developer"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             {/* Buttons */}

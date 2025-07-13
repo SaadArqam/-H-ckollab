@@ -1,21 +1,46 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+// inviteController.js
+import prisma from "../lib/prisma.js";
 
 // POST /api/invites
 export const sendInvite = async (req, res) => {
-  const { senderId, receiverId, projectId, role } = req.body;
   try {
+    const { projectId, receiverId, role } = req.body;
+    const senderFirebaseUid = req.user?.uid;
+
+    console.log("🔥 Incoming invite data:");
+    console.log("projectId:", projectId);
+    console.log("receiverId (from frontend):", receiverId);
+    console.log("role:", role);
+    console.log("senderFirebaseUid:", senderFirebaseUid);
+
+    const sender = await prisma.user.findUnique({
+      where: { firebaseUid: senderFirebaseUid },
+    });
+
+    console.log("👤 Sender from DB:", sender);
+
+    const receiver = await prisma.user.findUnique({
+      where: { id: receiverId },
+    });
+
+    console.log("👤 Receiver from DB:", receiver);
+
+    if (!sender) return res.status(404).json({ error: "Sender not found" });
+    if (!receiver) return res.status(404).json({ error: "Receiver not found" });
+
     const invite = await prisma.invite.create({
       data: {
-        senderId,
-        receiverId,
         projectId,
+        senderId: sender.id,
+        receiverId: receiver.id,
         role,
+        status: "pending",
       },
     });
+
     res.status(201).json(invite);
   } catch (err) {
-    console.error("Error sending invite:", err);
+    console.error("❌ Error sending invite:", err);
     res.status(500).json({ error: "Failed to send invite" });
   }
 };
