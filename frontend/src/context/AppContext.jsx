@@ -27,7 +27,7 @@ export const AppProvider = ({ children }) => {
       const token = await user.getIdToken();
 
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/users/firebase/${user.uid}`,
+        `${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ export const AppProvider = ({ children }) => {
     try {
       const token = await user.getIdToken();
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/users/${user.uid}/projects`,
+        `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/projects`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,7 +86,7 @@ export const AppProvider = ({ children }) => {
     try {
       const token = await user.getIdToken();
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/invites/user/${user.uid}`,
+        `${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -109,7 +109,7 @@ export const AppProvider = ({ children }) => {
     try {
       const token = await user.getIdToken();
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/users/${user.uid}/collaborations`,
+        `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/collaborations`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
