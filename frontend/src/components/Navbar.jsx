@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/UserContext";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
+import { useState } from "react";
 
 export default function Navbar() {
   const { isSignedIn, user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <nav className="w-full border-b border-gray-800 bg-gray-950 text-white">
@@ -19,30 +21,81 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Navigation Links */}
+        {/* Hamburger for mobile */}
+        <button
+          className="md:hidden flex items-center justify-center p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          aria-label="Open menu"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          <svg
+            className="w-7 h-7 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            {mobileMenuOpen ? (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            ) : (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            )}
+          </svg>
+        </button>
+
+        {/* Navigation Links (Desktop) */}
         <div className="hidden md:flex items-center gap-x-6 text-sm font-medium">
           <Link to="/" className="text-gray-400 hover:text-white transition">
             Landing
           </Link>
-          <Link to="/explore" className="text-gray-400 hover:text-white transition">
+          <Link
+            to="/explore"
+            className="text-gray-400 hover:text-white transition"
+          >
             Explore
           </Link>
-          <Link to="/explore-projects" className="text-gray-400 hover:text-white transition">
+          <Link
+            to="/explore-projects"
+            className="text-gray-400 hover:text-white transition"
+          >
             Explore Projects
           </Link>
-          <Link to="/my-projects" className="text-gray-400 hover:text-white transition">
+          <Link
+            to="/my-projects"
+            className="text-gray-400 hover:text-white transition"
+          >
             My Projects
           </Link>
-          <Link to="/post-project" className="text-gray-400 hover:text-white transition">
+          <Link
+            to="/post-project"
+            className="text-gray-400 hover:text-white transition"
+          >
             Post Project
           </Link>
-          <Link to="/messages" className="text-gray-400 hover:text-white transition">
+          <Link
+            to="/messages"
+            className="text-gray-400 hover:text-white transition"
+          >
             Messages
           </Link>
-          <Link to="/profile" className="text-gray-400 hover:text-white transition">
+          <Link
+            to="/profile"
+            className="text-gray-400 hover:text-white transition"
+          >
             Profile
           </Link>
-          <Link to="/dashboard" className="text-gray-400 hover:text-white transition">
+          <Link
+            to="/dashboard"
+            className="text-gray-400 hover:text-white transition"
+          >
             Dashboard
           </Link>
 
@@ -73,6 +126,97 @@ export default function Navbar() {
           )}
         </div>
       </div>
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-gray-950 border-t border-gray-800 px-6 pb-4 pt-2 animate-fade-in-down z-50">
+          <div className="flex flex-col gap-3 text-sm font-medium">
+            <Link
+              to="/"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Landing
+            </Link>
+            <Link
+              to="/explore"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Explore
+            </Link>
+            <Link
+              to="/explore-projects"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Explore Projects
+            </Link>
+            <Link
+              to="/my-projects"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              My Projects
+            </Link>
+            <Link
+              to="/post-project"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Post Project
+            </Link>
+            <Link
+              to="/messages"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Messages
+            </Link>
+            <Link
+              to="/profile"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Profile
+            </Link>
+            <Link
+              to="/dashboard"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
+            {/* Auth Buttons */}
+            {isSignedIn ? (
+              <div className="flex flex-col gap-2 mt-2">
+                <span className="text-gray-300 text-sm">{user?.email}</span>
+                <button
+                  onClick={() => {
+                    signOut(auth);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="px-4 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-500 transition text-sm font-semibold"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 mt-2">
+                <Link to="/sign-in" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full px-4 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-500 transition text-sm font-semibold">
+                    Sign In
+                  </button>
+                </Link>
+                <Link to="/sign-up" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full px-4 py-1.5 rounded-md border border-gray-700 hover:border-indigo-500 hover:text-indigo-400 transition text-sm font-medium">
+                    Sign Up
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
