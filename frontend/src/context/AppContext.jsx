@@ -10,7 +10,6 @@ export const useAppContext = () => {
   }
   return context;
 };
-
 export const AppProvider = ({ children }) => {
   const [profileData, setProfileData] = useState(null);
   const [userProjects, setUserProjects] = useState([]);
@@ -19,13 +18,31 @@ export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth(); // 👈 Firebase user object
 
-  const fetchProfile = async () => {
-    if (!user) return;
-    setLoading(true);
+  useEffect(() => {
+    if (!user || !user.uid) return;
 
-    try {
+    const init = async () => {
       const token = await user.getIdToken();
+      if (!token) return;
+      console.log("🔥 UID:", user?.uid);
+      console.log("🔥 Token:", token);
+      setLoading(true);
+      try {
+        await fetchProfile(token);
+        await fetchUserProjects(token);
+        await fetchInvites(token);
+        await fetchCollaborations(token);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, [user]);
 
+  // Update fetchProfile, fetchUserProjects, fetchInvites, fetchCollaborations to accept token as param
+  const fetchProfile = async (token) => {
+    if (!user || !user.uid || !token) return;
+    try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`,
         {
@@ -34,34 +51,27 @@ export const AppProvider = ({ children }) => {
           },
         }
       );
-
       if (res.status === 404) {
         setProfileData("notfound");
         return;
       }
-
       if (!res.ok) {
-        const errorText = await res.text(); // Handle HTML error responses
+        const errorText = await res.text();
         console.error("❌ Profile fetch failed with status:", res.status);
         console.error("❌ Response body:", errorText);
         throw new Error("Failed to fetch profile");
       }
-
       const data = await res.json();
       setProfileData(data);
     } catch (err) {
       console.error("❌ Error in fetchProfile:", err.message);
       setProfileData("notfound");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const fetchUserProjects = async () => {
-    if (!user) return;
-
+  const fetchUserProjects = async (token) => {
+    if (!user || !user.uid || !token) return;
     try {
-      const token = await user.getIdToken();
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/projects`,
         {
@@ -70,21 +80,16 @@ export const AppProvider = ({ children }) => {
           },
         }
       );
-
-      if (res.ok) {
-        const data = await res.json();
-        setUserProjects(data);
-      }
+      const data = await res.json();
+      setUserProjects(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("❌ Error fetching user projects:", err);
+      setUserProjects([]);
     }
   };
 
-  const fetchInvites = async () => {
-    if (!user) return;
-
+  const fetchInvites = async (token) => {
+    if (!user || !user.uid || !token) return;
     try {
-      const token = await user.getIdToken();
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`,
         {
@@ -93,21 +98,16 @@ export const AppProvider = ({ children }) => {
           },
         }
       );
-
-      if (res.ok) {
-        const data = await res.json();
-        setInvites(data);
-      }
+      const data = await res.json();
+      setInvites(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("❌ Error in fetchInvites:", err.message);
+      setInvites([]);
     }
   };
 
-  const fetchCollaborations = async () => {
-    if (!user) return;
-
+  const fetchCollaborations = async (token) => {
+    if (!user || !user.uid || !token) return;
     try {
-      const token = await user.getIdToken();
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/collaborations`,
         {
@@ -116,23 +116,12 @@ export const AppProvider = ({ children }) => {
           },
         }
       );
-
-      if (res.ok) {
-        const data = await res.json();
-        setCollaborations(data);
-      }
+      const data = await res.json();
+      setCollaborations(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("❌ Error fetching collaborations:", err);
+      setCollaborations([]);
     }
   };
-
-  useEffect(() => {
-    fetchProfile();
-    fetchUserProjects();
-    fetchInvites();
-    fetchCollaborations();
-    // eslint-disable-next-line
-  }, [user]);
 
   const value = {
     profileData,
@@ -147,5 +136,26 @@ export const AppProvider = ({ children }) => {
     profileNotFound: profileData === "notfound",
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={{
+      profileData,
+      userProjects,
+      invites,
+      collaborations,
+      loading,
+      setProfileData,
+      setUserProjects,
+      setInvites,
+      setCollaborations,
+    }}>
+      {loading ? (
+        <div style={{ color: 'white', textAlign: 'center', marginTop: '2rem' }}>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p>Loading your dashboard...</p>
+        </div>
+      ) : (
+        children
+      )}
+    </AppContext.Provider>
+  );
 };
