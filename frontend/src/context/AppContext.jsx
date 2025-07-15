@@ -47,7 +47,6 @@ export const AppProvider = ({ children }) => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (!user || !user.uid) {
       setLoading(false);

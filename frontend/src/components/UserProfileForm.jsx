@@ -129,6 +129,7 @@ const UserProfileForm = () => {
       academicYear: formData.academicYear,
       branch: formData.branch,
       interests: formData.interests,
+      featuredProjects: formData.projects, // Ensure this is always sent as an array
     };
 
     try {

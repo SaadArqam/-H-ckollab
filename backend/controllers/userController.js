@@ -138,6 +138,11 @@ export const updateUserByFirebaseUid = async (req, res) => {
     featuredProjects = [],
   } = req.body;
 
+  // Ensure featuredProjects is always an array
+  if (!Array.isArray(featuredProjects)) {
+    console.error("[updateUserByFirebaseUid] featuredProjects is not an array:", featuredProjects);
+    featuredProjects = [];
+  }
   // Ensure skills is always an array
   if (!Array.isArray(skills)) {
     console.error("[updateUserByFirebaseUid] skills is not an array:", skills);
