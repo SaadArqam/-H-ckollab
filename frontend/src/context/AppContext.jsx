@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./UserContext";
+import FullScreenLoader from "../components/FullScreenLoader";
 
 const AppContext = createContext();
 
@@ -10,32 +11,48 @@ export const useAppContext = () => {
   }
   return context;
 };
+
 export const AppProvider = ({ children }) => {
   const [profileData, setProfileData] = useState(null);
   const [userProjects, setUserProjects] = useState([]);
   const [invites, setInvites] = useState([]);
   const [collaborations, setCollaborations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth(); // 👈 Firebase user object
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!user || !user.uid) return;
+    if (!user || !user.uid) {
+      setLoading(false); // Not signed in, so not loading anything.
+      return;
+    }
 
     const init = async () => {
-      const token = await user.getIdToken();
-      if (!token) return;
-      console.log("🔥 UID:", user?.uid);
-      console.log("🔥 Token:", token);
-      setLoading(true);
       try {
-        await fetchProfile(token);
-        await fetchUserProjects(token);
-        await fetchInvites(token);
-        await fetchCollaborations(token);
+        const token = await user.getIdToken();
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        console.log("🔥 UID:", user?.uid);
+        console.log("🔥 Fetching all user data in parallel...");
+        setLoading(true);
+
+        // Fetch all data in parallel for faster loading
+        await Promise.all([
+          fetchProfile(token),
+          fetchUserProjects(token),
+          fetchInvites(token),
+          fetchCollaborations(token),
+        ]);
+
+      } catch (error) {
+        console.error("❌ Failed to initialize app data:", error);
       } finally {
         setLoading(false);
       }
     };
+
     init();
   }, [user]);
 
@@ -123,39 +140,28 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+
   const value = {
     profileData,
     userProjects,
     invites,
     collaborations,
     loading,
-    refetchProfile: fetchProfile,
-    fetchUserProjects,
-    fetchInvites,
-    fetchCollaborations,
-    profileNotFound: profileData === "notfound",
+    refetchAll: () => init(), // Expose a refetch function if needed elsewhere
+    setProfileData,
+    setUserProjects,
+    setInvites,
+    setCollaborations,
   };
 
+  // Immediate return of loader to prevent white screen flash
+  if (loading) {
+    return <FullScreenLoader message="Loading your dashboard..." />;
+  }
+
   return (
-    <AppContext.Provider value={{
-      profileData,
-      userProjects,
-      invites,
-      collaborations,
-      loading,
-      setProfileData,
-      setUserProjects,
-      setInvites,
-      setCollaborations,
-    }}>
-      {loading ? (
-        <div style={{ color: 'white', textAlign: 'center', marginTop: '2rem' }}>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p>Loading your dashboard...</p>
-        </div>
-      ) : (
-        children
-      )}
+    <AppContext.Provider value={value}>
+      {children}
     </AppContext.Provider>
   );
 };
