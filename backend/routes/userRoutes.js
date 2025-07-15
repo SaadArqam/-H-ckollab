@@ -22,6 +22,7 @@ router.get('/:firebaseUid/collaborations', getUserCollaborations);
 router.get('/:userId/projects', getUserProjectsById);
 router.get('/:userId/collaborations', getUserCollaborationsById);
 router.post('/', verifyFirebaseToken, createUser);
+router.patch('/firebase/:firebaseUid', verifyFirebaseToken, updateUserByFirebaseUid);
 router.post('/seed', async (req, res) => {
     const { firebaseUid, name, email } = req.body;
     try {
