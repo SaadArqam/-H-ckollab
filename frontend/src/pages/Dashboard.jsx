@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
-import Loader from "../components/Loader";
 
 const Dashboard = () => {
   const {
     profileData,
-    refetchProfile,
+    refetchAll,
     userProjects,
-    fetchUserProjects,
     invites,
     collaborations,
   } = useAppContext();
@@ -18,8 +16,7 @@ const Dashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await refetchProfile();
-      await fetchUserProjects();
+      await refetchAll();
       setLoading(false);
     };
     loadData();
@@ -38,6 +35,14 @@ const Dashboard = () => {
           ))}
         </div>
         <div className="h-40 w-full rounded-xl bg-gray-800 animate-pulse"></div>
+      </div>
+    );
+  }
+
+  if (profileData === "notfound") {
+    return (
+      <div className="p-6 text-center text-gray-400">
+        Profile not found. Please create your profile first.
       </div>
     );
   }

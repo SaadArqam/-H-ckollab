@@ -21,33 +21,25 @@ export const AppProvider = ({ children }) => {
   const { user } = useAuth();
 
   // Move init outside useEffect
-  const init = async () => {
-    if (!user || !user.uid) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const token = await user.getIdToken();
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-      await Promise.all([
-        fetchProfile(token),
-        fetchUserProjects(token),
-        fetchInvites(token),
-        fetchCollaborations(token),
-      ]);
-    } catch (error) {
-      console.error("❌ Failed to initialize app data:", error);
-    } finally {
-      setLoading(false);
-    }
+  const refetchAll = async () => {
+    if (!user || !user.uid) return;
+    const token = await user.getIdToken();
+    if (!token) return;
+    await Promise.all([
+      fetchProfile(token),
+      fetchUserProjects(token),
+      fetchInvites(token),
+      fetchCollaborations(token),
+    ]);
   };
 
   useEffect(() => {
-    init();
+    const load = async () => {
+      setLoading(true);
+      await refetchAll();
+      setLoading(false);
+    };
+    load();
     // eslint-disable-next-line
   }, [user]);
 
@@ -142,7 +134,7 @@ export const AppProvider = ({ children }) => {
     invites,
     collaborations,
     loading,
-    refetchAll: init, // Now this works!
+    refetchAll, // ✅ working now
     setProfileData,
     setUserProjects,
     setInvites,
