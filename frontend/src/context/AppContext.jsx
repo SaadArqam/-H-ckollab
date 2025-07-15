@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./UserContext";
 import FullScreenLoader from "../components/FullScreenLoader";
+import { toast } from "react-toastify";
 
 const AppContext = createContext();
 
@@ -20,32 +21,45 @@ export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  // Move init outside useEffect
-  const refetchAll = async () => {
-    if (!user || !user.uid) return;
-    const token = await user.getIdToken();
-    if (!token) return;
-    await Promise.all([
-      fetchProfile(token),
-      fetchUserProjects(token),
-      fetchInvites(token),
-      fetchCollaborations(token),
-    ]);
+  // Helper to check if user/token is valid
+  const isTokenValid = (token) => user && user.uid && token;
+
+  // Move init outside useEffect so it can be reused
+  const init = async () => {
+    try {
+      const token = await user.getIdToken();
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      console.log("🔥 UID:", user?.uid);
+      console.log("🔥 Fetching all user data in parallel...");
+      setLoading(true);
+      await Promise.all([
+        fetchProfile(token),
+        fetchUserProjects(token),
+        fetchInvites(token),
+        fetchCollaborations(token),
+      ]);
+    } catch (error) {
+      console.error("❌ Failed to initialize app data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      await refetchAll();
+    if (!user || !user.uid) {
       setLoading(false);
-    };
-    load();
+      return;
+    }
+    init();
     // eslint-disable-next-line
   }, [user]);
 
   // Update fetchProfile, fetchUserProjects, fetchInvites, fetchCollaborations to accept token as param
   const fetchProfile = async (token) => {
-    if (!user || !user.uid || !token) return;
+    if (!isTokenValid(token)) return;
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`,
@@ -70,11 +84,12 @@ export const AppProvider = ({ children }) => {
     } catch (err) {
       console.error("❌ Error in fetchProfile:", err.message);
       setProfileData("notfound");
+      toast.error("Failed to fetch profile data.");
     }
   };
 
   const fetchUserProjects = async (token) => {
-    if (!user || !user.uid || !token) return;
+    if (!isTokenValid(token)) return;
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/projects`,
@@ -88,11 +103,12 @@ export const AppProvider = ({ children }) => {
       setUserProjects(Array.isArray(data) ? data : []);
     } catch (err) {
       setUserProjects([]);
+      toast.error("Failed to fetch your projects.");
     }
   };
 
   const fetchInvites = async (token) => {
-    if (!user || !user.uid || !token) return;
+    if (!isTokenValid(token)) return;
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`,
@@ -106,11 +122,12 @@ export const AppProvider = ({ children }) => {
       setInvites(Array.isArray(data) ? data : []);
     } catch (err) {
       setInvites([]);
+      toast.error("Failed to fetch your invites.");
     }
   };
 
   const fetchCollaborations = async (token) => {
-    if (!user || !user.uid || !token) return;
+    if (!isTokenValid(token)) return;
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/${user.uid}/collaborations`,
@@ -124,6 +141,7 @@ export const AppProvider = ({ children }) => {
       setCollaborations(Array.isArray(data) ? data : []);
     } catch (err) {
       setCollaborations([]);
+      toast.error("Failed to fetch your collaborations.");
     }
   };
 
@@ -134,7 +152,7 @@ export const AppProvider = ({ children }) => {
     invites,
     collaborations,
     loading,
-    refetchAll, // ✅ working now
+    refetchAll: init, // ✅ FIXED
     setProfileData,
     setUserProjects,
     setInvites,
