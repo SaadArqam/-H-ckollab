@@ -15,6 +15,7 @@ import PostProjectPage from "./pages/PostProjectPage";
 import MyProjectsPage from "./pages/MyProjectsPage";
 import MyInvites from "./pages/MyInvites"; // ✅ NEW: MyInvites route
 import Dashboard from "./pages/Dashboard"; // ✅ NEW: Dashboard route
+import Collaborations from "./pages/Collaborations";
 
 // Auth
 import SignInPage from "./components/SignIn";
@@ -109,6 +110,14 @@ export default function AppRoutes() {
         }
       />{" "}
       {/* ✅ NEW: Dashboard route */}
+      <Route
+        path="/collaborations"
+        element={
+          <Layout>
+            <Collaborations />
+          </Layout>
+        }
+      />
       {/* Catch-all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
