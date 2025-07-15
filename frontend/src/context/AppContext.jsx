@@ -20,40 +20,35 @@ export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
+  // Move init outside useEffect
+  const init = async () => {
     if (!user || !user.uid) {
-      setLoading(false); // Not signed in, so not loading anything.
+      setLoading(false);
       return;
     }
-
-    const init = async () => {
-      try {
-        const token = await user.getIdToken();
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        console.log("🔥 UID:", user?.uid);
-        console.log("🔥 Fetching all user data in parallel...");
-        setLoading(true);
-
-        // Fetch all data in parallel for faster loading
-        await Promise.all([
-          fetchProfile(token),
-          fetchUserProjects(token),
-          fetchInvites(token),
-          fetchCollaborations(token),
-        ]);
-
-      } catch (error) {
-        console.error("❌ Failed to initialize app data:", error);
-      } finally {
+    try {
+      const token = await user.getIdToken();
+      if (!token) {
         setLoading(false);
+        return;
       }
-    };
+      setLoading(true);
+      await Promise.all([
+        fetchProfile(token),
+        fetchUserProjects(token),
+        fetchInvites(token),
+        fetchCollaborations(token),
+      ]);
+    } catch (error) {
+      console.error("❌ Failed to initialize app data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     init();
+    // eslint-disable-next-line
   }, [user]);
 
   // Update fetchProfile, fetchUserProjects, fetchInvites, fetchCollaborations to accept token as param
@@ -147,7 +142,7 @@ export const AppProvider = ({ children }) => {
     invites,
     collaborations,
     loading,
-    refetchAll: () => init(), // Expose a refetch function if needed elsewhere
+    refetchAll: init, // Now this works!
     setProfileData,
     setUserProjects,
     setInvites,
