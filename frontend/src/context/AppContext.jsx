@@ -26,6 +26,10 @@ export const AppProvider = ({ children }) => {
 
   // Move init outside useEffect so it can be reused
   const init = async () => {
+    if (!user || !user.uid) {
+      setLoading(false);
+      return;
+    }
     try {
       const token = await user.getIdToken();
       if (!token) {
@@ -157,11 +161,6 @@ export const AppProvider = ({ children }) => {
     setInvites,
     setCollaborations,
   };
-
-  // Immediate return of loader to prevent white screen flash
-  if (loading) {
-    return <FullScreenLoader message="Loading your dashboard..." />;
-  }
 
   return (
     <AppContext.Provider value={value}>

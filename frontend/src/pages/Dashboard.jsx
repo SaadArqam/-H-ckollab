@@ -16,7 +16,10 @@ const Dashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      // Add a timeout fallback for slow network
+      const timeout = setTimeout(() => setLoading(false), 8000); // 8s max
       await refetchAll();
+      clearTimeout(timeout);
       setLoading(false);
     };
     loadData();

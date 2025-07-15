@@ -38,7 +38,7 @@ const skillCategories = {
 
 const UserProfileForm = () => {
   const { user } = useAuth();
-  const { profileData, refetchProfile } = useAppContext();
+  const { profileData, refetchAll } = useAppContext();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -151,7 +151,7 @@ const UserProfileForm = () => {
         throw new Error(text);
       }
 
-      await refetchProfile();
+      await refetchAll();
       setLoading(false);
       toast.success(isEditing ? "Profile updated!" : "Profile created!");
       navigate("/profile");

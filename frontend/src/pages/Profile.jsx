@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { useAuth } from "../context/UserContext";
+import { FaGithub, FaLinkedin, FaLink } from "react-icons/fa";
 
 export default function Profile() {
   const { isSignedIn } = useAuth();
@@ -128,28 +129,41 @@ export default function Profile() {
             )}
 
             {/* Social Links */}
-            {(profileData.github || profileData.otherLinks) && (
+            {(profileData.githubUrl || profileData.portfolioUrl) && (
               <div className="bg-gray-950 p-6 rounded-xl border border-gray-800">
-                <h2 className="text-2xl font-semibold mb-4">Links</h2>
-                <div className="space-y-3">
-                  {profileData.github && (
+                <h2 className="text-2xl font-semibold mb-4">Social Links</h2>
+                <div className="flex flex-col gap-3">
+                  {profileData.githubUrl && (
                     <a
-                      href={profileData.github}
+                      href={profileData.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-center"
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
                     >
-                      GitHub
+                      <FaGithub className="text-xl" />
+                      <span>GitHub</span>
                     </a>
                   )}
-                  {profileData.otherLinks && (
+                  {profileData.portfolioUrl && profileData.portfolioUrl.toLowerCase().includes("linkedin") && (
                     <a
-                      href={profileData.otherLinks}
+                      href={profileData.portfolioUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-center"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      Portfolio/LinkedIn
+                      <FaLinkedin className="text-xl" />
+                      <span>LinkedIn</span>
+                    </a>
+                  )}
+                  {profileData.portfolioUrl && !profileData.portfolioUrl.toLowerCase().includes("linkedin") && (
+                    <a
+                      href={profileData.portfolioUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      <FaLink className="text-xl" />
+                      <span>Portfolio</span>
                     </a>
                   )}
                 </div>
