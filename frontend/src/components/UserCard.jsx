@@ -7,8 +7,10 @@ export default function UserCard({
   avatar = "",
   skills = [],
   actionLabel = "Invite",
+  alreadyInvited = false,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [invited, setInvited] = useState(alreadyInvited);
 
   const getInitials = (name) => {
     return name
@@ -22,6 +24,10 @@ export default function UserCard({
   const handleInviteClick = () => {
     console.log("🔍 Selected User ID being passed to modal:", id);
     setIsModalOpen(true);
+  };
+
+  const handleInviteSent = () => {
+    setInvited(true);
   };
 
   return (
@@ -65,9 +71,10 @@ export default function UserCard({
           <div>
             <button
               onClick={handleInviteClick}
-              className="text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={`text-sm px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${invited ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              disabled={invited}
             >
-              {actionLabel}
+              {invited ? 'Invited' : actionLabel}
             </button>
           </div>
         </div>
@@ -80,6 +87,7 @@ export default function UserCard({
           onClose={() => setIsModalOpen(false)}
           selectedUserId={id} // ✅ DB user ID, NOT Firebase UID
           receiverName={name}
+          onInviteSent={handleInviteSent}
         />
       )}
     </>

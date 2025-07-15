@@ -2,11 +2,37 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/UserContext";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaBell } from "react-icons/fa";
+import axios from "axios";
 
 export default function Navbar() {
   const { isSignedIn, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pendingInvites, setPendingInvites] = useState(0);
+  const navigate = useNavigate();
+
+  // Fetch pending invites count
+  useEffect(() => {
+    let interval;
+    const fetchPending = async () => {
+      if (!user) return setPendingInvites(0);
+      try {
+        const token = await user.getIdToken();
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const invites = res.data || [];
+        setPendingInvites(invites.filter((i) => i.status === "pending").length);
+      } catch {
+        setPendingInvites(0);
+      }
+    };
+    fetchPending();
+    interval = setInterval(fetchPending, 30000); // poll every 30s
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <nav className="w-full border-b border-gray-800 bg-gray-950 text-white">
@@ -98,6 +124,20 @@ export default function Navbar() {
           >
             Dashboard
           </Link>
+          {isSignedIn && (
+            <button
+              className="relative focus:outline-none ml-2"
+              onClick={() => navigate("/my-invites")}
+              aria-label="View Invites"
+            >
+              <FaBell className="text-xl text-gray-300 hover:text-yellow-400 transition" />
+              {pendingInvites > 0 && (
+                <span className="absolute -top-2 -right-2 bg-yellow-400 text-black rounded-full px-2 py-0.5 text-xs font-bold">
+                  {pendingInvites}
+                </span>
+              )}
+            </button>
+          )}
 
           {/* Auth Buttons */}
           {isSignedIn ? (

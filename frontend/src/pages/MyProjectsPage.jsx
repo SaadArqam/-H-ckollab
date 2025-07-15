@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Eye, Users, X } from "lucide-react";
+import axios from "axios";
 import { useAppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/UserContext"; // <-- Import Firebase Auth context
@@ -32,6 +33,8 @@ export default function MyProjectsPage() {
   const [inviteProject, setInviteProject] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [projectInvites, setProjectInvites] = useState([]);
+  const [invitesLoading, setInvitesLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -56,7 +59,18 @@ export default function MyProjectsPage() {
     fetchProjects();
   }, [user]);
 
-  const handleView = (project) => setViewProject(project);
+  const handleView = async (project) => {
+    setViewProject(project);
+    setInvitesLoading(true);
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/project/${project.id}`);
+      setProjectInvites(res.data || []);
+    } catch {
+      setProjectInvites([]);
+    } finally {
+      setInvitesLoading(false);
+    }
+  };
 
   const handleEdit = (project) => {
     setEditProject(project);
@@ -248,17 +262,36 @@ export default function MyProjectsPage() {
               </div>
               <div>
                 <strong>Invite Status:</strong>{" "}
-                {viewProject.inviteStatus || "Pending"}
+                {viewProject.inviteStatus}
               </div>
-              <div>
-                <strong>Tech Stack:</strong>{" "}
-                {(viewProject.techStack || []).join(", ")}
-              </div>
-              <div>
-                <strong>Tags:</strong> {(viewProject.tags || []).join(", ")}
-              </div>
-              <div>
-                <strong>Max Team Size:</strong> {viewProject.maxTeamSize}
+              {/* Pending Invites Section */}
+              <div className="mt-6">
+                <h3 className="text-2xl font-bold mb-2 text-white">Pending Invites</h3>
+                {invitesLoading ? (
+                  <div className="text-gray-400">Loading invites...</div>
+                ) : projectInvites.length === 0 ? (
+                  <div className="text-gray-400">No pending invites for this project.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {projectInvites.map((invite) => (
+                      <div key={invite.id} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
+                        <div>
+                          <span className="font-semibold text-white">{invite.receiver?.name || invite.receiver?.email}</span>
+                          <span className="ml-2 text-gray-400 text-sm">({invite.role})</span>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          invite.status === "accepted"
+                            ? "bg-green-700/30 text-green-400"
+                            : invite.status === "declined"
+                            ? "bg-red-700/30 text-red-400"
+                            : "bg-yellow-700/30 text-yellow-400"
+                        }`}>
+                          {invite.status.charAt(0).toUpperCase() + invite.status.slice(1)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ import axios from "axios";
 import { useAuth } from "../context/UserContext";
 import { toast } from "react-toastify";
 
-export default function InviteModal({ isOpen, onClose, selectedUserId, receiverName }) {
+export default function InviteModal({ isOpen, onClose, selectedUserId, receiverName, onInviteSent }) {
   const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
@@ -44,7 +44,7 @@ export default function InviteModal({ isOpen, onClose, selectedUserId, receiverN
     setLoading(true);
     try {
       const token = await user.getIdToken();
-      await axios.post(
+      const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/invites`,
         {
           projectId: selectedProjectId,
@@ -53,7 +53,11 @@ export default function InviteModal({ isOpen, onClose, selectedUserId, receiverN
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("✅ Invite sent successfully!");
+      // Show detailed toast
+      const project = projects.find((p) => p.id === selectedProjectId);
+      toast.success(`✅ Invite sent to ${receiverName} for ${project?.title || "Project"}`);
+      // Notify parent to update UI
+      if (onInviteSent) onInviteSent(selectedUserId, selectedProjectId);
       onClose();
     } catch (err) {
       if (err.response?.data?.error?.includes("unique")) {
