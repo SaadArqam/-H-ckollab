@@ -126,58 +126,72 @@ export const getUserInvitesByFirebaseUid = async (req, res) => {
   }
 };
 
-// PATCH /api/invites/:id
-export const respondToInvite = async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body; // "accepted" or "declined"
+// GET /api/invites/project/:projectId
+export const getProjectInvites = async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const invites = await prisma.invite.findMany({
+      where: { projectId },
+      include: {
+        receiver: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(invites);
+  } catch (err) {
+    console.error("❌ Error fetching project invites:", err);
+    res.status(500).json({ error: "Failed to fetch project invites" });
+  }
+};
+
+// PATCH /api/invites/:inviteId
+export const updateInviteStatus = async (req, res) => {
+  const { inviteId } = req.params;
+  const { status } = req.body;
 
   try {
-    // Get the invite with related data
-    const invite = await prisma.invite.findUnique({
-      where: { id },
-      include: {
-        sender: true,
-        receiver: true,
-        project: true,
-      },
-    });
-
-    if (!invite) {
-      return res.status(404).json({ error: "Invite not found" });
-    }
-
-    const updatedInvite = await prisma.invite.update({
-      where: { id },
+    // Update invite status
+    const invite = await prisma.invite.update({
+      where: { id: inviteId },
       data: { status },
+      include: { project: true, receiver: true },
     });
 
+    // If accepted, add user to collaboratedProjects
     if (status === "accepted") {
-      // Add receiver as collaborator
       await prisma.project.update({
-        where: { id: updatedInvite.projectId },
+        where: { id: invite.projectId },
         data: {
           collaborators: {
-            connect: { id: updatedInvite.receiverId },
+            connect: { id: invite.receiverId },
           },
         },
       });
     }
 
-    // Send email notification to sender about the response
-    sendInviteResponseEmail(
-      invite.sender.email,
-      invite.sender.name,
-      invite.receiver.name,
-      invite.project.title,
-      status
-    ).catch(err => {
-      console.error("❌ Failed to send response email:", err);
-    });
-
-    res.json(updatedInvite);
+    res.json(invite);
   } catch (err) {
-    console.error("Error updating invite:", err);
-    res.status(500).json({ error: "Failed to respond to invite" });
+    console.error("❌ Error updating invite status:", err);
+    res.status(500).json({ error: "Failed to update invite status" });
+  }
+};
+
+// GET /api/invites/sent/:senderId
+export const getSentInvites = async (req, res) => {
+  const { senderId } = req.params;
+  try {
+    const invites = await prisma.invite.findMany({
+      where: { senderId },
+      include: {
+        project: true,
+        receiver: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(invites);
+  } catch (err) {
+    console.error("❌ Error fetching sent invites:", err);
+    res.status(500).json({ error: "Failed to fetch sent invites" });
   }
 };
 

@@ -77,9 +77,6 @@ export const createUser = async (req, res) => {
   skills = skills.filter((s) => s.skillId?.trim());
 
   try {
-    const existingUser = await prisma.user.findUnique({ where: { firebaseUid } });
-    if (existingUser) return res.status(400).json({ error: "User already exists" });
-
     const skillRelations = [];
     const seenSkillIds = new Set();
 
@@ -110,9 +107,13 @@ export const createUser = async (req, res) => {
     delete userData.projects;
 
     console.log("userData being sent to Prisma:", userData);
-    // Final destructure to ensure 'projects' is not present
-    const { projects: _removed, ...userDataSafe } = userData;
-    const user = await prisma.user.create({ data: userDataSafe });
+
+    // Use upsert to avoid unique constraint errors
+    const user = await prisma.user.upsert({
+      where: { firebaseUid },
+      update: {}, // no-op
+      create: userData,
+    });
 
     res.status(201).json(user);
   } catch (err) {

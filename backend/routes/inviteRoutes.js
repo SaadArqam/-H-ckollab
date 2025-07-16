@@ -2,7 +2,9 @@ import express from 'express';
 import {
   sendInvite,
   getReceivedInvites,
-  respondToInvite,
+  updateInviteStatus,
+  getSentInvites,
+  getProjectInvites,
   testEmailRoute,
   getUserInvitesByFirebaseUid,
 } from '../controllers/inviteController.js';
@@ -21,9 +23,13 @@ router.get('/received', getReceivedInvites);
 router.get('/user/:firebaseUid', getUserInvitesByFirebaseUid);
 
 // Accept or decline an invite
-router.patch('/:id', respondToInvite);
+router.patch('/:inviteId', updateInviteStatus);
+router.get('/sent/:senderId', getSentInvites);
 
 // Test email route
 router.get('/test-email', testEmailRoute);
+
+// Get all invites for a project
+router.get('/project/:projectId', getProjectInvites);
 
 export default router;

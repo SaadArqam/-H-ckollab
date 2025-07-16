@@ -35,12 +35,12 @@ export default function MyInvites() {
   };
 
   const fetchSentInvites = async () => {
-    if (!user) return;
+    if (!user || !profileData?.id) return;
     try {
       setSentLoading(true);
       const token = await user.getIdToken();
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/invites/sent/${user.uid}`,
+        `${process.env.REACT_APP_API_URL}/api/invites/sent/${profileData.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSentInvites(res.data || []);
@@ -73,11 +73,11 @@ export default function MyInvites() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && profileData?.id) {
       fetchInvites();
       fetchSentInvites();
     }
-  }, [user]);
+  }, [user, profileData?.id]);
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
