@@ -16,6 +16,8 @@ import MyProjectsPage from "./pages/MyProjectsPage";
 import MyInvites from "./pages/MyInvites"; // ✅ NEW: MyInvites route
 import Dashboard from "./pages/Dashboard"; // ✅ NEW: Dashboard route
 import Collaborations from "./pages/Collaborations";
+import PostHackathon from "./pages/PostHackathon";
+import ExploreHackathons from "./pages/ExploreHackathons";
 
 // Auth
 import SignInPage from "./components/SignIn";
@@ -118,6 +120,9 @@ export default function AppRoutes() {
           </Layout>
         }
       />
+      \
+      <Route path="/post-hackathon" element={<PostHackathon />} />
+      <Route path="/explore-hackathons" element={<ExploreHackathons />} />
       {/* Catch-all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

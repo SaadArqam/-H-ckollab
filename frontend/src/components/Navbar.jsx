@@ -11,20 +11,22 @@ export default function Navbar() {
   const { isSignedIn, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pendingInvites, setPendingInvites] = useState(0);
-  const [acceptedSentInvites, setAcceptedSentInvites] = useState([]); // New: accepted invites sent by user
+  const [acceptedSentInvites, setAcceptedSentInvites] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch pending invites (receiver)
   useEffect(() => {
     let interval;
     const fetchPending = async () => {
       if (!user) return setPendingInvites(0);
       try {
         const token = await user.getIdToken();
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/invites/user/${user.uid}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const invites = res.data || [];
         setPendingInvites(invites.filter((i) => i.status === "pending").length);
       } catch {
@@ -32,42 +34,44 @@ export default function Navbar() {
       }
     };
     fetchPending();
-    interval = setInterval(fetchPending, 30000); // poll every 30s
+    interval = setInterval(fetchPending, 30000);
     return () => clearInterval(interval);
   }, [user]);
 
-  // Fetch accepted sent invites (sender notifications)
   useEffect(() => {
     let interval;
     const fetchAcceptedSent = async () => {
       if (!user) return setAcceptedSentInvites([]);
       try {
         const token = await user.getIdToken();
-        // Get sender's DB id
-        const userRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const userRes = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/users/firebase/${user.uid}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const dbUser = userRes.data;
         if (!dbUser?.id) return setAcceptedSentInvites([]);
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/sent/${dbUser.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/invites/sent/${dbUser.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const invites = res.data || [];
-        // Only show accepted invites that are not yet seen (for demo, show all accepted)
         setAcceptedSentInvites(invites.filter((i) => i.status === "accepted"));
       } catch {
         setAcceptedSentInvites([]);
       }
     };
     fetchAcceptedSent();
-    interval = setInterval(fetchAcceptedSent, 30000); // poll every 30s
+    interval = setInterval(fetchAcceptedSent, 30000);
     return () => clearInterval(interval);
   }, [user]);
 
   return (
     <nav className="w-full border-b border-gray-800 bg-gray-950 text-white">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
         <div className="text-2xl font-bold tracking-tight flex items-center gap-1">
           <Link to="/" className="flex items-center space-x-1">
             <span className="text-white">H</span>
@@ -76,8 +80,7 @@ export default function Navbar() {
             <span className="text-indigo-500 font-extrabold">ollab</span>
           </Link>
         </div>
-      
-        {/* Hamburger for mobile */}
+
         <button
           className="md:hidden flex items-center justify-center p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
           aria-label="Open menu"
@@ -107,7 +110,7 @@ export default function Navbar() {
           </svg>
         </button>
 
-        {/* Navigation Links (Desktop) */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-x-6 text-sm font-medium">
           <Link to="/" className="text-gray-400 hover:text-white transition">
             Landing
@@ -125,6 +128,12 @@ export default function Navbar() {
             Explore Projects
           </Link>
           <Link
+            to="/explore-hackathons"
+            className="text-gray-400 hover:text-white transition"
+          >
+            Explore Hackathons
+          </Link>
+          <Link
             to="/my-projects"
             className="text-gray-400 hover:text-white transition"
           >
@@ -135,6 +144,12 @@ export default function Navbar() {
             className="text-gray-400 hover:text-white transition"
           >
             Post Project
+          </Link>
+          <Link
+            to="/post-hackathon"
+            className="text-gray-400 hover:text-white transition"
+          >
+            Post Hackathon
           </Link>
           <Link
             to="/messages"
@@ -154,6 +169,7 @@ export default function Navbar() {
           >
             Dashboard
           </Link>
+
           {isSignedIn && (
             <button
               className="relative focus:outline-none ml-2"
@@ -169,7 +185,6 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* Auth Buttons */}
           {isSignedIn ? (
             <div className="ml-2 flex items-center gap-2">
               <span className="text-gray-300 text-sm">{user?.email}</span>
@@ -196,67 +211,33 @@ export default function Navbar() {
           )}
         </div>
       </div>
-      {/* Mobile Menu */}
+
+      {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-gray-950 border-t border-gray-800 px-6 pb-4 pt-2 animate-fade-in-down z-50">
           <div className="flex flex-col gap-3 text-sm font-medium">
-            <Link
-              to="/"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Landing
-            </Link>
-            <Link
-              to="/explore"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Explore
-            </Link>
-            <Link
-              to="/explore-projects"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Explore Projects
-            </Link>
-            <Link
-              to="/my-projects"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              My Projects
-            </Link>
-            <Link
-              to="/post-project"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Post Project
-            </Link>
-            <Link
-              to="/messages"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Messages
-            </Link>
-            <Link
-              to="/profile"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Profile
-            </Link>
-            <Link
-              to="/dashboard"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
-            {/* Auth Buttons */}
+            {[
+              { to: "/", label: "Landing" },
+              { to: "/explore", label: "Explore" },
+              { to: "/explore-projects", label: "Explore Projects" },
+              { to: "/explore-hackathons", label: "Explore Hackathons" },
+              { to: "/my-projects", label: "My Projects" },
+              { to: "/post-project", label: "Post Project" },
+              { to: "/post-hackathon", label: "Post Hackathon" },
+              { to: "/messages", label: "Messages" },
+              { to: "/profile", label: "Profile" },
+              { to: "/dashboard", label: "Dashboard" },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="text-gray-400 hover:text-white transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {label}
+              </Link>
+            ))}
+
             {isSignedIn ? (
               <div className="flex flex-col gap-2 mt-2">
                 <span className="text-gray-300 text-sm">{user?.email}</span>
