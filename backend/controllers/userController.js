@@ -111,8 +111,6 @@ export const createUser = async (req, res) => {
     // Final safeguard: remove projects if present
     delete userData.projects;
 
-    console.log("userData being sent to Prisma:", userData);
-
     // Create user (email uniqueness already checked above)
     const user = await prisma.user.create({ data: userData });
 

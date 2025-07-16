@@ -80,6 +80,7 @@ model Invite {
   status     String   @default("pending")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  respondedAt DateTime?
   project    Project  @relation(fields: [projectId], references: [id])
   receiver   User     @relation("ReceivedInvites", fields: [receiverId], references: [id])
   sender     User     @relation("SentInvites", fields: [senderId], references: [id])

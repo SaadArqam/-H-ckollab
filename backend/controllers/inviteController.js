@@ -150,11 +150,14 @@ export const updateInviteStatus = async (req, res) => {
   const { status } = req.body;
 
   try {
-    // Update invite status
+    // Update invite status and respondedAt
     const invite = await prisma.invite.update({
       where: { id: inviteId },
-      data: { status },
-      include: { project: true, receiver: true },
+      data: {
+        status,
+        respondedAt: status === "accepted" ? new Date() : undefined,
+      },
+      include: { project: true, receiver: true, sender: true },
     });
 
     // If accepted, add user to collaboratedProjects
@@ -167,6 +170,33 @@ export const updateInviteStatus = async (req, res) => {
           },
         },
       });
+
+      // 1. Bell notification for sender (simulate with console.log)
+      console.log(`🔔 Bell: ${invite.receiver.name} accepted your invitation for ${invite.project.title}.`);
+
+      // 2. Send email to sender (inviter)
+      if (invite.sender?.email) {
+        await sendInviteResponseEmail(
+          invite.sender.email,
+          invite.sender.name,
+          invite.receiver.name,
+          invite.project.title,
+          "accepted"
+        );
+      }
+
+      // 3. Optionally, send email to receiver
+      if (invite.receiver?.email) {
+        // You can create a new function or reuse sendInviteResponseEmail for receiver
+        // For now, reuse sendInviteResponseEmail with sender/receiver swapped and a custom message
+        await sendInviteResponseEmail(
+          invite.receiver.email,
+          invite.receiver.name,
+          invite.sender.name,
+          invite.project.title,
+          "accepted"
+        );
+      }
     }
 
     res.json(invite);

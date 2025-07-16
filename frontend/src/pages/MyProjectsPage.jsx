@@ -208,6 +208,13 @@ export default function MyProjectsPage() {
                     {project.inviteStatus || "Pending"}
                   </span>
                 </div>
+                {/* Team size info */}
+                <div>
+                  <span className="text-gray-400 text-sm">Team:</span>
+                  <span className="ml-2 px-3 py-1 rounded-full text-sm font-semibold bg-gray-800/60 text-white">
+                    {(project.collaborators?.length || 0) + 1}/{project.maxTeamSize} members joined
+                  </span>
+                </div>
               </div>
 
               <div className="flex gap-4 mt-4">
@@ -229,6 +236,34 @@ export default function MyProjectsPage() {
                 >
                   Invite Collaborators
                 </button>
+                {/* Archive button if team is full and not already archived */}
+                {project.collaborators &&
+                  project.collaborators.length + 1 >= project.maxTeamSize &&
+                  project.status !== "Archived" && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ status: "Archived" }),
+                          });
+                          if (!res.ok) throw new Error("Failed to archive project");
+                          setProjects((prev) =>
+                            prev.map((p) =>
+                              p.id === project.id ? { ...p, status: "Archived" } : p
+                            )
+                          );
+                          toast.success("Project archived!");
+                        } catch (err) {
+                          toast.error("Failed to archive project");
+                        }
+                      }}
+                      className="mt-4 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 border border-gray-500"
+                    >
+                      Archive Project
+                    </button>
+                  )}
               </div>
               <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
             </div>
