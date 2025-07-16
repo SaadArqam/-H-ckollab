@@ -77,6 +77,11 @@ export const createUser = async (req, res) => {
   skills = skills.filter((s) => s.skillId?.trim());
 
   try {
+    // Check if email is already used by another firebaseUid
+    const existingWithEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingWithEmail && existingWithEmail.firebaseUid !== firebaseUid) {
+      return res.status(400).json({ error: "Email is already used by another account." });
+    }
     const skillRelations = [];
     const seenSkillIds = new Set();
 
@@ -108,12 +113,8 @@ export const createUser = async (req, res) => {
 
     console.log("userData being sent to Prisma:", userData);
 
-    // Use upsert to avoid unique constraint errors
-    const user = await prisma.user.upsert({
-      where: { firebaseUid },
-      update: {}, // no-op
-      create: userData,
-    });
+    // Create user (email uniqueness already checked above)
+    const user = await prisma.user.create({ data: userData });
 
     res.status(201).json(user);
   } catch (err) {
