@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import axios from "axios";
+import { FaChevronDown } from "react-icons/fa";
 
 export default function Navbar() {
   const { isSignedIn, user } = useAuth();
@@ -14,6 +15,8 @@ export default function Navbar() {
   const [acceptedSentInvites, setAcceptedSentInvites] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const [postOpen, setPostOpen] = useState(false);
 
   useEffect(() => {
     let interval;
@@ -115,41 +118,74 @@ export default function Navbar() {
           <Link to="/" className="text-gray-400 hover:text-white transition">
             Landing
           </Link>
-          <Link
-            to="/explore"
-            className="text-gray-400 hover:text-white transition"
-          >
-            Explore
-          </Link>
-          <Link
-            to="/explore-projects"
-            className="text-gray-400 hover:text-white transition"
-          >
-            Explore Projects
-          </Link>
-          <Link
-            to="/explore-hackathons"
-            className="text-gray-400 hover:text-white transition"
-          >
-            Explore Hackathons
-          </Link>
+          {/* Explore Toggle */}
+          <div className="relative">
+            <button
+              onClick={() => setExploreOpen((v) => !v)}
+              onBlur={() => setTimeout(() => setExploreOpen(false), 150)}
+              className="flex items-center gap-1 text-gray-400 hover:text-white transition px-3 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Explore <FaChevronDown className="ml-1 text-xs" />
+            </button>
+            {exploreOpen && (
+              <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-lg z-50 animate-fade-in-down">
+                <Link
+                  to="/explore"
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-t-lg transition"
+                  onClick={() => setExploreOpen(false)}
+                >
+                  Explore
+                </Link>
+                <Link
+                  to="/explore-projects"
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white transition"
+                  onClick={() => setExploreOpen(false)}
+                >
+                  Explore Projects
+                </Link>
+                <Link
+                  to="/explore-hackathons"
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-b-lg transition"
+                  onClick={() => setExploreOpen(false)}
+                >
+                  Explore Hackathons
+                </Link>
+              </div>
+            )}
+          </div>
+          {/* Post Toggle */}
+          <div className="relative">
+            <button
+              onClick={() => setPostOpen((v) => !v)}
+              onBlur={() => setTimeout(() => setPostOpen(false), 150)}
+              className="flex items-center gap-1 text-gray-400 hover:text-white transition px-3 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Post <FaChevronDown className="ml-1 text-xs" />
+            </button>
+            {postOpen && (
+              <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-lg z-50 animate-fade-in-down">
+                <Link
+                  to="/post-project"
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-t-lg transition"
+                  onClick={() => setPostOpen(false)}
+                >
+                  Post Project
+                </Link>
+                <Link
+                  to="/post-hackathon"
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-b-lg transition"
+                  onClick={() => setPostOpen(false)}
+                >
+                  Post Hackathon
+                </Link>
+              </div>
+            )}
+          </div>
           <Link
             to="/my-projects"
             className="text-gray-400 hover:text-white transition"
           >
             My Projects
-          </Link>
-          <Link
-            to="/post-project"
-            className="text-gray-400 hover:text-white transition"
-          >
-            Post Project
-          </Link>
-          <Link
-            to="/post-hackathon"
-            className="text-gray-400 hover:text-white transition"
-          >
-            Post Hackathon
           </Link>
           <Link
             to="/messages"
@@ -216,55 +252,117 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-gray-950 border-t border-gray-800 px-6 pb-4 pt-2 animate-fade-in-down z-50">
           <div className="flex flex-col gap-3 text-sm font-medium">
-            {[
-              { to: "/", label: "Landing" },
-              { to: "/explore", label: "Explore" },
-              { to: "/explore-projects", label: "Explore Projects" },
-              { to: "/explore-hackathons", label: "Explore Hackathons" },
-              { to: "/my-projects", label: "My Projects" },
-              { to: "/post-project", label: "Post Project" },
-              { to: "/post-hackathon", label: "Post Hackathon" },
-              { to: "/messages", label: "Messages" },
-              { to: "/profile", label: "Profile" },
-              { to: "/dashboard", label: "Dashboard" },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className="text-gray-400 hover:text-white transition"
-                onClick={() => setMobileMenuOpen(false)}
+            <Link
+              to="/"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Landing
+            </Link>
+            {/* Explore Toggle Mobile */}
+            <div className="relative">
+              <button
+                onClick={() => setExploreOpen((v) => !v)}
+                className="flex items-center gap-1 w-full text-gray-400 hover:text-white transition px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                {label}
-              </Link>
-            ))}
-
-            {isSignedIn ? (
-              <div className="flex flex-col gap-2 mt-2">
-                <span className="text-gray-300 text-sm">{user?.email}</span>
-                <button
-                  onClick={() => {
-                    signOut(auth);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="px-4 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-500 transition text-sm font-semibold"
-                >
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2 mt-2">
-                <Link to="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="w-full px-4 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-500 transition text-sm font-semibold">
-                    Sign In
-                  </button>
-                </Link>
-                <Link to="/sign-up" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="w-full px-4 py-1.5 rounded-md border border-gray-700 hover:border-indigo-500 hover:text-indigo-400 transition text-sm font-medium">
-                    Sign Up
-                  </button>
-                </Link>
-              </div>
-            )}
+                Explore <FaChevronDown className="ml-1 text-xs" />
+              </button>
+              {exploreOpen && (
+                <div className="mt-1 ml-4 flex flex-col bg-gray-900 border border-gray-800 rounded-lg shadow-lg z-50 animate-fade-in-down">
+                  <Link
+                    to="/explore"
+                    className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-t-lg transition"
+                    onClick={() => {
+                      setExploreOpen(false);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Explore
+                  </Link>
+                  <Link
+                    to="/explore-projects"
+                    className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white transition"
+                    onClick={() => {
+                      setExploreOpen(false);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Explore Projects
+                  </Link>
+                  <Link
+                    to="/explore-hackathons"
+                    className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-b-lg transition"
+                    onClick={() => {
+                      setExploreOpen(false);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Explore Hackathons
+                  </Link>
+                </div>
+              )}
+            </div>
+            {/* Post Toggle Mobile */}
+            <div className="relative">
+              <button
+                onClick={() => setPostOpen((v) => !v)}
+                className="flex items-center gap-1 w-full text-gray-400 hover:text-white transition px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                Post <FaChevronDown className="ml-1 text-xs" />
+              </button>
+              {postOpen && (
+                <div className="mt-1 ml-4 flex flex-col bg-gray-900 border border-gray-800 rounded-lg shadow-lg z-50 animate-fade-in-down">
+                  <Link
+                    to="/post-project"
+                    className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-t-lg transition"
+                    onClick={() => {
+                      setPostOpen(false);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Post Project
+                  </Link>
+                  <Link
+                    to="/post-hackathon"
+                    className="block px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white rounded-b-lg transition"
+                    onClick={() => {
+                      setPostOpen(false);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Post Hackathon
+                  </Link>
+                </div>
+              )}
+            </div>
+            <Link
+              to="/my-projects"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              My Projects
+            </Link>
+            <Link
+              to="/messages"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Messages
+            </Link>
+            <Link
+              to="/profile"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Profile
+            </Link>
+            <Link
+              to="/dashboard"
+              className="text-gray-400 hover:text-white transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
           </div>
         </div>
       )}
