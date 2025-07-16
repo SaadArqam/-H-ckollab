@@ -76,64 +76,7 @@ export default function Navbar() {
             <span className="text-indigo-500 font-extrabold">ollab</span>
           </Link>
         </div>
-        {/* Bell Icon with notification count */}
-        <div className="relative mr-4">
-          <button
-            className="relative focus:outline-none"
-            onClick={() => setShowNotifications((v) => !v)}
-            aria-label="Notifications"
-          >
-            <FaBell className="w-6 h-6" />
-            {(pendingInvites > 0 || acceptedSentInvites.length > 0) && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs font-bold">
-                {pendingInvites + acceptedSentInvites.length}
-              </span>
-            )}
-          </button>
-          {/* Notification Dropdown */}
-          {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-50 p-4">
-              <h4 className="font-semibold text-white mb-2">Notifications</h4>
-              {pendingInvites > 0 && (
-                <div className="mb-3">
-                  <div className="text-blue-400 font-medium mb-1">Invites Received</div>
-                  <div className="text-gray-300 text-sm mb-2">You have {pendingInvites} pending invite(s).</div>
-                  <button
-                    className="text-blue-500 hover:underline text-sm"
-                    onClick={() => {
-                      setShowNotifications(false);
-                      navigate("/my-invites");
-                    }}
-                  >
-                    View Invites
-                  </button>
-                </div>
-              )}
-              {acceptedSentInvites.length > 0 && (
-                <div>
-                  <div className="text-green-400 font-medium mb-1">Invites Accepted</div>
-                  {acceptedSentInvites.map((invite) => (
-                    <div key={invite.id} className="text-gray-300 text-sm mb-2">
-                      🎉 <b>{invite.receiver?.name || "User"}</b> accepted your invite for <b>{invite.project?.title || "Project"}</b>.
-                    </div>
-                  ))}
-                  <button
-                    className="text-green-500 hover:underline text-sm mt-1"
-                    onClick={() => {
-                      setShowNotifications(false);
-                      navigate("/my-projects");
-                    }}
-                  >
-                    View My Projects
-                  </button>
-                </div>
-              )}
-              {pendingInvites === 0 && acceptedSentInvites.length === 0 && (
-                <div className="text-gray-400 text-sm">No new notifications.</div>
-              )}
-            </div>
-          )}
-        </div>
+      
         {/* Hamburger for mobile */}
         <button
           className="md:hidden flex items-center justify-center p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
