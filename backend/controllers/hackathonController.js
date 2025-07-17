@@ -3,6 +3,12 @@ import prisma from "../lib/prisma.js";
 export const createHackathon = async (req, res) => {
   console.log("📥 createHackathon payload:", req.body, "userId:", req.userId);
   try {
+    // Check if user exists, auto-create if not
+    const existingUser = await prisma.user.findUnique({ where: { id: req.userId } });
+    if (!existingUser) {
+      console.log(`User with id ${req.userId} not found. Creating user.`);
+      await prisma.user.create({ data: { id: req.userId } });
+    }
     const newHackathon = await prisma.hackathon.create({
       data: {
         title:           req.body.title,
