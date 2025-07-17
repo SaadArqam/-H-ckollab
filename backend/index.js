@@ -54,6 +54,11 @@ app.use("/api/invites", inviteRoutes);
 app.use("/api/interests", interestRoutes);
 app.use("/api/hackathons", hackathonRoutes); // ✅ NEW
 
+// Fallback for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
 // Health check
 app.get("/", (req, res) => {
   res.json({ message: "Hackollab API is running!" });

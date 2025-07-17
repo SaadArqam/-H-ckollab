@@ -1,6 +1,6 @@
-const prisma = require("../lib/prisma");
+import prisma from "../lib/prisma.js";
 
-exports.createHackathon = async (req, res) => {
+export const createHackathon = async (req, res) => {
   const {
     title,
     description,
@@ -50,7 +50,7 @@ exports.createHackathon = async (req, res) => {
   }
 };
 
-exports.getAllHackathons = async (req, res) => {
+export const getAllHackathons = async (req, res) => {
   try {
     const hackathons = await prisma.hackathon.findMany();
     // Parse rounds string to array for each hackathon
