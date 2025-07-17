@@ -28,6 +28,7 @@ model User {
   skills               UserSkill[]
   collaboratedProjects Project[]   @relation("ProjectCollaborators")
   interestedIn         Project[]   @relation("ProjectInterest")
+  hackathons           Hackathon[]
 }
 
 model Skill {
@@ -87,12 +88,25 @@ model Invite {
 }
 
 model Hackathon {
-  id           String   @id @default(cuid())
-  title        String
-  description  String
-  techStack    String[]
-  eventDate    DateTime
-  createdBy    String
-  participants String[]
-  createdAt    DateTime @default(now())
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  theme          String
+  hackathonDate  DateTime?
+  deadline       DateTime?
+  location       String?
+  organizer      String?
+  eventMode      String?   // NEW: Online / Offline / Hybrid
+  hackathonLink  String?   // NEW: Official website link
+  registrationFee String?  // NEW: Free / Paid
+  rounds         String?   // NEW: Description of rounds or phases
+  tags           String[]
+  techStack      String[]
+  rolesNeeded    String[]
+  maxTeamSize    Int
+  visibility     String
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
