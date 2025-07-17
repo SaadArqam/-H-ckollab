@@ -366,6 +366,18 @@ export default function Navbar() {
           </div>
         </div>
       )}
+      {isSignedIn && user && (
+        <button
+          style={{ marginLeft: 16, padding: '6px 12px', background: '#2563eb', color: 'white', borderRadius: 4, border: 'none', cursor: 'pointer' }}
+          onClick={async () => {
+            const token = await user.getIdToken();
+            console.log("🔥 Your Firebase ID token:", token);
+            alert("Token printed to console!");
+          }}
+        >
+          Print Token
+        </button>
+      )}
     </nav>
   );
 }

@@ -27,9 +27,10 @@ export const createProject = async (req, res) => {
     console.log("🔥 Decoded Firebase UID:", user?.uid);
 
     // Fetch the user from the DB using firebaseUid
-    const dbUser = await prisma.user.findUnique({ where: { firebaseUid: user.uid } });
+    let dbUser = await prisma.user.findUnique({ where: { firebaseUid: user.uid } });
     if (!dbUser || !dbUser.id) {
-      return res.status(404).json({ error: "User not found in DB" });
+      console.log(`[createProject] User with firebaseUid ${user.uid} not found. Creating user.`);
+      dbUser = await prisma.user.create({ data: { id: user.uid, firebaseUid: user.uid } });
     }
 
     const project = await prisma.project.create({
@@ -138,6 +139,7 @@ export const showInterest = async (req, res) => {
 export const getMyProjects = async (req, res) => {
   try {
     // Use Firebase UID from authenticated user
+    console.log("[getMyProjects] req.user:", req.user);
     const firebaseUid = req.user?.uid;
     console.log("[getMyProjects] Firebase UID:", firebaseUid);
     if (!firebaseUid) {

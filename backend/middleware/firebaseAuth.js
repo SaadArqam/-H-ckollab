@@ -3,14 +3,19 @@
 import admin from "../lib/firebaseAdmin.js";
 
 export const verifyFirebaseToken = async (req, res, next) => {
-  const header = req.headers.authorization || "";
-  const token = header.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "No token provided" });
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing or invalid Authorization header" });
+  }
+  const token = authHeader.split(" ")[1];
+  console.log("🧪 Firebase token received:", token);
   try {
-    const decoded = await admin.auth().verifyIdToken(token);
-    req.userId = decoded.uid;
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = decodedToken;
+    req.userId = decodedToken.uid;
     next();
-  } catch (err) {
-    return res.status(401).json({ error: "Invalid token" });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    res.status(401).json({ error: "Invalid token" });
   }
 };
