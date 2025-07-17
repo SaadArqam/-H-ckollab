@@ -1,61 +1,38 @@
 import prisma from "../lib/prisma.js";
 
 export const createHackathon = async (req, res) => {
-  console.log("📥 createHackathon triggered", req.body);
-  const {
-    title,
-    description,
-    theme,
-    hackathonDate,
-    deadline,
-    location,
-    organizer,
-    eventMode,
-    hackathonLink,
-    registrationFee,
-    rounds,
-    tags = [],
-    techStack = [],
-    rolesNeeded = [],
-    maxTeamSize,
-    visibility,
-  } = req.body;
-
-  if (!req.userId) {
-    return res.status(400).json({ error: "User not authenticated or not found." });
-  }
-  if (!maxTeamSize || maxTeamSize < 1) {
-    return res.status(400).json({ error: "Max team size must be at least 1." });
-  }
-
+  console.log("📥 createHackathon payload:", req.body, "userId:", req.userId);
   try {
     const newHackathon = await prisma.hackathon.create({
       data: {
-        title,
-        description,
-        theme,
-        hackathonDate: hackathonDate ? new Date(hackathonDate) : null,
-        deadline: deadline ? new Date(deadline) : null,
-        location,
-        organizer,
-        eventMode,
-        hackathonLink,
-        registrationFee,
-        rounds: Array.isArray(rounds) ? rounds.join(",") : rounds || null,
-        tags,
-        techStack,
-        rolesNeeded,
-        maxTeamSize: Number(maxTeamSize),
-        visibility: visibility || "Public",
+        title:           req.body.title,
+        description:     req.body.description,
+        theme:           req.body.theme,
+        hackathonDate:   req.body.hackathonDate ? new Date(req.body.hackathonDate) : null,
+        deadline:        req.body.deadline ? new Date(req.body.deadline) : null,
+        location:        req.body.location,
+        organizer:       req.body.organizer,
+        eventMode:       req.body.eventMode,
+        hackathonLink:   req.body.hackathonLink,
+        registrationFee: req.body.registrationFee,
+        rounds:          Array.isArray(req.body.rounds) ? req.body.rounds.join(",") : req.body.rounds || null,
+        tags:            req.body.tags || [],
+        techStack:       req.body.techStack || [],
+        rolesNeeded:     req.body.rolesNeeded || [],
+        maxTeamSize:     Number(req.body.maxTeamSize),
+        visibility:      req.body.visibility || "Public",
         user: {
-          connect: { id: req.userId },
-        },
-      },
+          connect: { id: req.userId }
+        }
+      }
     });
-    res.status(201).json(newHackathon);
+    return res.status(201).json(newHackathon);
   } catch (err) {
-    console.error("❌ Error in createHackathon:", err);
-    res.status(500).json({ error: "Failed to create hackathon." });
+    console.error("❌ createHackathon error:", err);
+    if (err.code === 'P2002' || err.name === 'PrismaClientValidationError') {
+      return res.status(400).json({ error: err.message });
+    }
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
