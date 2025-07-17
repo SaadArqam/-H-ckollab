@@ -20,8 +20,13 @@ export const createHackathon = async (req, res) => {
     maxTeamSize,
     visibility,
   } = req.body;
-  // userId from Firebase auth middleware
-  const userId = req.user?.id || req.userId;
+
+  if (!req.userId) {
+    return res.status(400).json({ error: "User not authenticated or not found." });
+  }
+  if (!maxTeamSize || maxTeamSize < 1) {
+    return res.status(400).json({ error: "Max team size must be at least 1." });
+  }
 
   try {
     const newHackathon = await prisma.hackathon.create({
@@ -40,9 +45,11 @@ export const createHackathon = async (req, res) => {
         tags,
         techStack,
         rolesNeeded,
-        maxTeamSize: maxTeamSize ? Number(maxTeamSize) : 1,
+        maxTeamSize: Number(maxTeamSize),
         visibility: visibility || "Public",
-        userId,
+        user: {
+          connect: { id: req.userId },
+        },
       },
     });
     res.status(201).json(newHackathon);
