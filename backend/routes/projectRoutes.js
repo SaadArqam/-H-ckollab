@@ -10,9 +10,7 @@ import {
   acceptInterest,
 } from "../controllers/projectController.js";
 import { verifyFirebaseToken } from "../middleware/firebaseAuth.js";
-
 const router = express.Router();
-
 // Routes
 router.post("/", verifyFirebaseToken, createProject); // ✅ Create new project
 router.get("/mine", verifyFirebaseToken, getMyProjects); // ✅ My projects (must come before /:id)

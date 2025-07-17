@@ -96,17 +96,44 @@ export const getAllProjects = async (req, res) => {
 export const getProjectById = async (req, res) => {
   const { id } = req.params;
   try {
+    // Fetch project, interested users, and collaborators
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
         creator: true,
-        interestedUsers: true,
+        interestedUsers: { select: { id: true, name: true, email: true } },
       },
     });
 
     if (!project) return res.status(404).json({ error: "Project not found" });
 
-    res.json(project);
+    // Fetch collaborators for this project, including join method
+    const collaborators = await prisma.collaborator.findMany({
+      where: { projectId: id },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
+    const collaboratorIds = collaborators.map(c => c.userId);
+
+    // Filter interested users who are not yet collaborators
+    const pendingInterests = project.interestedUsers.filter(
+      user => !collaboratorIds.includes(user.id)
+    );
+
+    // Build collaboratorsWithJoinMethod array
+    const collaboratorsWithJoinMethod = collaborators.map(c => ({
+      id: c.user.id,
+      name: c.user.name,
+      email: c.user.email,
+      joinedVia: c.joinedVia,
+    }));
+
+    res.json({
+      ...project,
+      pendingInterests,
+      collaboratorsWithJoinMethod,
+    });
   } catch (error) {
     console.error("Error fetching project:", error);
     res.status(500).json({ error: "Failed to fetch project" });
