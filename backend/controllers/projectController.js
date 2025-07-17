@@ -223,3 +223,22 @@ export const inviteCollaborators = async (req, res) => {
     res.status(500).json({ error: "Failed to send invites" });
   }
 };
+
+// Accept a user's interest and add as collaborator
+export const acceptInterest = async (req, res) => {
+  try {
+    const { projectId, userId } = req.body;
+    // Add to Collaborator table with joinedVia: 'interest'
+    await prisma.collaborator.create({
+      data: {
+        projectId,
+        userId,
+        joinedVia: "interest",
+      },
+    });
+    res.status(201).json({ message: "User added as collaborator via interest." });
+  } catch (error) {
+    console.error("❌ Error accepting interest:", error);
+    res.status(500).json({ error: "Failed to accept interest." });
+  }
+};

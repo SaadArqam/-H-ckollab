@@ -7,6 +7,7 @@ import {
   getMyProjects,
   updateProjectInviteStatus,
   inviteCollaborators,
+  acceptInterest,
 } from "../controllers/projectController.js";
 import { verifyFirebaseToken } from "../middleware/firebaseAuth.js";
 
@@ -20,5 +21,6 @@ router.get("/:id", getProjectById); // ✅ Get single project by ID
 router.post("/:projectId/interest", showInterest); // ✅ Show interest
 router.patch("/:id", updateProjectInviteStatus); // ✅ Update invite status
 router.post("/:id/invite", verifyFirebaseToken, inviteCollaborators); // ✅ Invite collaborators
+router.post("/accept-interest", verifyFirebaseToken, acceptInterest);
 
 export default router;

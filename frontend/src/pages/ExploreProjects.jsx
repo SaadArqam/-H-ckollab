@@ -205,12 +205,6 @@ export default function ExploreProjects() {
                       ? "Interest Sent"
                       : "Show Interest"}
                   </button>
-                  <button className="p-3 bg-slate-800/80 border border-slate-600/50 rounded-xl">
-                    <Github className="w-4 h-4 text-slate-300" />
-                  </button>
-                  <button className="p-3 bg-slate-800/80 border border-slate-600/50 rounded-xl">
-                    <ExternalLink className="w-4 h-4 text-slate-300" />
-                  </button>
                 </div>
               </div>
             </div>

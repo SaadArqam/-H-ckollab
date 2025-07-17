@@ -110,3 +110,18 @@ model Hackathon {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
+
+enum JoinMethod {
+  invite
+  interest
+}
+
+model Collaborator {
+  id          String     @id @default(cuid())
+  project     Project    @relation(fields: [projectId], references: [id])
+  projectId   String
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  joinedAt    DateTime   @default(now())
+  joinedVia   JoinMethod
+}
