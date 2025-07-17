@@ -129,7 +129,7 @@ export default function Profile() {
             )}
 
             {/* Social Links */}
-            {(profileData.githubUrl || profileData.portfolioUrl) && (
+            {(profileData.githubUrl || profileData.portfolioUrl || profileData.discordOrContact) && (
               <div className="bg-gray-950 p-6 rounded-xl border border-gray-800">
                 <h2 className="text-2xl font-semibold mb-4">Social Links</h2>
                 <div className="flex flex-col gap-3">
@@ -165,6 +165,16 @@ export default function Profile() {
                       <FaLink className="text-xl" />
                       <span>Portfolio</span>
                     </a>
+                  )}
+                  {profileData.discordOrContact && (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg">
+                      <span className="font-semibold">Contact:</span>
+                      {profileData.discordOrContact.startsWith("http") ? (
+                        <a href={profileData.discordOrContact} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{profileData.discordOrContact}</a>
+                      ) : (
+                        <span className="break-all">{profileData.discordOrContact}</span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

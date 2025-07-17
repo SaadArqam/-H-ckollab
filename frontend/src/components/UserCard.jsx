@@ -9,6 +9,7 @@ export default function UserCard({
   availability = "",
   university = "",
   collaborations = 0,
+  discordOrContact = "",
 }) {
   const getInitials = (name) => {
     return name
@@ -63,6 +64,16 @@ export default function UserCard({
         </div>
         {description && (
           <div className="text-sm text-gray-300 mb-1 line-clamp-3 min-h-[2.5em]">{description}</div>
+        )}
+        {discordOrContact && (
+          <div className="text-xs text-gray-400 mt-2">
+            <span className="font-semibold text-white">Contact:</span>{" "}
+            {discordOrContact.startsWith("http") ? (
+              <a href={discordOrContact} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{discordOrContact}</a>
+            ) : (
+              <span className="break-all">{discordOrContact}</span>
+            )}
+          </div>
         )}
       </div>
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-800 text-xs text-gray-400">

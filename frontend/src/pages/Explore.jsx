@@ -43,6 +43,7 @@ export default function Explore() {
     availability: user.availability || 'Open to Collaborate',
     status: 'online', // Placeholder
     level: 'Mid-Level', // Placeholder
+    discordOrContact: user.discordOrContact || '',
   }));
 
   const filteredDevelopers = useMemo(() => {

@@ -143,40 +143,6 @@ export default function MyProjectsPage() {
     }
   };
 
-  // Accept interest handler
-  const handleAcceptInterest = async (projectId, userId) => {
-    try {
-      const token = await user.getIdToken();
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/accept-interest`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ projectId, userId }),
-      });
-      if (!res.ok) throw new Error('Failed to accept interest');
-      toast.success('User added as collaborator!');
-      // Optimistically update UI
-      setProjects((prev) => prev.map((p) => {
-        if (p.id !== projectId) return p;
-        // Remove from pendingInterests, add to collaboratorsWithJoinMethod
-        const acceptedUser = p.pendingInterests.find(u => u.id === userId);
-        return {
-          ...p,
-          pendingInterests: p.pendingInterests.filter(u => u.id !== userId),
-          collaboratorsWithJoinMethod: [
-            ...(p.collaboratorsWithJoinMethod || []),
-            { ...acceptedUser, joinedVia: 'interest' }
-          ]
-        };
-      }));
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to accept interest');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black text-white px-6 pb-20">
       <div className="text-center pt-20 pb-10">
@@ -250,45 +216,6 @@ export default function MyProjectsPage() {
                   </span>
                 </div>
               </div>
-
-              {/* Interested Users Section (only for owners) */}
-              {project.pendingInterests && project.pendingInterests.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-2 text-white">Interested Users</h3>
-                  <ul className="space-y-2">
-                    {project.pendingInterests.map((user) => (
-                      <li key={user.id} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
-                        <div>
-                          <span className="font-medium text-white">{user.name || user.email}</span>
-                        </div>
-                        <button
-                          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                          onClick={() => handleAcceptInterest(project.id, user.id)}
-                        >
-                          Accept Interest
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Collaborators Section (with join method) */}
-              {project.collaboratorsWithJoinMethod && project.collaboratorsWithJoinMethod.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-2 text-white">Collaborators</h3>
-                  <ul className="space-y-2">
-                    {project.collaboratorsWithJoinMethod.map((user) => (
-                      <li key={user.id} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
-                        <div>
-                          <span className="font-medium text-white">{user.name || user.email}</span>
-                        </div>
-                        <span className="text-xs text-gray-400">Joined via {user.joinedVia}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
 
               <div className="flex gap-4 mt-4">
                 <button
@@ -386,6 +313,16 @@ export default function MyProjectsPage() {
                         <div>
                           <span className="font-semibold text-white">{invite.receiver?.name || invite.receiver?.email}</span>
                           <span className="ml-2 text-gray-400 text-sm">({invite.role})</span>
+                          {invite.receiver?.discordOrContact && (
+                            <div className="text-xs text-gray-400 mt-1">
+                              <span className="font-semibold text-white">Contact:</span>{" "}
+                              {invite.receiver.discordOrContact.startsWith("http") ? (
+                                <a href={invite.receiver.discordOrContact} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{invite.receiver.discordOrContact}</a>
+                              ) : (
+                                <span className="break-all">{invite.receiver.discordOrContact}</span>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           invite.status === "accepted"

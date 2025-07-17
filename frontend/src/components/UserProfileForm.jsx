@@ -74,6 +74,7 @@ const UserProfileForm = () => {
         projects: profileData.featuredProjects || [
           { title: "", tech: "", link: "" },
         ],
+        discordOrContact: profileData.discordOrContact || "",
       });
     }
   }, [profileData, isEditing]);
@@ -130,6 +131,7 @@ const UserProfileForm = () => {
       branch: formData.branch,
       interests: formData.interests,
       featuredProjects: formData.projects, // Ensure this is always sent as an array
+      discordOrContact: formData.discordOrContact,
     };
 
     try {
@@ -289,6 +291,15 @@ const UserProfileForm = () => {
               className={inputClass}
               placeholder="LinkedIn / Portfolio URL"
             />
+            <input
+              type="text"
+              name="discordOrContact"
+              value={formData.discordOrContact || ''}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="e.g. discordUser#1234 or https://t.me/username"
+            />
+            <p className="text-xs text-gray-400 mt-1">This will help teammates contact you after collaboration is accepted.</p>
           </div>
 
           {/* Projects */}
