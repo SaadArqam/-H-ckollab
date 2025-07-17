@@ -1,6 +1,7 @@
 import prisma from "../lib/prisma.js";
 
 export const createHackathon = async (req, res) => {
+  console.log("📥 createHackathon triggered", req.body);
   const {
     title,
     description,
@@ -46,6 +47,7 @@ export const createHackathon = async (req, res) => {
     });
     res.status(201).json(newHackathon);
   } catch (err) {
+    console.error("❌ Error in createHackathon:", err);
     res.status(500).json({ error: "Failed to create hackathon." });
   }
 };

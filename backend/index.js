@@ -15,7 +15,7 @@ import userRoutes from "./routes/userRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import inviteRoutes from "./routes/inviteRoutes.js";
 import interestRoutes from "./routes/interestRoutes.js";
-import hackathonRoutes from "./routes/hackathonRoutes.js"; // ✅ NEW
+import hackathonRoutes from "./routes/hackathonRoutes.js"; 
 
 const app = express();
 
@@ -52,7 +52,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/invites", inviteRoutes);
 app.use("/api/interests", interestRoutes);
-app.use("/api/hackathons", hackathonRoutes); // ✅ NEW
+app.use("/api/hackathons", hackathonRoutes); 
 
 // Fallback for undefined routes
 app.use((req, res) => {
