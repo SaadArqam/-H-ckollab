@@ -76,11 +76,9 @@ export default function Navbar() {
     <nav className="w-full border-b border-gray-800 bg-gray-950 text-white">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="text-2xl font-bold tracking-tight flex items-center gap-1">
-          <Link to="/" className="flex items-center space-x-1">
-            <span className="text-white">H</span>
-            <span className="text-indigo-500 font-extrabold">@</span>
-            <span className="text-white">ck</span>
-            <span className="text-indigo-500 font-extrabold">ollab</span>
+          <Link to="/" className="flex items-center space-x-2 group">
+            <span className="font-extrabold text-3xl text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-500 select-none" style={{letterSpacing: '0.01em'}}>H</span>
+            <span className="text-white font-semibold text-2xl tracking-tight" style={{letterSpacing: '0.01em'}}>collab</span>
           </Link>
         </div>
 

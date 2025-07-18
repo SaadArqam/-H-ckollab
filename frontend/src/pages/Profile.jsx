@@ -63,6 +63,29 @@ export default function Profile() {
     return [...new Set(skills)]; // Remove duplicates
   };
 
+  // Divide skills into frontend/backend
+  const frontendSkillsList = [
+    "React", "Vue.js", "Angular", "Next.js", "TypeScript", "JavaScript", "HTML", "CSS", "Tailwind CSS"
+  ];
+  const backendSkillsList = [
+    "Node.js", "Python", "Java", "Go", "Ruby", "PHP", "C#", ".NET", "Express.js", "Django", "Flask"
+  ];
+  const allSkills = getAllSkills();
+  const frontendSkills = allSkills.filter(skill => frontendSkillsList.includes(skill));
+  const backendSkills = allSkills.filter(skill => backendSkillsList.includes(skill));
+  const otherSkills = allSkills.filter(skill => !frontendSkillsList.includes(skill) && !backendSkillsList.includes(skill));
+  const displaySkills = (skills) => {
+    if (skills.length <= 5) return skills.map((skill, i) => (
+      <span key={i} className="px-3 py-1 bg-blue-900 text-blue-300 rounded-full text-sm font-medium">{skill}</span>
+    ));
+    return [
+      ...skills.slice(0, 5).map((skill, i) => (
+        <span key={i} className="px-3 py-1 bg-blue-900 text-blue-300 rounded-full text-sm font-medium">{skill}</span>
+      )),
+      <span key="more" className="px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm font-medium">+{skills.length - 5} more</span>
+    ];
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -106,16 +129,26 @@ export default function Profile() {
             {/* Tech Stacks */}
             <div className="bg-gray-950 p-6 rounded-xl border border-gray-800">
               <h2 className="text-2xl font-semibold mb-4">Tech Stacks</h2>
-              <div className="flex flex-wrap gap-2">
-                {getAllSkills().map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-900 text-blue-300 rounded-full text-sm font-medium"
-                  >
-                    {skill}
-                  </span>
-                ))}
+              <div className="mb-2">
+                <span className="font-semibold text-blue-400">Frontend:</span>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {displaySkills(frontendSkills)}
+                </div>
               </div>
+              <div className="mb-2">
+                <span className="font-semibold text-green-400">Backend:</span>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {displaySkills(backendSkills)}
+                </div>
+              </div>
+              {otherSkills.length > 0 && (
+                <div className="mb-2">
+                  <span className="font-semibold text-purple-400">Other:</span>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {displaySkills(otherSkills)}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Concepts & Interests */}

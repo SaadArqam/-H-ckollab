@@ -35,7 +35,7 @@ export default function Landing() {
       </div>
 
       {/* Hero Section */}
-      <div className="flex-1 flex flex-col justify-center items-center px-2 sm:px-6 pt-20 pb-10 w-full">
+      <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-8 pt-24 pb-12 w-full">
         <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 text-center leading-tight">
           Collaborate. Build. Launch.<br />
           <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
@@ -63,7 +63,7 @@ export default function Landing() {
       </div>
 
       {/* Features Section */}
-      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-2 sm:px-6 pb-24 w-full">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 px-4 sm:px-8 pb-24 w-full">
         <Feature
           icon={<Users className="text-blue-400" size={28} />}
           title="Verified Profiles"
@@ -87,9 +87,9 @@ export default function Landing() {
       </div>
 
       {/* How It Works Section */}
-      <div className="max-w-4xl mx-auto px-2 sm:px-6 pb-10 w-full">
-        <h2 className="text-3xl font-bold mb-8 text-center">How it works</h2>
-        <div className="grid md:grid-cols-4 gap-6 text-center">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 pb-14 w-full">
+        <h2 className="text-3xl font-bold mb-10 text-center">How it works</h2>
+        <div className="grid md:grid-cols-4 gap-8 text-center">
           <div className="flex flex-col items-center">
             <div className="bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-3">1</div>
             <div className="font-semibold mb-1">Create Your Profile</div>
@@ -114,9 +114,9 @@ export default function Landing() {
       </div>
 
       {/* CTA Section */}
-      <div className="text-center px-6 pb-16">
-        <h2 className="text-4xl font-bold mb-4">Ready to build something amazing?</h2>
-        <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+      <div className="text-center px-4 sm:px-8 pb-20">
+        <h2 className="text-4xl font-bold mb-5">Ready to build something amazing?</h2>
+        <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
           Join the next wave of builders, hackers, and creators on H@ckollab.
         </p>
         <button
@@ -132,10 +132,10 @@ export default function Landing() {
 
 function Feature({ icon, title, desc }) {
   return (
-    <div className="bg-gradient-to-b from-gray-900/60 to-gray-900/20 border border-gray-800 rounded-2xl p-8 flex flex-col items-start gap-4 hover:border-blue-500/30 transition w-full">
-      <div className="p-3 rounded-lg bg-white/5">{icon}</div>
-      <h3 className="text-2xl font-bold">{title}</h3>
-      <p className="text-gray-400">{desc}</p>
+    <div className="bg-gradient-to-b from-gray-900/60 to-gray-900/20 border border-gray-800 rounded-2xl p-7 flex flex-col items-start gap-3 hover:border-blue-500/30 transition w-full min-h-[210px]">
+      <div className="p-3 rounded-lg bg-white/5 mb-2">{icon}</div>
+      <h3 className="text-2xl font-bold mb-1">{title}</h3>
+      <p className="text-gray-400 leading-relaxed">{desc}</p>
     </div>
   );
 }
