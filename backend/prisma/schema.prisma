@@ -22,6 +22,7 @@ model User {
   updatedAt            DateTime       @updatedAt
   featuredProjects     Json?
   firebaseUid          String         @unique
+  discordOrContact     String?
   collaborations       Collaborator[]
   hackathons           Hackathon[]
   receivedInvites      Invite[]       @relation("ReceivedInvites")
