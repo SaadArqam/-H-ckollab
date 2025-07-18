@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Edit, Eye, Users, X } from "lucide-react";
+import { Edit, Eye, Users, X, Trash2 } from "lucide-react";
 import axios from "axios";
 import { useAppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
@@ -42,9 +42,12 @@ export default function MyProjectsPage() {
     const fetchProjects = async () => {
       try {
         const token = await user.getIdToken();
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/mine`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/projects/mine`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const data = await res.json();
         console.log("Fetched projects:", data);
         setProjects(Array.isArray(data) ? data : []);
@@ -63,7 +66,9 @@ export default function MyProjectsPage() {
     setViewProject(project);
     setInvitesLoading(true);
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/project/${project.id}`);
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/invites/project/${project.id}`
+      );
       setProjectInvites(res.data || []);
     } catch {
       setProjectInvites([]);
@@ -88,11 +93,14 @@ export default function MyProjectsPage() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inviteStatus: editInviteStatus }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inviteStatus: editInviteStatus }),
+        }
+      );
 
       if (!res.ok) throw new Error("Update failed");
 
@@ -107,6 +115,34 @@ export default function MyProjectsPage() {
       toast.error("Update failed!");
     } finally {
       closeModal();
+    }
+  };
+
+  const handleDelete = async (projectId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this project? This action cannot be undone."
+      )
+    )
+      return;
+    try {
+      if (!user) throw new Error("Not authenticated");
+      const token = await user.getIdToken();
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/projects/${projectId}/delete`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to delete project");
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+      toast.success("Project deleted!");
+    } catch (err) {
+      toast.error("Failed to delete project");
     }
   };
 
@@ -128,11 +164,14 @@ export default function MyProjectsPage() {
         .filter((u) => selectedUsers.includes(u.clerkId))
         .map((u) => u.id);
 
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${inviteProject.id}/invite`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userIds }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/projects/${inviteProject.id}/invite`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userIds }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to send invites");
 
@@ -212,7 +251,8 @@ export default function MyProjectsPage() {
                 <div>
                   <span className="text-gray-400 text-sm">Team:</span>
                   <span className="ml-2 px-3 py-1 rounded-full text-sm font-semibold bg-gray-800/60 text-white">
-                    {(project.collaborators?.length || 0) + 1}/{project.maxTeamSize} members joined
+                    {(project.collaborators?.length || 0) + 1}/
+                    {project.maxTeamSize} members joined
                   </span>
                 </div>
               </div>
@@ -236,6 +276,13 @@ export default function MyProjectsPage() {
                 >
                   Invite Collaborators
                 </button>
+                <button
+                  onClick={() => handleDelete(project.id)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors text-lg"
+                  title="Delete Project"
+                >
+                  <Trash2 size={20} /> Delete
+                </button>
                 {/* Archive button if team is full and not already archived */}
                 {project.collaborators &&
                   project.collaborators.length + 1 >= project.maxTeamSize &&
@@ -243,15 +290,21 @@ export default function MyProjectsPage() {
                     <button
                       onClick={async () => {
                         try {
-                          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ status: "Archived" }),
-                          });
-                          if (!res.ok) throw new Error("Failed to archive project");
+                          const res = await fetch(
+                            `${process.env.REACT_APP_API_URL}/api/projects/${project.id}`,
+                            {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ status: "Archived" }),
+                            }
+                          );
+                          if (!res.ok)
+                            throw new Error("Failed to archive project");
                           setProjects((prev) =>
                             prev.map((p) =>
-                              p.id === project.id ? { ...p, status: "Archived" } : p
+                              p.id === project.id
+                                ? { ...p, status: "Archived" }
+                                : p
                             )
                           );
                           toast.success("Project archived!");
@@ -296,32 +349,45 @@ export default function MyProjectsPage() {
                 <strong>Status:</strong> {viewProject.status}
               </div>
               <div>
-                <strong>Invite Status:</strong>{" "}
-                {viewProject.inviteStatus}
+                <strong>Invite Status:</strong> {viewProject.inviteStatus}
               </div>
               {/* Pending Invites Section */}
               <div className="mt-6">
-                <h3 className="text-2xl font-bold mb-2 text-white">Pending Invites</h3>
+                <h3 className="text-2xl font-bold mb-2 text-white">
+                  Pending Invites
+                </h3>
                 {invitesLoading ? (
                   <div className="text-gray-400">Loading invites...</div>
                 ) : projectInvites.length === 0 ? (
-                  <div className="text-gray-400">No pending invites for this project.</div>
+                  <div className="text-gray-400">
+                    No pending invites for this project.
+                  </div>
                 ) : (
                   <div className="space-y-2">
                     {projectInvites.map((invite) => (
-                      <div key={invite.id} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
+                      <div
+                        key={invite.id}
+                        className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2"
+                      >
                         <div>
-                          <span className="font-semibold text-white">{invite.receiver?.name || invite.receiver?.email}</span>
-                          <span className="ml-2 text-gray-400 text-sm">({invite.role})</span>
+                          <span className="font-semibold text-white">
+                            {invite.receiver?.name || invite.receiver?.email}
+                          </span>
+                          <span className="ml-2 text-gray-400 text-sm">
+                            ({invite.role})
+                          </span>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          invite.status === "accepted"
-                            ? "bg-green-700/30 text-green-400"
-                            : invite.status === "declined"
-                            ? "bg-red-700/30 text-red-400"
-                            : "bg-yellow-700/30 text-yellow-400"
-                        }`}>
-                          {invite.status.charAt(0).toUpperCase() + invite.status.slice(1)}
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            invite.status === "accepted"
+                              ? "bg-green-700/30 text-green-400"
+                              : invite.status === "declined"
+                              ? "bg-red-700/30 text-red-400"
+                              : "bg-yellow-700/30 text-yellow-400"
+                          }`}
+                        >
+                          {invite.status.charAt(0).toUpperCase() +
+                            invite.status.slice(1)}
                         </span>
                       </div>
                     ))}
