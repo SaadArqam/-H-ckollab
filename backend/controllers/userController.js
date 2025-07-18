@@ -73,7 +73,7 @@ export const getUserByFirebaseUid = async (req, res) => {
 
 // Create a new user
 export const createUser = async (req, res) => {
-  let { firebaseUid, name, email, skills = [], featuredProjects = [], projects, ...rest } = req.body;
+  let { firebaseUid, name, email, skills = [], featuredProjects = [], projects, discordOrContact, ...rest } = req.body;
   skills = skills.filter((s) => s.skillId?.trim());
 
   try {
@@ -105,6 +105,7 @@ export const createUser = async (req, res) => {
       email,
       featuredProjects,
       ...rest,
+      ...(discordOrContact && { discordOrContact }),
       ...(skillRelations.length > 0 && { skills: { create: skillRelations } }),
     };
 
@@ -136,6 +137,7 @@ export const updateUserByFirebaseUid = async (req, res) => {
     interests,
     skills = [],
     featuredProjects = [],
+    discordOrContact,
   } = req.body;
   // Ensure featuredProjects is always an array
   if (!Array.isArray(featuredProjects)) {
@@ -180,6 +182,7 @@ export const updateUserByFirebaseUid = async (req, res) => {
         branch,
         interests,
         featuredProjects,
+        discordOrContact,
         skills: {
           deleteMany: {},
           ...(skillRelations.length > 0 && { create: skillRelations }),
@@ -197,7 +200,10 @@ export const updateUserByFirebaseUid = async (req, res) => {
         branch,
         interests,
         featuredProjects,
-        ...(skillRelations.length > 0 && { skills: { create: skillRelations } }),
+        discordOrContact,
+        skills: {
+          create: skillRelations,
+        },
       },
       include: {
         skills: { include: { skill: true } },

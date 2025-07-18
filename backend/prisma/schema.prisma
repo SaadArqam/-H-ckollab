@@ -22,14 +22,14 @@ model User {
   updatedAt            DateTime       @updatedAt
   featuredProjects     Json?
   firebaseUid          String         @unique
+  collaborations       Collaborator[]
+  hackathons           Hackathon[]
   receivedInvites      Invite[]       @relation("ReceivedInvites")
   sentInvites          Invite[]       @relation("SentInvites")
   projects             Project[]
   skills               UserSkill[]
   collaboratedProjects Project[]      @relation("ProjectCollaborators")
   interestedIn         Project[]      @relation("ProjectInterest")
-  hackathons           Hackathon[]
-  collaborations       Collaborator[]
 }
 
 model Skill {
@@ -67,14 +67,11 @@ model Project {
   rolesNeeded       String[]
   visibility        String         @default("Open to All")
   inviteStatus      String?        @default("Pending")
+  collaboratorsV2   Collaborator[]
   invites           Invite[]
-
-  creator           User      @relation(fields: [creatorId], references: [id])
-  collaborators     User[]    @relation("ProjectCollaborators")
-  interestedUsers   User[]    @relation("ProjectInterest")
-  isDeleted         Boolean   @default(false)
-  isOpen            Boolean   @default(true)
-
+  creator           User           @relation(fields: [creatorId], references: [id])
+  collaborators     User[]         @relation("ProjectCollaborators")
+  interestedUsers   User[]         @relation("ProjectInterest")
 }
 
 model Invite {
@@ -96,37 +93,37 @@ model Hackathon {
   id              String    @id @default(cuid())
   title           String
   description     String
-  theme           String
-  hackathonDate   DateTime?
-  deadline        DateTime?
-  location        String?
-  organizer       String?
-  eventMode       String? // NEW: Online / Offline / Hybrid
-  hackathonLink   String? // NEW: Official website link
-  registrationFee String? // NEW: Free / Paid
-  rounds          String? // NEW: Description of rounds or phases
-  tags            String[]
   techStack       String[]
-  rolesNeeded     String[]
-  maxTeamSize     Int
-  visibility      String
-  userId          String
-  user            User      @relation(fields: [userId], references: [id])
   createdAt       DateTime  @default(now())
+  deadline        DateTime?
+  eventMode       String?
+  hackathonDate   DateTime?
+  hackathonLink   String?
+  location        String?
+  maxTeamSize     Int
+  organizer       String?
+  registrationFee String?
+  rolesNeeded     String[]
+  rounds          String?
+  tags            String[]
+  theme           String
   updatedAt       DateTime  @updatedAt
+  userId          String
+  visibility      String
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+model Collaborator {
+  id        String     @id @default(cuid())
+  projectId String
+  userId    String
+  joinedAt  DateTime   @default(now())
+  joinedVia JoinMethod
+  project   Project    @relation(fields: [projectId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
 }
 
 enum JoinMethod {
   invite
   interest
-}
-
-model Collaborator {
-  id        String     @id @default(cuid())
-  project   Project    @relation(fields: [projectId], references: [id])
-  projectId String
-  user      User       @relation(fields: [userId], references: [id])
-  userId    String
-  joinedAt  DateTime   @default(now())
-  joinedVia JoinMethod
 }
