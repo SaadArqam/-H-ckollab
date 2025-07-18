@@ -67,6 +67,8 @@ model Project {
   rolesNeeded       String[]
   visibility        String         @default("Open to All")
   inviteStatus      String?        @default("Pending")
+  isDeleted         Boolean?       @default(false)
+  isOpen            Boolean?       @default(true)
   collaboratorsV2   Collaborator[]
   invites           Invite[]
   creator           User           @relation(fields: [creatorId], references: [id])

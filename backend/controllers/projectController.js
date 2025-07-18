@@ -188,8 +188,6 @@ export const getAllProjects = async (req, res) => {
     const { tech, tags, difficulty } = req.query;
     const filters = {
       visibility: "Open to All",
-      isDeleted: false,
-      isOpen: true,
       ...(tech && { techStack: { hasSome: tech.split(",") } }),
       ...(tags && { tags: { hasSome: tags.split(",") } }),
       ...(difficulty && { difficulty }),
