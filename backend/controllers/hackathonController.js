@@ -8,8 +8,10 @@ export const createHackathon = async (req, res) => {
     if (!existingUser) {
       console.log(`User with id ${req.userId} not found. Creating user.`);
       // Use name and email from req.user if available
-      await prisma.user.create({
-        data: {
+      await prisma.user.upsert({
+        where: { id: req.userId },
+        update: {}, // No updates needed if user exists
+        create: {
           id: req.userId,
           firebaseUid: req.userId,
           name: req.user?.name || "Anonymous",
