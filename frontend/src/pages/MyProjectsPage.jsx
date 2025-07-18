@@ -30,6 +30,15 @@ export default function MyProjectsPage() {
   const [viewProject, setViewProject] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [editInviteStatus, setEditInviteStatus] = useState("");
+  // Add local state for editable fields
+  const [editFields, setEditFields] = useState({
+    title: "",
+    description: "",
+    techStack: "",
+    rolesNeeded: "",
+    maxTeamSize: 1,
+    deadline: ""
+  });
   const [inviteProject, setInviteProject] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -75,6 +84,18 @@ export default function MyProjectsPage() {
   const handleEdit = (project) => {
     setEditProject(project);
     setEditInviteStatus(project.inviteStatus || "Pending");
+    setEditFields({
+      title: project.title || "",
+      description: project.description || "",
+      techStack: (project.techStack || []).join(", "),
+      rolesNeeded: (project.rolesNeeded || []).join(", "),
+      maxTeamSize: project.maxTeamSize || 1,
+      deadline: project.deadline ? project.deadline.split("T")[0] : ""
+    });
+  };
+
+  const handleFieldChange = (field, value) => {
+    setEditFields((prev) => ({ ...prev, [field]: value }));
   };
 
   const closeModal = () => {
@@ -91,22 +112,26 @@ export default function MyProjectsPage() {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inviteStatus: editInviteStatus }),
+        body: JSON.stringify({
+          title: editFields.title,
+          description: editFields.description,
+          techStack: editFields.techStack.split(",").map(s => s.trim()).filter(Boolean),
+          rolesNeeded: editFields.rolesNeeded.split(",").map(s => s.trim()).filter(Boolean),
+          maxTeamSize: Number(editFields.maxTeamSize),
+          deadline: editFields.deadline ? new Date(editFields.deadline) : null,
+          inviteStatus: editInviteStatus
+        }),
       });
-
       if (!res.ok) throw new Error("Update failed");
-
+      const updated = await res.json();
       setProjects((prev) =>
-        prev.map((p) =>
-          p.id === editProject.id ? { ...p, inviteStatus: editInviteStatus } : p
-        )
+        prev.map((p) => (p.id === updated.id ? updated : p))
       );
-      toast.success("Invite status updated!");
-    } catch (err) {
-      console.error("Failed to update invite status:", err.message);
-      toast.error("Update failed!");
-    } finally {
+      toast.success("Project updated successfully!");
       closeModal();
+    } catch (err) {
+      console.error("Failed to update project:", err);
+      toast.error("Project update failed!");
     }
   };
 
@@ -167,13 +192,14 @@ export default function MyProjectsPage() {
           No projects posted yet.
         </div>
       ) : Array.isArray(projects) ? (
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
           {projects.map((project, idx) => (
             <div
               key={project.id}
-              className={`bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-8 shadow-lg transition-all group relative overflow-hidden ${
+              className={`bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-xl p-5 shadow-md transition-all group relative overflow-hidden ${
                 borderColors[idx % borderColors.length]
               }`}
+              style={{ minHeight: '220px' }}
             >
               <div className="flex items-center gap-3 mb-2">
                 <Users className="text-blue-400" size={28} />
@@ -336,24 +362,61 @@ export default function MyProjectsPage() {
       {/* Edit Modal */}
       {editProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-10 max-w-xl w-full shadow-2xl relative">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md w-full shadow-2xl relative overflow-y-auto max-h-[90vh]">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-red-400"
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-400"
             >
-              <X size={28} />
+              <X size={24} />
             </button>
-            <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
-              Edit Invite Status
+            <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+              Edit Project
             </h2>
-            <div className="mb-8">
-              <label className="block mb-2 text-lg text-gray-400">
-                Invite Status
-              </label>
+            <div className="mb-4">
+              <label className="block mb-2 text-lg text-gray-400">Title</label>
+              <input
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-2"
+                value={editFields.title}
+                onChange={e => handleFieldChange("title", e.target.value)}
+              />
+              <label className="block mb-2 text-lg text-gray-400">Description</label>
+              <textarea
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-2"
+                value={editFields.description}
+                onChange={e => handleFieldChange("description", e.target.value)}
+              />
+              <label className="block mb-2 text-lg text-gray-400">Tech Stack (comma separated)</label>
+              <input
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-2"
+                value={editFields.techStack}
+                onChange={e => handleFieldChange("techStack", e.target.value)}
+              />
+              <label className="block mb-2 text-lg text-gray-400">Roles Needed (comma separated)</label>
+              <input
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-2"
+                value={editFields.rolesNeeded}
+                onChange={e => handleFieldChange("rolesNeeded", e.target.value)}
+              />
+              <label className="block mb-2 text-lg text-gray-400">Max Team Size</label>
+              <input
+                type="number"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-2"
+                value={editFields.maxTeamSize}
+                onChange={e => handleFieldChange("maxTeamSize", e.target.value)}
+                min={1}
+              />
+              <label className="block mb-2 text-lg text-gray-400">Deadline</label>
+              <input
+                type="date"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-2"
+                value={editFields.deadline}
+                onChange={e => handleFieldChange("deadline", e.target.value)}
+              />
+              <label className="block mb-2 text-lg text-gray-400">Invite Status</label>
               <select
                 value={editInviteStatus}
                 onChange={handleInviteStatusChange}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-4"
               >
                 <option>Pending</option>
                 <option>Accepted</option>
@@ -363,9 +426,53 @@ export default function MyProjectsPage() {
             </div>
             <button
               onClick={handleSave}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg hover:opacity-90"
+              className="w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-base hover:opacity-90 mb-2"
             >
               Save
+            </button>
+            {/* Manual Archive/Unarchive Toggle */}
+            <button
+              onClick={async () => {
+                try {
+                  const status = editProject.status === "Archived" ? "Open" : "Archived";
+                  const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status }),
+                  });
+                  if (!res.ok) throw new Error();
+                  setProjects((prev) =>
+                    prev.map((p) => (p.id === editProject.id ? { ...p, status } : p))
+                  );
+                  toast.success(`Project ${status === "Archived" ? "archived" : "unarchived"}!`);
+                  closeModal();
+                } catch {
+                  toast.error("Failed to change project status");
+                }
+              }}
+              className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 border border-gray-500 mb-2"
+            >
+              {editProject.status === "Archived" ? "Unarchive" : "Archive"}
+            </button>
+            {/* Delete Project Button */}
+            <button
+              onClick={async () => {
+                if (!window.confirm("Are you sure you want to delete this project? This cannot be undone.")) return;
+                try {
+                  const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`, {
+                    method: "DELETE",
+                  });
+                  if (!res.ok) throw new Error();
+                  setProjects((prev) => prev.filter((p) => p.id !== editProject.id));
+                  toast.success("Project deleted!");
+                  closeModal();
+                } catch {
+                  toast.error("Failed to delete project");
+                }
+              }}
+              className="w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 border border-red-700"
+            >
+              Delete Project
             </button>
           </div>
         </div>
