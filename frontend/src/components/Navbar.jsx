@@ -116,7 +116,7 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-x-6 text-sm font-medium">
           <Link to="/" className="text-gray-400 hover:text-white transition">
-            Landing
+            Home
           </Link>
           {/* Explore Toggle */}
           <div className="relative">

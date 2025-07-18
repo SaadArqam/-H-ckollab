@@ -4,7 +4,7 @@
 // }
 
 import React from 'react';
-import { ArrowRight, Users, Target, FolderOpen, MessageSquare, Github, Star } from 'lucide-react';
+import { ArrowRight, Users, FolderOpen, Send, Star, User, MessageSquare, Globe } from 'lucide-react';
 import { useAuth } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -20,8 +20,12 @@ export default function Landing() {
     }
   };
 
+  const handleExploreProjects = () => {
+    navigate("/explore-projects");
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white flex flex-col" style={{ fontSize: '1.15rem', zoom: 1.12 }}>
       {/* Beta Badge */}
       <div className="flex justify-center pt-10">
         <div className="flex items-center gap-2 bg-gray-900/50 border border-gray-700 rounded-full px-5 py-2.5 text-base">
@@ -31,145 +35,107 @@ export default function Landing() {
       </div>
 
       {/* Hero Section */}
-      <div className="text-center px-6 pt-20 pb-40">
-        <h1 className="text-7xl md:text-8xl lg:text-8xl font-bold mb-10 leading-tight">
-          Find Your Perfect<br />
+      <div className="flex-1 flex flex-col justify-center items-center px-2 sm:px-6 pt-20 pb-10 w-full">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 text-center leading-tight">
+          Collaborate. Build. Launch.<br />
           <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
-            Hackathon Teammates
+            Hackathons & Projects
           </span>
         </h1>
-        
-        <p className="text-2xl text-gray-400 mb-16 max-w-3xl mx-auto leading-relaxed">
-          Connect with talented developers, designers, and innovators. Build 
-          amazing projects together and turn your ideas into reality.
+        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 text-center">
+          H@ckollab helps you find teammates, join or post hackathons and projects, and launch together. <br />
+          Real people. Real teams. Real results.
         </p>
-        
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <button className="bg-white text-black px-10 py-5 rounded-xl font-semibold hover:bg-gray-100 transition-colors flex items-center gap-3 text-lg">
-            Get Started <ArrowRight size={24} />
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button
+            onClick={handleCreateProfile}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-4 rounded-xl font-semibold text-lg flex items-center gap-3 hover:opacity-90 transition"
+          >
+            <User size={22} /> Create Your Profile
           </button>
-          <button className="border border-gray-600 text-white px-10 py-5 rounded-xl font-semibold hover:bg-gray-900/50 transition-colors text-lg">
-            Explore Developers
+          <button
+            onClick={handleExploreProjects}
+            className="border border-gray-600 text-white px-10 py-4 rounded-xl font-semibold hover:bg-gray-900/50 transition-colors text-lg flex items-center gap-3"
+          >
+            <FolderOpen size={22} /> Explore Projects
           </button>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="px-6 pb-32">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-6xl font-bold mb-8">
-            Everything you need to build together
-          </h2>
-          <p className="text-2xl text-gray-400 max-w-3xl mx-auto">
-            From finding teammates to managing projects, H@ckollab has all the tools you need.
-          </p>
-        </div>
+      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-2 sm:px-6 pb-24 w-full">
+        <Feature
+          icon={<Users className="text-blue-400" size={28} />}
+          title="Verified Profiles"
+          desc="Real users, real skills. See what your future teammates can do."
+        />
+        <Feature
+          icon={<FolderOpen className="text-green-400" size={28} />}
+          title="Post & Join Projects"
+          desc="Start your own project or join others. Find the right fit for your skills."
+        />
+        <Feature
+          icon={<Globe className="text-purple-400" size={28} />}
+          title="Hackathon Directory"
+          desc="Browse and join real hackathons. Compete, learn, and grow."
+        />
+        <Feature
+          icon={<Send className="text-yellow-400" size={28} />}
+          title="Team Invites"
+          desc="Invite others or accept invites to build your team."
+        />
+      </div>
 
-        {/* Features Grid */}
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-10">
-          {/* Rich Profiles */}
-          <div className="bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-10 hover:border-purple-500/30 transition-all">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-purple-500/10 rounded-lg">
-                <Users className="text-purple-400" size={28} />
-              </div>
-              <h3 className="text-3xl font-bold">Rich Profiles</h3>
-            </div>
-            <p className="text-gray-400 text-xl leading-relaxed">
-              Showcase your skills, GitHub projects, and availability. 
-              Let others know what you bring to the table.
-            </p>
+      {/* How It Works Section */}
+      <div className="max-w-4xl mx-auto px-2 sm:px-6 pb-10 w-full">
+        <h2 className="text-3xl font-bold mb-8 text-center">How it works</h2>
+        <div className="grid md:grid-cols-4 gap-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-3">1</div>
+            <div className="font-semibold mb-1">Create Your Profile</div>
+            <div className="text-gray-400">Sign up and let others know your skills and interests.</div>
           </div>
-
-          {/* Smart Matching */}
-          <div className="bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-10 hover:border-blue-500/30 transition-all">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-blue-500/10 rounded-lg">
-                <Target className="text-blue-400" size={28} />
-              </div>
-              <h3 className="text-3xl font-bold">Smart Matching</h3>
-            </div>
-            <p className="text-gray-400 text-xl leading-relaxed">
-              Find teammates with complementary skills. Filter by tech stack, 
-              experience level, and availability.
-            </p>
+          <div className="flex flex-col items-center">
+            <div className="bg-purple-600 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-3">2</div>
+            <div className="font-semibold mb-1">Explore or Post</div>
+            <div className="text-gray-400">Browse or post projects and hackathons to join or start a team.</div>
           </div>
-
-          {/* Project Management */}
-          <div className="bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-10 hover:border-green-500/30 transition-all">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-green-500/10 rounded-lg">
-                <FolderOpen className="text-green-400" size={28} />
-              </div>
-              <h3 className="text-3xl font-bold">Project Management</h3>
-            </div>
-            <p className="text-gray-400 text-xl leading-relaxed">
-              Post projects, invite collaborators, and track your team's progress 
-              from idea to deployment.
-            </p>
+          <div className="flex flex-col items-center">
+            <div className="bg-green-600 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-3">3</div>
+            <div className="font-semibold mb-1">Build Your Team</div>
+            <div className="text-gray-400">Invite others or accept invites to form your team.</div>
           </div>
-
-          {/* Team Communication */}
-          <div className="bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-10 hover:border-yellow-500/30 transition-all">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-yellow-500/10 rounded-lg">
-                <MessageSquare className="text-yellow-400" size={28} />
-              </div>
-              <h3 className="text-3xl font-bold">Team Communication</h3>
-            </div>
-            <p className="text-gray-400 text-xl leading-relaxed">
-              Built-in messaging to coordinate with your team and 
-              discuss project details in real-time.
-            </p>
-          </div>
-
-          {/* GitHub Integration */}
-          <div className="bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-10 hover:border-gray-500/30 transition-all">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-gray-500/10 rounded-lg">
-                <Github className="text-gray-300" size={28} />
-              </div>
-              <h3 className="text-3xl font-bold">GitHub Integration</h3>
-            </div>
-            <p className="text-gray-400 text-xl leading-relaxed">
-              Connect your GitHub profile to showcase your work and 
-              collaborate on code seamlessly.
-            </p>
-          </div>
-
-          {/* Recognition System */}
-          <div className="bg-gradient-to-b from-gray-900/50 to-gray-900/20 border border-gray-700 rounded-2xl p-10 hover:border-red-500/30 transition-all">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-red-500/10 rounded-lg">
-                <Star className="text-red-400" size={28} />
-              </div>
-              <h3 className="text-3xl font-bold">Recognition System</h3>
-            </div>
-            <p className="text-gray-400 text-xl leading-relaxed">
-              Earn badges and build your reputation as a reliable 
-              collaborator in the community.
-            </p>
+          <div className="flex flex-col items-center">
+            <div className="bg-yellow-500 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-3">4</div>
+            <div className="font-semibold mb-1">Collaborate & Launch</div>
+            <div className="text-gray-400">Work together, track progress, and launch your project or hackathon entry!</div>
           </div>
         </div>
       </div>
 
       {/* CTA Section */}
-      <div className="text-center px-6 pb-32">
-        <h2 className="text-5xl md:text-6xl font-bold mb-8">
-          Ready to build something amazing?
-        </h2>
-        <p className="text-2xl text-gray-400 mb-16 max-w-3xl mx-auto">
-          Join thousands of developers already collaborating on H@ckollab.
+      <div className="text-center px-6 pb-16">
+        <h2 className="text-4xl font-bold mb-4">Ready to build something amazing?</h2>
+        <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          Join the next wave of builders, hackers, and creators on H@ckollab.
         </p>
-        
-        {/* Redirect button updated here */}
         <button
           onClick={handleCreateProfile}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-6 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center gap-3 mx-auto text-xl"
+          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center gap-3 mx-auto text-xl"
         >
-          Create Your Profile <ArrowRight size={24} />
+          <ArrowRight size={24} /> Get Started
         </button>
       </div>
+    </div>
+  );
+}
+
+function Feature({ icon, title, desc }) {
+  return (
+    <div className="bg-gradient-to-b from-gray-900/60 to-gray-900/20 border border-gray-800 rounded-2xl p-8 flex flex-col items-start gap-4 hover:border-blue-500/30 transition w-full">
+      <div className="p-3 rounded-lg bg-white/5">{icon}</div>
+      <h3 className="text-2xl font-bold">{title}</h3>
+      <p className="text-gray-400">{desc}</p>
     </div>
   );
 }
