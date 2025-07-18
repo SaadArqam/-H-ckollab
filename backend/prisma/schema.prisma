@@ -68,10 +68,13 @@ model Project {
   visibility        String         @default("Open to All")
   inviteStatus      String?        @default("Pending")
   invites           Invite[]
-  creator           User           @relation(fields: [creatorId], references: [id])
-  collaborators     User[]         @relation("ProjectCollaborators")
-  interestedUsers   User[]         @relation("ProjectInterest")
-  collaboratorsV2   Collaborator[]
+
+  creator           User      @relation(fields: [creatorId], references: [id])
+  collaborators     User[]    @relation("ProjectCollaborators")
+  interestedUsers   User[]    @relation("ProjectInterest")
+  isDeleted         Boolean   @default(false)
+  isOpen            Boolean   @default(true)
+
 }
 
 model Invite {
