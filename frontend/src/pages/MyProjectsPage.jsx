@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Edit, Eye, Users, X } from "lucide-react";
+import { Edit, Eye, Users, X, Trash2, Archive } from "lucide-react";
 import axios from "axios";
 import { useAppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
@@ -42,9 +42,12 @@ export default function MyProjectsPage() {
     const fetchProjects = async () => {
       try {
         const token = await user.getIdToken();
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/mine`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/projects/mine`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const data = await res.json();
         console.log("Fetched projects:", data);
         setProjects(Array.isArray(data) ? data : []);
@@ -63,7 +66,9 @@ export default function MyProjectsPage() {
     setViewProject(project);
     setInvitesLoading(true);
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invites/project/${project.id}`);
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/invites/project/${project.id}`
+      );
       setProjectInvites(res.data || []);
     } catch {
       setProjectInvites([]);
@@ -88,11 +93,14 @@ export default function MyProjectsPage() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inviteStatus: editInviteStatus }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inviteStatus: editInviteStatus }),
+        }
+      );
 
       if (!res.ok) throw new Error("Update failed");
 
@@ -128,11 +136,14 @@ export default function MyProjectsPage() {
         .filter((u) => selectedUsers.includes(u.clerkId))
         .map((u) => u.id);
 
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${inviteProject.id}/invite`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userIds }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/projects/${inviteProject.id}/invite`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userIds }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to send invites");
 
@@ -191,79 +202,111 @@ export default function MyProjectsPage() {
                     className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${
                       project.status === "Completed"
                         ? "bg-green-700/30 text-green-400"
+                        : project.isOpen === false
+                        ? "bg-gray-700/30 text-gray-400"
                         : "bg-blue-700/30 text-blue-400"
                     }`}
                   >
-                    {project.status}
+                    {project.isOpen === false ? "Archived" : project.status}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-400 text-sm">Invite Status:</span>
-                  <span
-                    className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${
-                      inviteStatusColors[project.inviteStatus] ||
-                      "bg-gray-700/30 text-gray-300"
-                    }`}
-                  >
-                    {project.inviteStatus || "Pending"}
-                  </span>
-                </div>
-                {/* Team size info */}
-                <div>
-                  <span className="text-gray-400 text-sm">Team:</span>
-                  <span className="ml-2 px-3 py-1 rounded-full text-sm font-semibold bg-gray-800/60 text-white">
-                    {(project.collaborators?.length || 0) + 1}/{project.maxTeamSize} members joined
+                  <span className="text-gray-400 text-sm">Team size:</span>
+                  <span className="ml-2 font-semibold text-blue-300">
+                    {project.teamSize ??
+                      (project.collaborators
+                        ? project.collaborators.length
+                        : 0)}{" "}
+                    / {project.maxTeamSize}
                   </span>
                 </div>
               </div>
-
-              <div className="flex gap-4 mt-4">
+              <div className="flex gap-3 mt-4">
                 <button
-                  onClick={() => handleView(project)}
-                  className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black font-semibold hover:bg-gray-100 transition-colors text-lg shadow"
-                >
-                  <Eye size={20} /> View
-                </button>
-                <button
+                  className="flex items-center gap-1 px-4 py-2 bg-blue-700/80 rounded-lg hover:bg-blue-800 transition"
                   onClick={() => handleEdit(project)}
-                  className="flex items-center gap-2 px-6 py-2 rounded-xl border border-gray-600 text-white font-semibold hover:border-blue-500 hover:text-blue-400 transition-colors text-lg"
+                  title="Edit Project"
                 >
-                  <Edit size={20} /> Edit
+                  <Edit size={18} /> Edit
                 </button>
                 <button
-                  onClick={() => openInviteModal(project)}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="flex items-center gap-1 px-4 py-2 bg-purple-700/80 rounded-lg hover:bg-purple-800 transition"
+                  onClick={() => handleView(project)}
+                  title="View Invites"
                 >
-                  Invite Collaborators
+                  <Eye size={18} /> Invites
                 </button>
-                {/* Archive button if team is full and not already archived */}
-                {project.collaborators &&
-                  project.collaborators.length + 1 >= project.maxTeamSize &&
-                  project.status !== "Archived" && (
-                    <button
-                      onClick={async () => {
-                        try {
-                          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}`, {
+                <button
+                  className="flex items-center gap-1 px-4 py-2 bg-yellow-700/80 rounded-lg hover:bg-yellow-800 transition"
+                  onClick={() => openInviteModal(project)}
+                  title="Invite Collaborators"
+                >
+                  <Users size={18} /> Invite
+                </button>
+                <button
+                  className="flex items-center gap-1 px-4 py-2 bg-gray-700/80 rounded-lg hover:bg-gray-800 transition"
+                  onClick={async () => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to archive this project?"
+                      )
+                    ) {
+                      try {
+                        const token = await user.getIdToken();
+                        await fetch(
+                          `${process.env.REACT_APP_API_URL}/api/projects/${project.id}/archive`,
+                          {
                             method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ status: "Archived" }),
-                          });
-                          if (!res.ok) throw new Error("Failed to archive project");
-                          setProjects((prev) =>
-                            prev.map((p) =>
-                              p.id === project.id ? { ...p, status: "Archived" } : p
-                            )
-                          );
-                          toast.success("Project archived!");
-                        } catch (err) {
-                          toast.error("Failed to archive project");
-                        }
-                      }}
-                      className="mt-4 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 border border-gray-500"
-                    >
-                      Archive Project
-                    </button>
-                  )}
+                            headers: { Authorization: `Bearer ${token}` },
+                          }
+                        );
+                        setProjects((prev) =>
+                          prev.map((p) =>
+                            p.id === project.id ? { ...p, isOpen: false } : p
+                          )
+                        );
+                        toast.success("Project archived!");
+                      } catch {
+                        toast.error("Failed to archive project");
+                      }
+                    }
+                  }}
+                  title="Archive Project"
+                  disabled={project.isOpen === false}
+                >
+                  <Archive size={18} />{" "}
+                  {project.isOpen === false ? "Archived" : "Archive"}
+                </button>
+                <button
+                  className="flex items-center gap-1 px-4 py-2 bg-red-700/80 rounded-lg hover:bg-red-800 transition"
+                  onClick={async () => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this project? This cannot be undone."
+                      )
+                    ) {
+                      try {
+                        const token = await user.getIdToken();
+                        await fetch(
+                          `${process.env.REACT_APP_API_URL}/api/projects/${project.id}/delete`,
+                          {
+                            method: "PATCH",
+                            headers: { Authorization: `Bearer ${token}` },
+                          }
+                        );
+                        setProjects((prev) =>
+                          prev.filter((p) => p.id !== project.id)
+                        );
+                        toast.success("Project deleted!");
+                      } catch {
+                        toast.error("Failed to delete project");
+                      }
+                    }
+                  }}
+                  title="Delete Project"
+                >
+                  <Trash2 size={18} /> Delete
+                </button>
               </div>
               <div className="absolute inset-0 pointer-events-none rounded-2xl group-hover:ring-2 group-hover:ring-blue-500/40 transition-all"></div>
             </div>
@@ -296,32 +339,45 @@ export default function MyProjectsPage() {
                 <strong>Status:</strong> {viewProject.status}
               </div>
               <div>
-                <strong>Invite Status:</strong>{" "}
-                {viewProject.inviteStatus}
+                <strong>Invite Status:</strong> {viewProject.inviteStatus}
               </div>
               {/* Pending Invites Section */}
               <div className="mt-6">
-                <h3 className="text-2xl font-bold mb-2 text-white">Pending Invites</h3>
+                <h3 className="text-2xl font-bold mb-2 text-white">
+                  Pending Invites
+                </h3>
                 {invitesLoading ? (
                   <div className="text-gray-400">Loading invites...</div>
                 ) : projectInvites.length === 0 ? (
-                  <div className="text-gray-400">No pending invites for this project.</div>
+                  <div className="text-gray-400">
+                    No pending invites for this project.
+                  </div>
                 ) : (
                   <div className="space-y-2">
                     {projectInvites.map((invite) => (
-                      <div key={invite.id} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
+                      <div
+                        key={invite.id}
+                        className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2"
+                      >
                         <div>
-                          <span className="font-semibold text-white">{invite.receiver?.name || invite.receiver?.email}</span>
-                          <span className="ml-2 text-gray-400 text-sm">({invite.role})</span>
+                          <span className="font-semibold text-white">
+                            {invite.receiver?.name || invite.receiver?.email}
+                          </span>
+                          <span className="ml-2 text-gray-400 text-sm">
+                            ({invite.role})
+                          </span>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          invite.status === "accepted"
-                            ? "bg-green-700/30 text-green-400"
-                            : invite.status === "declined"
-                            ? "bg-red-700/30 text-red-400"
-                            : "bg-yellow-700/30 text-yellow-400"
-                        }`}>
-                          {invite.status.charAt(0).toUpperCase() + invite.status.slice(1)}
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            invite.status === "accepted"
+                              ? "bg-green-700/30 text-green-400"
+                              : invite.status === "declined"
+                              ? "bg-red-700/30 text-red-400"
+                              : "bg-yellow-700/30 text-yellow-400"
+                          }`}
+                        >
+                          {invite.status.charAt(0).toUpperCase() +
+                            invite.status.slice(1)}
                         </span>
                       </div>
                     ))}
@@ -344,29 +400,165 @@ export default function MyProjectsPage() {
               <X size={28} />
             </button>
             <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
-              Edit Invite Status
+              Edit Project
             </h2>
-            <div className="mb-8">
-              <label className="block mb-2 text-lg text-gray-400">
-                Invite Status
-              </label>
-              <select
-                value={editInviteStatus}
-                onChange={handleInviteStatusChange}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              >
-                <option>Pending</option>
-                <option>Accepted</option>
-                <option>Declined</option>
-                <option>Expired</option>
-              </select>
-            </div>
-            <button
-              onClick={handleSave}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg hover:opacity-90"
+            <form
+              className="space-y-5"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  const token = await user.getIdToken();
+                  const payload = {
+                    title: e.target.title.value,
+                    description: e.target.description.value,
+                    tags: e.target.tags.value.split(",").map((t) => t.trim()),
+                    techStack: e.target.techStack.value
+                      .split(",")
+                      .map((t) => t.trim()),
+                    maxTeamSize: parseInt(e.target.maxTeamSize.value) || 1,
+                    rolesNeeded: e.target.rolesNeeded.value
+                      .split(",")
+                      .map((r) => r.trim()),
+                    deadline: e.target.deadline.value
+                      ? new Date(e.target.deadline.value)
+                      : null,
+                    collaborationType: e.target.collaborationType.value,
+                    visibility: e.target.visibility.value,
+                    difficulty: e.target.difficulty.value,
+                  };
+                  const res = await fetch(
+                    `${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}/edit`,
+                    {
+                      method: "PATCH",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify(payload),
+                    }
+                  );
+                  if (!res.ok) throw new Error("Update failed");
+                  const updated = await res.json();
+                  setProjects((prev) =>
+                    prev.map((p) =>
+                      p.id === editProject.id ? { ...p, ...updated } : p
+                    )
+                  );
+                  toast.success("Project updated!");
+                  closeModal();
+                } catch (err) {
+                  toast.error("Failed to update project");
+                }
+              }}
             >
-              Save
-            </button>
+              <div>
+                <label className="block mb-1">Title</label>
+                <input
+                  name="title"
+                  defaultValue={editProject.title}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Description</label>
+                <textarea
+                  name="description"
+                  defaultValue={editProject.description}
+                  rows={3}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Tags (comma separated)</label>
+                <input
+                  name="tags"
+                  defaultValue={editProject.tags?.join(", ") || ""}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">
+                  Tech Stack (comma separated)
+                </label>
+                <input
+                  name="techStack"
+                  defaultValue={editProject.techStack?.join(", ") || ""}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">
+                  Roles Needed (comma separated)
+                </label>
+                <input
+                  name="rolesNeeded"
+                  defaultValue={editProject.rolesNeeded?.join(", ") || ""}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Max Team Size</label>
+                <input
+                  name="maxTeamSize"
+                  type="number"
+                  min="1"
+                  defaultValue={editProject.maxTeamSize}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Deadline</label>
+                <input
+                  name="deadline"
+                  type="date"
+                  defaultValue={
+                    editProject.deadline
+                      ? new Date(editProject.deadline)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""
+                  }
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Collaboration Type</label>
+                <select
+                  name="collaborationType"
+                  defaultValue={editProject.collaborationType}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option value="">Select</option>
+                  <option>Open to all</option>
+                  <option>Invite only</option>
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1">Visibility</label>
+                <select
+                  name="visibility"
+                  defaultValue={editProject.visibility}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option>Open to All</option>
+                  <option>Invite Only</option>
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1">Difficulty</label>
+                <input
+                  name="difficulty"
+                  defaultValue={editProject.difficulty || ""}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold text-lg hover:opacity-90 mt-4"
+              >
+                Save Changes
+              </button>
+            </form>
           </div>
         </div>
       )}

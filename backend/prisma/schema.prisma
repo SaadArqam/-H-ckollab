@@ -69,6 +69,8 @@ model Project {
   creator           User      @relation(fields: [creatorId], references: [id])
   collaborators     User[]    @relation("ProjectCollaborators")
   interestedUsers   User[]    @relation("ProjectInterest")
+  isDeleted         Boolean   @default(false)
+  isOpen            Boolean   @default(true)
 }
 
 model Invite {

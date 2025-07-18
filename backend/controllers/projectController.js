@@ -20,14 +20,22 @@ export const createProject = async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Unauthorized: User not found" });
     }
-    if (!collaborationType || typeof collaborationType !== 'string' || !collaborationType.trim()) {
-      return res.status(400).json({ error: "collaborationType is required and must not be empty" });
+    if (
+      !collaborationType ||
+      typeof collaborationType !== "string" ||
+      !collaborationType.trim()
+    ) {
+      return res
+        .status(400)
+        .json({ error: "collaborationType is required and must not be empty" });
     }
 
     console.log("🔥 Decoded Firebase UID:", user?.uid);
 
     // Fetch the user from the DB using firebaseUid
-    const dbUser = await prisma.user.findUnique({ where: { firebaseUid: user.uid } });
+    const dbUser = await prisma.user.findUnique({
+      where: { firebaseUid: user.uid },
+    });
     if (!dbUser || !dbUser.id) {
       return res.status(404).json({ error: "User not found in DB" });
     }
@@ -66,25 +74,126 @@ export const createProject = async (req, res) => {
   }
 };
 
-// Get all public projects (Explore)
+// PATCH /api/projects/:id - Edit project details
+export const editProject = async (req, res) => {
+  const { id } = req.params;
+  const user = req.user;
+  try {
+    // Only allow project owner to edit
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    const dbUser = await prisma.user.findUnique({
+      where: { firebaseUid: user.uid },
+    });
+    if (!dbUser || dbUser.id !== project.creatorId) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Only project owner can edit" });
+    }
+    const allowedFields = [
+      "title",
+      "description",
+      "tags",
+      "techStack",
+      "maxTeamSize",
+      "status",
+      "difficulty",
+      "rolesNeeded",
+      "deadline",
+      "collaborationType",
+      "visibility",
+    ];
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) updateData[field] = req.body[field];
+    }
+    const updated = await prisma.project.update({
+      where: { id },
+      data: updateData,
+    });
+    res.json(updated);
+  } catch (error) {
+    console.error("Error editing project:", error);
+    res.status(500).json({ error: "Failed to edit project" });
+  }
+};
+
+// PATCH /api/projects/:id/delete - Soft delete project
+export const softDeleteProject = async (req, res) => {
+  const { id } = req.params;
+  const user = req.user;
+  try {
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    const dbUser = await prisma.user.findUnique({
+      where: { firebaseUid: user.uid },
+    });
+    if (!dbUser || dbUser.id !== project.creatorId) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Only project owner can delete" });
+    }
+    const updated = await prisma.project.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+    res.json({ message: "Project deleted (soft)", project: updated });
+  } catch (error) {
+    console.error("Error soft deleting project:", error);
+    res.status(500).json({ error: "Failed to delete project" });
+  }
+};
+
+// PATCH /api/projects/:id/archive - Archive/Mark as Full
+export const archiveProject = async (req, res) => {
+  const { id } = req.params;
+  const user = req.user;
+  try {
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    const dbUser = await prisma.user.findUnique({
+      where: { firebaseUid: user.uid },
+    });
+    if (!dbUser || dbUser.id !== project.creatorId) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Only project owner can archive" });
+    }
+    const updated = await prisma.project.update({
+      where: { id },
+      data: { isOpen: false },
+    });
+    res.json({ message: "Project archived/marked as full", project: updated });
+  } catch (error) {
+    console.error("Error archiving project:", error);
+    res.status(500).json({ error: "Failed to archive project" });
+  }
+};
+
+// Update getAllProjects to filter out deleted/archived projects and return team size info
 export const getAllProjects = async (req, res) => {
   try {
     const { tech, tags, difficulty } = req.query;
-
     const filters = {
       visibility: "Open to All",
+      isDeleted: false,
+      isOpen: true,
       ...(tech && { techStack: { hasSome: tech.split(",") } }),
       ...(tags && { tags: { hasSome: tags.split(",") } }),
       ...(difficulty && { difficulty }),
     };
-
     const projects = await prisma.project.findMany({
       where: filters,
-      include: { creator: true },
+      include: { creator: true, collaborators: true },
       orderBy: { createdAt: "desc" },
     });
-
-    res.status(200).json(projects);
+    // Add team size info
+    const projectsWithTeamSize = projects.map((p) => ({
+      ...p,
+      teamSize: p.collaborators.length,
+      maxTeamSize: p.maxTeamSize,
+    }));
+    res.status(200).json(projectsWithTeamSize);
   } catch (error) {
     console.error("❌ Error fetching projects:", error.message);
     res.status(500).json({ error: "Failed to fetch projects" });

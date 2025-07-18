@@ -7,6 +7,9 @@ import {
   getMyProjects,
   updateProjectInviteStatus,
   inviteCollaborators,
+  editProject,
+  softDeleteProject,
+  archiveProject,
 } from "../controllers/projectController.js";
 import { verifyFirebaseToken } from "../middleware/firebaseAuth.js";
 
@@ -20,5 +23,8 @@ router.get("/:id", getProjectById); // ✅ Get single project by ID
 router.post("/:projectId/interest", showInterest); // ✅ Show interest
 router.patch("/:id", updateProjectInviteStatus); // ✅ Update invite status
 router.post("/:id/invite", verifyFirebaseToken, inviteCollaborators); // ✅ Invite collaborators
+router.patch("/:id/edit", verifyFirebaseToken, editProject);
+router.patch("/:id/delete", verifyFirebaseToken, softDeleteProject);
+router.patch("/:id/archive", verifyFirebaseToken, archiveProject);
 
 export default router;
