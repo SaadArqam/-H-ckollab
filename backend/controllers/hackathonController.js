@@ -3,22 +3,10 @@ import prisma from "../lib/prisma.js";
 export const createHackathon = async (req, res) => {
   console.log("📥 createHackathon payload:", req.body, "userId:", req.userId);
   try {
-    // Check if user exists, auto-create if not
-    const existingUser = await prisma.user.findUnique({ where: { id: req.userId } });
-    if (!existingUser) {
-      console.log(`User with id ${req.userId} not found. Creating user.`);
-      // Use name and email from req.user if available
-      await prisma.user.upsert({
-        where: { id: req.userId },
-        update: {}, // No updates needed if user exists
-        create: {
-          id: req.userId,
-          firebaseUid: req.userId,
-          name: req.user?.name || "Anonymous",
-          email: req.user?.email || `${req.userId}@unknown.com`,
-          availability: "Unknown"
-        }
-      });
+    // Check if user exists
+    const user = await prisma.user.findUnique({ where: { id: req.userId } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
     const newHackathon = await prisma.hackathon.create({
       data: {
@@ -39,7 +27,7 @@ export const createHackathon = async (req, res) => {
         maxTeamSize:     Number(req.body.maxTeamSize),
         visibility:      req.body.visibility || "Public",
         user: {
-          connect: { id: req.userId }
+          connect: { id: user.id }
         }
       }
     });
