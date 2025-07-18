@@ -1,4 +1,4 @@
-// Remove any import of prisma or backend code. Do not import prisma in the frontend.
+import { prisma } from "../prisma/index.js";
 
 // Create Project
 export const createProject = async (req, res) => {
@@ -61,6 +61,7 @@ export const createProject = async (req, res) => {
         visibility,
         collaborationType,
         inviteStatus: inviteStatus || "Pending",
+        creatorId: dbUser.id, // ✅ Add this
         creator: {
           connect: { id: dbUser.id },
         },
