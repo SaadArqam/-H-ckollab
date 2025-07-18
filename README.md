@@ -1,226 +1,171 @@
 # H@ckollab
 
-A full-stack collaboration platform that empowers students to effortlessly find and team up with ideal collaborators for hackathons and project-based learning. Built with React for the frontend and Node.js/Express with PostgreSQL for the backend.
+A modern full-stack platform for students to discover, connect, and collaborate on hackathons and project-based learning. H@ckollab streamlines team formation, project posting, and skill-based matchmaking, empowering real teams to build and launch together.
 
 ---
 
-## 🔧 Tech Stack
+## 🚀 Overview
 
-**Frontend**
+H@ckollab is a collaboration hub designed for hackathons and student projects. It enables users to:
+- Create rich developer profiles
+- Find and join projects or hackathons
+- Build teams based on skills and interests
+- Track collaboration status and manage invites
 
+Built with React (frontend), Node.js/Express (backend), Prisma ORM, and PostgreSQL. Authentication is powered by **Firebase Auth** for secure, scalable sign-in.
+
+---
+
+## 🔥 Key Features
+
+- **🔐 Secure Authentication:** Sign up and log in with Firebase Auth (Google, email, etc.)
+- **🧑‍💻 Developer Profiles:** Showcase skills, experience, social links, and featured projects
+- **🔍 Explore & Filter:** Search users by tech stack, experience, or availability
+- **📢 Post & Join Projects:** Start new projects or join existing ones, specify tech and roles needed
+- **🤝 Team Invites:** Invite users to collaborate, accept/decline invites, and track team status
+- **📊 Dashboard:** View your projects, collaborations, and pending invites in one place
+- **📝 Profile Editing:** Update your info, skills, and project highlights anytime
+- **🌐 Hackathon Directory:** Browse and join real hackathons (if enabled)
+
+---
+
+## 🧭 User Flow
+
+1. **Sign Up / Log In**
+   - Authenticate securely with Firebase Auth
+2. **Create Your Profile**
+   - Fill out your skills, academic info, interests, and social links
+   - Save to unlock full platform features
+3. **Explore Users & Projects**
+   - Use filters to find collaborators or projects matching your interests
+4. **Post a Project or Hackathon**
+   - Describe your idea, required tech, and open roles
+5. **Build Your Team**
+   - Invite users to join, or accept invites from others
+   - Track team size and status on your dashboard
+6. **Collaborate & Launch**
+   - Work together, update project status, and showcase your work
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend:**
 - React.js
 - React Router DOM
 - Tailwind CSS
-- Firebase Auth (Authentication)
-- React Context (Global State)
+- Firebase Auth
+- React Context API
 
-**Backend**
-
-- Node.js
-- Express.js
+**Backend:**
+- Node.js & Express.js
 - Prisma ORM
 - PostgreSQL
-- Dotenv (Environment management)
-- CORS & JSON Middleware
+- Dotenv, CORS, JSON Middleware
 
-**Tools**
-
-- Git + GitHub (Version Control)
+**DevOps & Tools:**
+- Git + GitHub
 - Vercel (Frontend Hosting)
-- Render / Railway (Backend Hosting)
-- PostgreSQL via Neon or Local DB
+- Render/Railway (Backend Hosting)
+- Neon/PostgreSQL Cloud or Local
 - Prisma Studio (DB Viewer)
 
 ---
 
-## 📸 Features (MVP)
+## 🏁 Getting Started
 
-🔐 User Authentication (via Clerk)
-Secure sign-up & login with Clerk (OAuth-ready)
-
-🧑‍💻 Developer Profiles
-Showcase skills, GitHub, portfolio & availability
-
-🔍 Explore & Filter Profiles
-Search users by tech stack, experience, or interest
-
-📢 Post Projects
-Share project idea, required tech, and roles open
-
-🤝 One-Click Invites
-Invite users to collaborate directly from profiles
-
-📬 In-App Messaging (Planned)
-Connect with teammates after joining a project
-
-🧭 Project Dashboard (Planned)
-Central space for updates, tasks, and files
-
-## Features
-
-### Profile Management
-
-- **Create Profile**: Users can create detailed profiles with personal information, skills, and projects
-- **Edit Profile**: Existing profiles can be updated with new information
-- **Profile Display**: Clean, responsive profile page showing all user information
-- **Local Storage**: Profile data is stored locally using localStorage for persistence
-
-#### Profile Features Include:
-
-- **Basic Information**: Name, bio, availability status
-- **Academic Info**: Year, branch/stream
-- **Technical Skills**: Frontend, backend, database, and custom skills displayed as tags
-- **Concepts & Interests**: Areas of interest and expertise
-- **Social Links**: GitHub, portfolio, LinkedIn links
-- **Featured Projects**: Project showcase with tech stack and links
-
-#### User Flow:
-
-1. Navigate to `/create-profile` to create a new profile
-2. Fill out the comprehensive form with your information
-3. Submit to save and automatically redirect to `/profile`
-4. View your profile with a clean, organized layout
-5. Click "Edit Profile" to update information
-6. If no profile exists, visiting `/profile` redirects to `/create-profile`
-
----
-
-## 🚀 Getting Started
-
-### ⚙️ Prerequisites
-
-- Node.js (v16 or higher)
+### Prerequisites
+- Node.js (v16+)
 - npm or yarn
-- PostgreSQL database (local or hosted)
-- Clerk account and API keys
+- PostgreSQL database (local/cloud)
+- Firebase project & API keys
 - Git
 
-### 🔄 Installation
+### Installation
 
 1. **Clone the repository**
-
-```bash
+   ```bash
 git clone https://github.com/nst-sdc/-H-ckollab.git
 cd -H-ckollab
 ```
 
-2. **Set up the Backend**
-
-```bash
+2. **Backend Setup**
+   ```bash
 cd backend
 npm install
 ```
-
-Create a `.env` file in the backend directory with the following variables:
-
-```env
-# Server Configuration
+   Create a `.env` file in `backend/`:
+   ```env
 PORT=4000
 NODE_ENV=development
-
-# Database Configuration
 DATABASE_URL="postgresql://username:password@localhost:5432/hackollab"
-
-# Clerk Authentication
-CLERK_SECRET_KEY=your_clerk_secret_key
-CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-
-# CORS Configuration
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_CLIENT_EMAIL=your_firebase_client_email
+FIREBASE_PRIVATE_KEY=your_firebase_private_key
 FRONTEND_URL=http://localhost:3000
 ```
 
-3. **Set up the Frontend**
-
-```bash
+3. **Frontend Setup**
+   ```bash
 cd ../frontend
 npm install
 ```
-
-Create a `.env` file in the frontend directory with the following variables:
-
-```env
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:4000
+   Create a `.env` file in `frontend/`:
+   ```env
+REACT_APP_API_URL=http://localhost:4000
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
 ```
 
 4. **Database Setup**
-
-- Create a PostgreSQL database named `hackollab`
-- Update the `DATABASE_URL` in your backend `.env` file with your database credentials
-- Run Prisma migrations:
-
-```bash
+   - Create a PostgreSQL database named `hackollab`
+   - Update `DATABASE_URL` in your backend `.env`
+   - Run migrations:
+   ```bash
 cd backend
 npx prisma migrate dev
 ```
 
-5. **Running the Application**
-
-Start the backend server:
-
-```bash
+5. **Run the App**
+   - Start backend:
+   ```bash
 cd backend
 npm run dev
 ```
-
-In a new terminal, start the frontend:
-
-```bash
+   - Start frontend (in a new terminal):
+   ```bash
 cd frontend
-npm run start
+npm start
 ```
+   - Visit:
+     - Frontend: http://localhost:3000
+     - Backend: http://localhost:4000
 
-The application should now be running at:
+---
 
-- Frontend: http://localhost:3000
-- Backend: http://localhost:4000
+## 👩‍⚖️ Judging & User Experience
 
-### 🔑 Getting Clerk API Keys
-
-1. Sign up for a Clerk account at https://clerk.dev
-2. Create a new application
-3. Go to API Keys in your Clerk dashboard
-4. Copy the `Publishable Key` and `Secret Key`
-5. Add these keys to your respective `.env` files
-
-### 🗄️ Database Setup
-
-1. Install PostgreSQL locally or use a cloud service like Neon
-2. Create a new database named `hackollab`
-3. Update the `DATABASE_URL` in your backend `.env` file
-4. Run Prisma migrations to set up the database schema
+- **Fast Onboarding:** New users can sign up and create a profile in minutes
+- **Intuitive Navigation:** Modern, responsive UI with clear calls to action
+- **Real-Time Updates:** Project/team status updates instantly across dashboard and explore
+- **Robust Error Handling:** Friendly error messages and loading states
+- **Mobile-Ready:** Fully responsive for all devices
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch:
-
-```bash
-git checkout -b feature/amazing-feature
-```
-
-3. Commit your changes:
-
-```bash
-git commit -m 'Add some amazing feature'
-```
-
-4. Push to the branch:
-
-```bash
-git push origin feature/amazing-feature
-```
-
-5. Open a Pull Request
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit and push: `git commit -m 'Add feature' && git push origin feature/your-feature`
+4. Open a Pull Request
 
 ---
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License. See [LICENSE](LICENSE) for details.
