@@ -28,11 +28,15 @@ export default function ExploreProjects() {
 
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects?${params.toString()}`);
       const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error(data.error || "Unexpected response from server");
+      }
       const openProjects = data.filter((p) => p.visibility === "Open to All");
       setProjects(openProjects);
     } catch (err) {
       console.error("❌ Error fetching projects:", err);
       setProjects([]);
+      // Optionally show a toast or error message to the user
     } finally {
       setLoading(false);
     }
