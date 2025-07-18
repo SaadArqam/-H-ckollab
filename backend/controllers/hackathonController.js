@@ -7,7 +7,16 @@ export const createHackathon = async (req, res) => {
     const existingUser = await prisma.user.findUnique({ where: { id: req.userId } });
     if (!existingUser) {
       console.log(`User with id ${req.userId} not found. Creating user.`);
-      await prisma.user.create({ data: { id: req.userId, firebaseUid: req.userId } });
+      // Use name and email from req.user if available
+      await prisma.user.create({
+        data: {
+          id: req.userId,
+          firebaseUid: req.userId,
+          name: req.user?.name || "Anonymous",
+          email: req.user?.email || `${req.userId}@unknown.com`,
+          availability: "Unknown"
+        }
+      });
     }
     const newHackathon = await prisma.hackathon.create({
       data: {
