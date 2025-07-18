@@ -1,4 +1,4 @@
-import { prisma } from "../prisma/index.js";
+// Remove any import of prisma or backend code. Do not import prisma in the frontend.
 
 // Create Project
 export const createProject = async (req, res) => {
