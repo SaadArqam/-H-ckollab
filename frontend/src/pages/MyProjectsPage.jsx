@@ -256,12 +256,6 @@ export default function MyProjectsPage() {
                 >
                   <Edit size={20} /> Edit
                 </button>
-                <button
-                  onClick={() => openInviteModal(project)}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Invite Collaborators
-                </button>
                 {/* Archive button if team is full and not already archived */}
                 {project.collaborators &&
                   project.collaborators.length + 1 >= project.maxTeamSize &&

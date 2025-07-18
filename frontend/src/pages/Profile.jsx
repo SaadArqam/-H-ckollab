@@ -63,17 +63,25 @@ export default function Profile() {
     return [...new Set(skills)]; // Remove duplicates
   };
 
-  // Divide skills into frontend/backend
+  // Divide skills into frontend/backend/mobile/database
   const frontendSkillsList = [
     "React", "Vue.js", "Angular", "Next.js", "TypeScript", "JavaScript", "HTML", "CSS", "Tailwind CSS"
   ];
   const backendSkillsList = [
     "Node.js", "Python", "Java", "Go", "Ruby", "PHP", "C#", ".NET", "Express.js", "Django", "Flask"
   ];
+  const mobileSkillsList = [
+    "React Native", "Flutter", "Swift", "Kotlin", "Ionic", "Xamarin"
+  ];
+  const databaseSkillsList = [
+    "PostgreSQL", "MongoDB", "MySQL", "Redis", "Firebase", "Supabase"
+  ];
   const allSkills = getAllSkills();
   const frontendSkills = allSkills.filter(skill => frontendSkillsList.includes(skill));
   const backendSkills = allSkills.filter(skill => backendSkillsList.includes(skill));
-  const otherSkills = allSkills.filter(skill => !frontendSkillsList.includes(skill) && !backendSkillsList.includes(skill));
+  const mobileSkills = allSkills.filter(skill => mobileSkillsList.includes(skill));
+  const databaseSkills = allSkills.filter(skill => databaseSkillsList.includes(skill));
+  const otherSkills = allSkills.filter(skill => !frontendSkillsList.includes(skill) && !backendSkillsList.includes(skill) && !mobileSkillsList.includes(skill) && !databaseSkillsList.includes(skill));
   const displaySkills = (skills) => {
     if (skills.length <= 5) return skills.map((skill, i) => (
       <span key={i} className="px-3 py-1 bg-blue-900 text-blue-300 rounded-full text-sm font-medium">{skill}</span>
@@ -129,18 +137,38 @@ export default function Profile() {
             {/* Tech Stacks */}
             <div className="bg-gray-950 p-6 rounded-xl border border-gray-800">
               <h2 className="text-2xl font-semibold mb-4">Tech Stacks</h2>
-              <div className="mb-2">
-                <span className="font-semibold text-blue-400">Frontend:</span>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {displaySkills(frontendSkills)}
+              {frontendSkills.length > 0 && (
+                <div className="mb-2">
+                  <span className="font-semibold text-blue-400">Frontend:</span>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {displaySkills(frontendSkills)}
+                  </div>
                 </div>
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold text-green-400">Backend:</span>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {displaySkills(backendSkills)}
+              )}
+              {backendSkills.length > 0 && (
+                <div className="mb-2">
+                  <span className="font-semibold text-green-400">Backend:</span>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {displaySkills(backendSkills)}
+                  </div>
                 </div>
-              </div>
+              )}
+              {mobileSkills.length > 0 && (
+                <div className="mb-2">
+                  <span className="font-semibold text-pink-400">Mobile:</span>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {displaySkills(mobileSkills)}
+                  </div>
+                </div>
+              )}
+              {databaseSkills.length > 0 && (
+                <div className="mb-2">
+                  <span className="font-semibold text-yellow-400">Database:</span>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {displaySkills(databaseSkills)}
+                  </div>
+                </div>
+              )}
               {otherSkills.length > 0 && (
                 <div className="mb-2">
                   <span className="font-semibold text-purple-400">Other:</span>

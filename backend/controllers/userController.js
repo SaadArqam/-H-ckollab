@@ -27,6 +27,7 @@ export const getUsers = async (req, res) => {
       where,
       include: {
         skills: { include: { skill: true } },
+        projects: true, // <-- Add this line to include projects for each user
       },
       ...(take && { take }),
       ...(skip && { skip }),
