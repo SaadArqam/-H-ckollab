@@ -3,6 +3,18 @@ import prisma from "../lib/prisma.js";
 export const createHackathon = async (req, res) => {
   console.log("📥 createHackathon payload:", req.body, "userId:", req.userId);
   try {
+    const { eventMode, hackathonLink } = req.body;
+    if (!eventMode || !hackathonLink) {
+      return res.status(400).json({ error: "eventMode and hackathonLink are required." });
+    }
+    // Validation
+    const allowedModes = ["Online", "Offline", "Hybrid"];
+    if (!allowedModes.includes(eventMode)) {
+      return res.status(400).json({ error: "eventMode must be Online, Offline, or Hybrid" });
+    }
+    if (typeof hackathonLink !== "string" || !hackathonLink.startsWith("http")) {
+      return res.status(400).json({ error: "hackathonLink must be a valid URL" });
+    }
     // Check if user exists
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
     if (!user) {

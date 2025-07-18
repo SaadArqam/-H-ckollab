@@ -98,9 +98,9 @@ model Hackathon {
   techStack       String[]
   createdAt       DateTime  @default(now())
   deadline        DateTime?
-  eventMode       String?
+  eventMode       String
   hackathonDate   DateTime?
-  hackathonLink   String?
+  hackathonLink   String
   location        String?
   maxTeamSize     Int
   organizer       String?

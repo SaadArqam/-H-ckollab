@@ -54,8 +54,15 @@ app.use("/api/invites", inviteRoutes);
 app.use("/api/interests", interestRoutes);
 app.use("/api/hackathons", hackathonRoutes); 
 
+// Error handler (must be after all routes)
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
 // Fallback for undefined routes
 app.use((req, res) => {
+  console.warn(`404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ error: "Route not found" });
 });
 
