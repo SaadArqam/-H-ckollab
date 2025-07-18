@@ -383,3 +383,21 @@ export const acceptInterest = async (req, res) => {
     res.status(500).json({ error: "Failed to accept interest." });
   }
 };
+
+export const deleteProject = async (req, res) => {
+  const { id } = req.params;
+  const user = req.user;
+  try {
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    const dbUser = await prisma.user.findUnique({ where: { firebaseUid: user.uid } });
+    if (!dbUser || dbUser.id !== project.creatorId) {
+      return res.status(403).json({ error: "Unauthorized: Only project owner can delete" });
+    }
+    await prisma.project.delete({ where: { id } });
+    res.json({ message: "Project deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({ error: "Failed to delete project" });
+  }
+};
