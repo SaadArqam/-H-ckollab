@@ -160,14 +160,13 @@ export const updateInviteStatus = async (req, res) => {
       include: { project: true, receiver: true, sender: true },
     });
 
-    // If accepted, add user to collaboratedProjects
+    // If accepted, add user to Collaborator table with joinedVia: 'invite'
     if (status === "accepted") {
-      await prisma.project.update({
-        where: { id: invite.projectId },
+      await prisma.collaborator.create({
         data: {
-          collaborators: {
-            connect: { id: invite.receiverId },
-          },
+          projectId: invite.projectId,
+          userId: invite.receiverId,
+          joinedVia: "invite",
         },
       });
 

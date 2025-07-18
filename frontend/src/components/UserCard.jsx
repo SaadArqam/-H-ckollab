@@ -1,17 +1,16 @@
-import React, { useState } from "react";
-import InviteModal from "./InviteModal"; // ✅ We'll create this next
+import React from "react";
 
 export default function UserCard({
   id,
   name = "Anonymous",
   avatar = "",
   skills = [],
-  actionLabel = "Invite",
-  alreadyInvited = false,
+  description = "",
+  availability = "",
+  university = "",
+  collaborations = 0,
+  discordOrContact = "",
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [invited, setInvited] = useState(alreadyInvited);
-
   const getInitials = (name) => {
     return name
       .split(" ")
@@ -21,75 +20,66 @@ export default function UserCard({
       .toUpperCase();
   };
 
-  const handleInviteClick = () => {
-    console.log("🔍 Selected User ID being passed to modal:", id);
-    setIsModalOpen(true);
-  };
-
-  const handleInviteSent = () => {
-    setInvited(true);
-  };
-
   return (
-    <>
-      <div className="w-full max-w-md p-5 rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-200">
-        <div className="flex items-center space-x-5">
-          {/* Avatar or Fallback */}
-          {avatar ? (
-            <img
-              src={avatar}
-              alt={`${name}'s avatar`}
-              className="w-16 h-16 rounded-full object-cover border"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-600 border">
-              {getInitials(name)}
+    <div className="w-full max-w-md p-6 rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-950/90 to-gray-900/80 shadow-lg hover:shadow-xl transition-all duration-200">
+      <div className="flex items-center space-x-5 mb-3">
+        {/* Avatar or Fallback */}
+        {avatar ? (
+          <img
+            src={avatar}
+            alt={`${name}'s avatar`}
+            className="w-16 h-16 rounded-full object-cover border-2 border-blue-500 shadow"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-900 to-purple-800 flex items-center justify-center text-2xl font-bold text-white border-2 border-blue-500 shadow">
+            {getInitials(name)}
+          </div>
+        )}
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-white mb-1 truncate">{name}</h2>
+          {university && (
+            <div className="text-xs text-blue-300 mb-1">{university}</div>
+          )}
+          {availability && (
+            <div className="inline-block px-2 py-0.5 text-xs rounded-full bg-green-900/40 text-green-300 font-semibold mb-1">
+              {availability}
             </div>
           )}
-
-          {/* Info Section */}
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-800">{name}</h2>
-
-            <div className="flex flex-wrap gap-2 mt-2">
-              {skills.length > 0 ? (
-                skills.map((skill, i) => (
-                  <span
-                    key={i}
-                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
-                  >
-                    {skill}
-                  </span>
-                ))
-              ) : (
-                <p className="text-sm text-gray-400 italic">No skills listed</p>
-              )}
-            </div>
-          </div>
-
-          {/* Action Button */}
-          <div>
-            <button
-              onClick={handleInviteClick}
-              className={`text-sm px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${invited ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-              disabled={invited}
-            >
-              {invited ? 'Invited' : actionLabel}
-            </button>
-          </div>
         </div>
       </div>
-
-      {/* Invite Modal */}
-      {isModalOpen && (
-        <InviteModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          selectedUserId={id} // ✅ DB user ID, NOT Firebase UID
-          receiverName={name}
-          onInviteSent={handleInviteSent}
-        />
-      )}
-    </>
+      <div className="mb-3">
+        <div className="flex flex-wrap gap-2 mb-2">
+          {skills.length > 0 ? (
+            skills.map((skill, i) => (
+              <span
+                key={i}
+                className="bg-blue-900/60 text-blue-200 text-xs px-2 py-1 rounded-full border border-blue-700/40"
+              >
+                {skill}
+              </span>
+            ))
+          ) : (
+            <span className="text-xs text-gray-500 italic">No skills listed</span>
+          )}
+        </div>
+        {description && (
+          <div className="text-sm text-gray-300 mb-1 line-clamp-3 min-h-[2.5em]">{description}</div>
+        )}
+        {discordOrContact && (
+          <div className="text-xs text-gray-400 mt-2">
+            <span className="font-semibold text-white">Contact:</span>{" "}
+            {discordOrContact.startsWith("http") ? (
+              <a href={discordOrContact} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{discordOrContact}</a>
+            ) : (
+              <span className="break-all">{discordOrContact}</span>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-800 text-xs text-gray-400">
+        <span>Collaborations: <span className="text-blue-400 font-semibold">{collaborations}</span></span>
+        <span>ID: <span className="text-gray-500">{id?.slice(0, 6) || "-"}</span></span>
+      </div>
+    </div>
   );
 }

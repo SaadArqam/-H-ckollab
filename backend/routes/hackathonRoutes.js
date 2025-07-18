@@ -1,12 +1,10 @@
-const express = require("express");
-const router = express.Router();
-const {
-  createHackathon,
-  getAllHackathons,
-} = require("../controllers/hackathonController");
-const authenticate = require("../middleware/firebaseAuth");
+import express from "express";
+import { createHackathon, getAllHackathons } from "../controllers/hackathonController.js";
+import { verifyFirebaseToken } from "../middleware/firebaseAuth.js";
 
-router.post("/", authenticate, createHackathon);
+const router = express.Router();
+
+router.post("/", verifyFirebaseToken, createHackathon);
 router.get("/", getAllHackathons);
 
-module.exports = router;
+export default router;
