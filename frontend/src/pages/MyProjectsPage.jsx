@@ -459,8 +459,12 @@ export default function MyProjectsPage() {
               onClick={async () => {
                 if (!window.confirm("Are you sure you want to delete this project? This cannot be undone.")) return;
                 try {
+                  const token = await user.getIdToken();
                   const res = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${editProject.id}`, {
                     method: "DELETE",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
                   });
                   if (!res.ok) throw new Error();
                   setProjects((prev) => prev.filter((p) => p.id !== editProject.id));
