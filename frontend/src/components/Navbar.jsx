@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import axios from "axios";
 import { FaChevronDown } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function Navbar() {
   const { isSignedIn, user } = useAuth();
@@ -185,12 +186,18 @@ export default function Navbar() {
           >
             My Projects
           </Link>
-          <Link
-            to="/messages"
-            className="text-gray-400 hover:text-white transition"
+          <button
+            onClick={() => {
+              toast.info("💬 Messages feature coming soon!", {
+                position: "top-center",
+                autoClose: 3000,
+              });
+            }}
+            className="text-gray-400 hover:text-white transition flex items-center gap-1"
           >
             Messages
-          </Link>
+            <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded-full">Soon</span>
+          </button>
           <Link
             to="/profile"
             className="text-gray-400 hover:text-white transition"
@@ -340,13 +347,19 @@ export default function Navbar() {
             >
               My Projects
             </Link>
-            <Link
-              to="/messages"
-              className="text-gray-400 hover:text-white transition"
-              onClick={() => setMobileMenuOpen(false)}
+            <button
+              onClick={() => {
+                toast.info("💬 Messages feature coming soon!", {
+                  position: "top-center",
+                  autoClose: 3000,
+                });
+                setMobileMenuOpen(false);
+              }}
+              className="text-gray-400 hover:text-white transition flex items-center gap-1"
             >
               Messages
-            </Link>
+              <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded-full">Soon</span>
+            </button>
             <Link
               to="/profile"
               className="text-gray-400 hover:text-white transition"
