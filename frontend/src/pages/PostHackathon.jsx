@@ -40,80 +40,13 @@ const PostHackathon = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    // Required field validation
-    if (!formData.title || !formData.description || !formData.hackathonLink || !formData.eventMode || !formData.techStack || !formData.roles || !formData.maxTeamSize) {
-      toast.error("Please fill all required fields: Title, Description, URL, Mode, Team details.");
-      setLoading(false);
-      return;
-    }
-    if (formData.registrationFee === "Paid" && !formData.feeAmount) {
-      toast.error("Please enter the fee amount for paid registration.");
-      setLoading(false);
-      return;
-    }
-
-    if (profileLoading || !profileData?.id) {
-      toast.error("User profile is still loading. Please wait a moment.");
-      setLoading(false);
-      return;
-    }
-
-    let token;
-    try {
-      token = await user.getIdToken();
-    } catch (err) {
-      toast.error("Authentication error. Please sign in again.");
-      setLoading(false);
-      return;
-    }
-
-    const payload = {
-      title: formData.title,
-      description: formData.description,
-      theme: formData.theme,
-      hackathonLink: formData.hackathonLink,
-      hackathonDate: formData.date ? new Date(formData.date) : null,
-      deadline: formData.deadline ? new Date(formData.deadline) : null,
-      duration: formData.duration,
-      registrationFee: formData.registrationFee === "Paid" ? formData.feeAmount : "Free",
-      eventMode: formData.eventMode,
-      rounds: formData.rounds,
-      location: formData.location,
-      organizer: formData.organizer,
-      tags: formData.tags ? formData.tags.split(",").map((t) => t.trim()) : [],
-      isLookingForTeam: formData.isLookingForTeam,
-      techStack: formData.techStack
-        ? formData.techStack.split(",").map((t) => t.trim())
-        : [],
-      rolesNeeded: formData.roles
-        ? formData.roles.split(",").map((r) => r.trim())
-        : [],
-      maxTeamSize: parseInt(formData.maxTeamSize) || 1,
-    };
-
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/hackathons`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Failed to create hackathon");
-
-      toast.success("✅ Hackathon posted successfully!");
-      navigate("/explore-hackathons");
-    } catch (err) {
-      toast.error("❌ Error posting hackathon: " + err.message);
-    } finally {
-      setLoading(false);
-    }
+    toast.info("Sorry, we are facing some issues. Posting hackathons is coming soon.", {
+      position: "top-center",
+      autoClose: 3500,
+    });
+    return;
   };
 
   const inputClass =
