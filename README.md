@@ -1,4 +1,4 @@
-# H@ckollab
+# H-collab
 
 A modern full-stack platform for students to discover, connect, and collaborate on hackathons and project-based learning. H@ckollab streamlines team formation, project posting, and skill-based matchmaking, empowering real teams to build and launch together.
 
